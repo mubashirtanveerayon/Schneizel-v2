@@ -4,24 +4,24 @@ import java.util.Arrays;
 
 public class FenUtils {
 
-    public static char[][] parseFen(String fen){
+    public static char[][] parseFen(String[] fenParts){
         int file = 0;
         int rank = 0;
         char[][] board = Util.getEmptyBoard();
-        for(char c:fen.split(" ")[0].toCharArray()){
-            if(c == '/'){
-                rank++;
-                file = 0;
-            }else if(Character.isDigit(c)){
-                file += Util.getNumericValue(c);
-            }else{
-                board[rank][file] = c;
-                file++;
+        for(int i=0;i<8;i++){
+            for(char c:fenParts[i].toCharArray()){
+                if(Character.isDigit(c)){
+                    file += Util.getNumericValue(c);
+                }else{
+                    board[rank][file] = c;
+                    file++;
+                }
             }
+            rank++;
+            file = 0;
         }
         return board;
     }
-
 
     public static void printFile(char[] file){
         for(char c:file){
@@ -72,19 +72,55 @@ public class FenUtils {
     public static boolean isFenValid(String fen){
         String[] parts = fen.split("/");
         if(parts.length!=8){
+            System.out.println("Fen string is invalid! Rank missing! "+fen);
             return false;
         }
         String[] fenUtils = parts[7].split(" ");
         if(fenUtils.length!=6){
+            System.out.println("Fen string is invalid! Some parts are missing at the end! "+fen);
             return false;
         }
         try{
             Integer.parseInt(fenUtils[5]);
             Integer.parseInt(fenUtils[4]);
         }catch(Exception e){
+            System.out.println("Fen string is invalid! Could not parse halfmove or fullmove! "+fen);
             return false;
         }
         return true;
     }
+
+    public static String[] split(String fen){
+        String[] split = new String[13];
+        String[] fenPartsBySlash = fen.split("/");
+        String[] fenPartsBySpace = fen.split(" ");
+        for(int i=0;i<fenPartsBySlash.length;i++){
+            if(i+1 == fenPartsBySlash.length){
+                split[i] = fenPartsBySlash[i].split(" ")[0];
+            }else {
+                split[i] = fenPartsBySlash[i];
+            }
+        }
+        for(int i=1;i<fenPartsBySpace.length;i++){
+            split[7+i] = fenPartsBySpace[i];
+        }
+        return split;
+    }
+
+    public static String toString(String[] fenParts){
+        String fen = "";
+        for(int i=0;i<fenParts.length;i++){
+            if(i < 7){
+                fen += fenParts[i] + "/";
+            }else if(i==7){
+                fen += fenParts[i];
+            }else{
+                fen += " "+fenParts[i];
+            }
+        }
+        return  fen;
+    }
+
+
 
 }

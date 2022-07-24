@@ -61,5 +61,5 @@ public class Constants {
     public static String QUEEN_SIDE_CASTLING = "0-0-0";
 
     public static final  String STARTING_FEN="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
+//                                              0       1       2 3 4 5     6       7      8  9  10 11 12
 }
