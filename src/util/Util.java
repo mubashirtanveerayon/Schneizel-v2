@@ -16,6 +16,10 @@ public class Util {
         return Character.toUpperCase(c);
     }
 
+    public static boolean isValid(int file,int rank){
+        return file >= 0 && file < 8 && rank >= 0 && rank < 8;
+    }
+
     public static char[][] getEmptyBoard(){
         char[][] board = new char[8][8];
         for(int i=0;i<8;i++){
