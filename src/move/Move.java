@@ -17,6 +17,7 @@ public class Move {
     }
 
     public void makeMove(String move){
+
         if(move.equalsIgnoreCase(Constants.KING_SIDE_CASTLING) || move.equalsIgnoreCase(Constants.QUEEN_SIDE_CASTLING)){
             int rank = cb.turn == Constants.WHITE?7:0;
             if(move.equalsIgnoreCase(Constants.KING_SIDE_CASTLING)) {
@@ -24,6 +25,10 @@ public class Move {
                 cb.board[rank][4] = Constants.EMPTY_SQUARE;
                 cb.board[rank][5] = cb.board[rank][7];
                 cb.board[rank][7] = Constants.EMPTY_SQUARE;
+                cb.pieceLocations.add(6 + rank * 8);
+                cb.pieceLocations.remove((Object)(4 + rank * 8));
+                cb.pieceLocations.add(5 + rank * 8);
+                cb.pieceLocations.remove((Object)(7 + rank * 8));
                 if(cb.turn == Constants.WHITE){
                     cb.whiteKingPosition[0] = 6;
                     cb.whiteKingPosition[1] = 7;
@@ -36,6 +41,10 @@ public class Move {
                 cb.board[rank][4] = Constants.EMPTY_SQUARE;
                 cb.board[rank][3] = cb.board[rank][0];
                 cb.board[rank][0] = Constants.EMPTY_SQUARE;
+                cb.pieceLocations.add(2 + rank * 8);
+                cb.pieceLocations.remove((Object)(4 + rank * 8));
+                cb.pieceLocations.add(3 + rank * 8);
+                cb.pieceLocations.remove((Object)(0 + rank * 8));
                 if(cb.turn == Constants.WHITE){
                     cb.whiteKingPosition[0] = 2;
                     cb.whiteKingPosition[1] = 7;
@@ -67,6 +76,8 @@ public class Move {
             }
             cb.board[rank][destFile] = cb.board[rank][locFile];
             cb.board[rank][locFile] = Constants.EMPTY_SQUARE;
+            cb.pieceLocations.add(destFile + rank * 8);
+            cb.pieceLocations.remove((Object)(locFile + rank * 8));
             if(rank == 0 || rank == 7){
                 switch(cb.board[rank][locFile]){
                     case Constants.WHITE_ROOK:
@@ -169,7 +180,10 @@ public class Move {
             }
 
             cb.board[destRank][destFile] = cb.board[locRank][locFile];
+
             cb.board[locRank][locFile] = Constants.EMPTY_SQUARE;
+            cb.pieceLocations.add(destFile + destRank * 8);
+            cb.pieceLocations.remove((Object)(locFile + locRank * 8));
 
             String enPassantSquare = "-";
             if(Character.toUpperCase(cb.board[destRank][destFile]) == Constants.WHITE_PAWN){
@@ -196,14 +210,18 @@ public class Move {
             cb.fenParts[destRank]  = FenUtils.getFileFen(cb.board[destRank]);
 
             cb.fenParts[10] = enPassantSquare;
-            cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
-            cb.fenParts[8] = Character.toString(cb.turn);
 
+            cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
+
+            cb.fenParts[8] = Character.toString(cb.turn);
         }
         cb.fullMove++;
         cb.halfMove++;
         cb.fenParts[11] = String.valueOf(cb.halfMove);
         cb.fenParts[12] = String.valueOf(cb.fullMove);
+
+        cb.checksAndPinnedPieces();
+
     }
 
 
