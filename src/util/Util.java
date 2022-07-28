@@ -16,8 +16,16 @@ public class Util {
         return Character.toUpperCase(c);
     }
 
+    public static boolean isAlly(char piece1,char piece2){
+        return (isUpperCase(piece1) && isUpperCase(piece2))||(!isUpperCase(piece1) && !isUpperCase(piece2));
+    }
+
     public static boolean isValid(int file,int rank){
         return file >= 0 && file < 8 && rank >= 0 && rank < 8;
+    }
+
+    public static String cvtMove(int lf,int lr,int df,int dr){
+        return Character.toString(Constants.FILES.charAt(lf))+Character.toString(Constants.RANKS.charAt(8-lr))+Character.toString(Constants.FILES.charAt(df))+Character.toString(Constants.RANKS.charAt(8-dr));
     }
 
     public static char[][] getEmptyBoard(){

@@ -1,12 +1,21 @@
 package move;
 
 import board.ChessBoard;
+import piece.Piece;
 import util.Constants;
 import util.FenUtils;
+import util.GameState;
+import util.Util;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Move {
 
     public ChessBoard cb;
+    public Piece piece;
+
+    private ArrayList<String> moves;
 
     public Move(ChessBoard cb){
         this.cb = cb;
@@ -15,6 +24,33 @@ public class Move {
     public Move(){
         this.cb = new ChessBoard();
     }
+
+
+    private void initialize(){
+        piece = new Piece(cb);
+        moves = new ArrayList<>();
+    }
+
+    public ArrayList<String> getValidMoves(){
+        int file,rank;
+        moves.clear();
+
+        return moves;
+    }
+
+
+    public void getPseudoLegalMove(char turn){
+        moves.clear();
+        int file,rank;
+        for(Integer index:cb.pieceLocations){
+            file = index % 8;
+            rank = index / 8;
+            if((turn == Constants.WHITE && Util.isUpperCase(cb.board[rank][file])) || turn == Constants.BLACK && !Util.isUpperCase(cb.board[rank][file])){
+                moves.addAll(piece.generateMove(file, rank,true));
+            }
+        }
+    }
+
 
     public void makeMove(String move){
 

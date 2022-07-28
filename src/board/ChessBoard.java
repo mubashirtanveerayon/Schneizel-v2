@@ -6,10 +6,7 @@ import util.FenUtils;
 import util.GameState;
 import util.Util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class ChessBoard {
 
@@ -23,7 +20,8 @@ public class ChessBoard {
     public ArrayList<Integer> checkPieces; // 1D index of the opponent piece(the piece attacking the king)
     public GameState gs;
 
-    public Set<Integer> pieceLocations;// used a set to avoid duplicate elements
+    public Set<Integer> pieceLocations;// holds 1D index of piece locations in a 2D array
+                                        // used a set to avoid duplicate elements
 
     public ChessBoard(){
         fenParts = FenUtils.split(Constants.STARTING_FEN);
@@ -98,7 +96,7 @@ public class ChessBoard {
                     }else {
                         foundAlly = true;
                         pinnedPieceIndex = file + rank * 8;
-                        pinnedPieces.put(pinnedPieceIndex, i);
+                        pinnedPieces.put(pinnedPieceIndex,i);
                     }
                 }else if(Character.toUpperCase(board[rank][file]) != Constants.WHITE_PAWN && Character.toUpperCase(board[rank][file]) != Constants.WHITE_KNIGHT){
                     foundOpponentPiece = true;
@@ -157,15 +155,19 @@ public class ChessBoard {
     }
 
     public static void main(String[] args) {
-        ChessBoard cb = new ChessBoard();
+//        ChessBoard cb = new ChessBoard();
 
-        Util.printBoard(cb.board,false);
-        Move move = new Move(cb);
-        System.out.println(cb.checkPieces.size());
-        move.makeMove("d8e2");
-        Util.printBoard(cb.board,false);
-        System.out.println(FenUtils.toString(cb.fenParts));
-        System.out.println(cb.pieceLocations.size());
+        Move mv = new Move();
+        mv.getValidMoves();
+
+//
+//        Util.printBoard(cb.board,false);
+//        Move move = new Move(cb);
+//        System.out.println(cb.checkPieces.size());
+//        move.makeMove("d8e2");
+//        Util.printBoard(cb.board,false);
+//        System.out.println(FenUtils.toString(cb.fenParts));
+//        System.out.println(cb.pieceLocations.size());
 //        System.out.println(cb.checkPieces.get(0)%8);
 //        System.out.println((int)cb.checkPieces.get(0)/8);
 //        System.out.println(cb.board[(int)cb.checkPieces.get(0)/8][cb.checkPieces.get(0)%8]);
