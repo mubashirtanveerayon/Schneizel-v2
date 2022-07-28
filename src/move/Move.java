@@ -39,14 +39,14 @@ public class Move {
     }
 
 
-    public void getPseudoLegalMove(char turn){
+    public void getAllValidMoves(char turn){
         moves.clear();
         int file,rank;
         for(Integer index:cb.pieceLocations){
             file = index % 8;
             rank = index / 8;
             if((turn == Constants.WHITE && Util.isUpperCase(cb.board[rank][file])) || turn == Constants.BLACK && !Util.isUpperCase(cb.board[rank][file])){
-                moves.addAll(piece.generateMove(file, rank,true));
+                moves.addAll(piece.generateMove(file, rank));
             }
         }
     }
