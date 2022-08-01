@@ -11,8 +11,6 @@ import java.util.*;
 public class ChessBoard {
 
     public char[][] board;
-    public int halfMove;
-    public int fullMove;
     public char turn;
     public String[] fenParts;
     public int[] whiteKingPosition,blackKingPosition;
@@ -40,8 +38,6 @@ public class ChessBoard {
     private void initialize(){
         //initialization of variables
         board = FenUtils.parseFen(fenParts);
-        halfMove = (Integer.parseInt(fenParts[11]));
-        fullMove = (Integer.parseInt(fenParts[12]));
         turn = fenParts[8].charAt(0);
         pinnedPieces = new HashMap<>();
         pieceLocations = new HashSet<>();
