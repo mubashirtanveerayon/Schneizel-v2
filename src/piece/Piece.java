@@ -42,13 +42,45 @@ public class Piece {
 
     public ArrayList<String> pawn(int file,int rank){
         moves.clear();
-        if(cb.pinnedPieces.containsKey(file + rank * 8)){
-            return moves; // a pinned knight cannot move
+        int pinnedIndex = file + rank * 8;
+        if(cb.pinnedPieces.containsKey(pinnedIndex)){
+            int[] pinDirection = Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[cb.pinnedPieces.get(pinnedIndex)];
+            if(pinDirection[0] != 0 ){
+                if(pinDirection[1] != 0){
+                    // only possible move is to capture the pinner
+                    if((Util.isUpperCase(cb.board[rank][file]) && pinDirection[1] == -1) || (!Util.isUpperCase(cb.board[rank][file]) && pinDirection[1] == 1)){
+                        if(cb.board[rank + pinDirection[1]][file + pinDirection[0]] != Constants.EMPTY_SQUARE){
+                            moves.add(Util.cvtMove(file,rank,file + pinDirection[0],rank + pinDirection[1]));
+                        }
+                    }
+                    return moves;
+                }
+            }else{
+                // generate pushes, that is done below
+            }
         }
+
+        // generating pushes
         int f,r;
+        int startIndex = Util.isUpperCase(cb.board[rank][file])?1:0;
+        int endIndex = (Util.isUpperCase(cb.board[rank][file]) && rank == 6) || (!Util.isUpperCase(cb.board[rank][file]) && rank == 1)?2:1;
+        for(int i=0;i<endIndex;i++){
+            f = file + Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[startIndex][0];
+            r = rank + Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[startIndex][1];
+            if(cb.board[r][f] != Constants.EMPTY_SQUARE){
+                break;
+            }else{
+                moves.add(Util.cvtMove(file,rank,f,r));
+            }
+        }
+
+        if(cb.pinnedPieces.containsKey(pinnedIndex)){
+            return moves; // a pawn pinned vertically cannot move diagonally
+        }
+
         // generating diagonal moves
-        int startIndex = Util.isUpperCase(cb.board[rank][file])?6:4;
-        int endIndex = Util.isUpperCase(cb.board[rank][file])?Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS.length-1:5;
+        startIndex = Util.isUpperCase(cb.board[rank][file])?6:4;
+        endIndex = Util.isUpperCase(cb.board[rank][file])?Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS.length-1:5;
 
         for(int i=startIndex;i<=endIndex;i++){
             f = file + Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[i][0];
@@ -59,18 +91,7 @@ public class Piece {
                 }
             }
         }
-        // generating pushes
-        startIndex = Util.isUpperCase(cb.board[rank][file])?1:0;
-        endIndex = (Util.isUpperCase(cb.board[rank][file]) && rank == 6) || (!Util.isUpperCase(cb.board[rank][file]) && rank == 1)?2:1;
-        for(int i=0;i<endIndex;i++){
-            f = file + Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[startIndex][0];
-            r = rank + Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[startIndex][1];
-            if(cb.board[r][f] != Constants.EMPTY_SQUARE){
-                break;
-            }else{
-                moves.add(Util.cvtMove(file,rank,f,r));
-            }
-        }
+
 
 
         if(cb.fenParts[10].equals("-")){
