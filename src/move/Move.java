@@ -226,6 +226,7 @@ public class Move {
                 // en-passant
                 if(Math.abs(locFile - destFile) == 1 && (locRank == 3 || locRank == 4) && Character.toUpperCase(cb.board[locRank][destFile]) == Constants.WHITE_PAWN){
                     cb.board[locRank][destFile] = Constants.EMPTY_SQUARE;
+                    cb.pieceLocations.remove((Object)(destFile + locRank * 8));
                 }else if (destRank == 0 || destRank == 7){
                     // pawn-promotion
                     cb.board[destRank][destFile] = move.charAt(move.length()-1);
@@ -251,10 +252,8 @@ public class Move {
 
             cb.fenParts[8] = Character.toString(cb.turn);
         }
-        cb.fullMove++;
-        cb.halfMove++;
-        cb.fenParts[11] = String.valueOf(cb.halfMove);
-        cb.fenParts[12] = String.valueOf(cb.fullMove);
+        cb.fenParts[11] = String.valueOf(Integer.parseInt(cb.fenParts[11])+1);
+        cb.fenParts[12] = String.valueOf(Integer.parseInt(cb.fenParts[12])+1);
 
         cb.checksAndPinnedPieces();
 
