@@ -96,6 +96,13 @@ public class Piece {
                         }
                     }
                 }
+            }else{
+                // no way to block a check from knight, only possible move is to capture
+                if(Math.abs(checkerFile-file) == 1 && Math.abs(checkerRank-rank) == 1){
+                    if((cb.turn == Constants.WHITE && checkerRank<rank) || (cb.turn == Constants.BLACK && checkerRank>rank)){
+                        moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank));
+                    }
+                }
             }
             return moves;
         }
