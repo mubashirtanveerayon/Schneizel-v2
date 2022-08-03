@@ -2,6 +2,7 @@ package piece;
 
 import board.ChessBoard;
 import util.Constants;
+import util.GameState;
 import util.Util;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class Piece {
 
 
     public ArrayList<String> generateMove(int file,int rank){
+        moves.clear();
         switch(Character.toUpperCase(cb.board[rank][file])){
             case Constants.WHITE_KING:
                 return king(file,rank);
@@ -41,9 +43,12 @@ public class Piece {
     }
 
     public ArrayList<String> pawn(int file,int rank){
-        moves.clear();
         int pinnedIndex = file + rank * 8;
-        if(cb.pinnedPieces.containsKey(pinnedIndex)){
+        boolean pinned = cb.pinnedPieces.containsKey(pinnedIndex);
+        if(pinned){
+            if(cb.gs == GameState.CHECK){
+                return moves; // pinned pieces cannot resolve check
+            }
             int[] pinDirection = Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[cb.pinnedPieces.get(pinnedIndex)];
             if(pinDirection[0] != 0 ){
                 if(pinDirection[1] != 0){
@@ -58,6 +63,41 @@ public class Piece {
             }else{
                 // generate pushes, that is done below
             }
+        }else if(cb.gs == GameState.CHECK){
+            if(cb.checkers.size()>1){
+                return moves; // a two-way check cannot be resolved without the king moving to a safe square
+            }
+            int checkerIndex = cb.checkers.get(0);
+            int checkerFile = checkerIndex % 8;
+            int checkerRank = checkerIndex / 8;
+            int[] kingPosition = cb.turn == Constants.WHITE?cb.whiteKingPosition:cb.blackKingPosition;
+            if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT) {
+                int[] checkDirection = Util.getDirection(kingPosition[0], kingPosition[1], checkerFile, checkerRank);
+                if (checkDirection[0] == 0) {
+                    if (Math.abs(file - checkerFile) == 1) {
+                        // only possible move is to capture the checker why? https://lichess.org/editor/4k3/8/3q4/4P3/8/3K4/8/8_w_-_-_0_1?color=white
+                        if (Math.abs(rank - checkerRank) == 1 && ((Util.isUpperCase(cb.board[rank][file]) && checkDirection[1] == -1) || (!Util.isUpperCase(cb.board[rank][file]) && checkDirection[1] == 1))) {
+                            moves.add(Util.cvtMove(file, rank, file + checkDirection[0], rank + checkDirection[1]));
+                        }
+                    }
+                } else if (checkDirection[1] == 0) {
+                    boolean hasPotential = (Util.isUpperCase(cb.board[rank][file]) && kingPosition[1] < rank) || (!Util.isUpperCase(cb.board[rank][file]) && kingPosition[1] > rank);
+                    if (file == checkerFile) {
+                        // cannot resolve the check, why? https://lichess.org/editor/7k/8/2K3q1/4P3/8/8/8/8_w_-_-_0_1?color=white
+                    }else if(Math.abs(rank - checkerRank) == 1){
+                        // possible move is to block the check how? https://lichess.org/editor/7k/8/1K2q3/3P4/8/8/8/8_w_-_-_0_1?color=white
+                        int destRank = cb.turn == Constants.WHITE?rank-1:rank+1;
+                        if(hasPotential && file>kingPosition[0] && file<checkerFile && destRank<8 && destRank>=0 && cb.board[destRank][file] == Constants.EMPTY_SQUARE){
+                            moves.add(Util.cvtMove(file, rank, file, destRank));
+                        }
+                        if(Math.abs(file-checkerFile) == 1 && hasPotential ) {
+                            // possible move is to capture the checker how? https://lichess.org/editor/7k/8/1K2q3/3P4/8/8/8/8_w_-_-_0_1?color=white
+                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank));
+                        }
+                    }
+                }
+            }
+            return moves;
         }
 
         // generating pushes
@@ -74,7 +114,7 @@ public class Piece {
             }
         }
 
-        if(cb.pinnedPieces.containsKey(pinnedIndex)){
+        if(pinned){
             return moves; // a pawn pinned vertically cannot move diagonally
         }
 
@@ -111,7 +151,6 @@ public class Piece {
     }
 
     public ArrayList<String> queen(final int file,final int rank){
-        moves.clear();
         int pinnedIndex = file + rank * 8;
         if(cb.pinnedPieces.containsKey(pinnedIndex)){
             int[] pinDirection = Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[cb.pinnedPieces.get(pinnedIndex)];
@@ -167,7 +206,6 @@ public class Piece {
     }
 
     public ArrayList<String> rook(final int file,final int rank){
-        moves.clear();
         int pinnedIndex = file + rank * 8;
         if(cb.pinnedPieces.containsKey(pinnedIndex)){
             int[] pinDirection = Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[cb.pinnedPieces.get(pinnedIndex)];
@@ -227,7 +265,6 @@ public class Piece {
     }
 
     public ArrayList<String> knight(final int file,final int rank){
-        moves.clear();
         if(cb.pinnedPieces.containsKey(file + rank * 8)){
             return moves; // a pinned knight cannot move
         }
@@ -244,7 +281,6 @@ public class Piece {
     }
 
     public ArrayList<String> bishop(final int file,final int rank){
-        moves.clear();
         int pinnedIndex = file + rank * 8;
         if(cb.pinnedPieces.containsKey(pinnedIndex)){
             int[] pinDirection = Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[cb.pinnedPieces.get(pinnedIndex)];
