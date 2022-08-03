@@ -4,6 +4,15 @@ import java.util.Arrays;
 
 public class Util {
 
+    public static int[] getDirection(final int fromF,final int fromR,final int toF,final int toR){
+        return new int[]{sign(toF,fromF),sign(toR,fromR)};
+    }
+
+    public static int sign(final int val1,final int val2){
+        int diff = val1-val2;
+        return diff == 0?0:diff/Math.abs(diff);
+    }
+
     public static int getNumericValue(char c) {
         return Integer.parseInt(Character.toString(c));
     }
