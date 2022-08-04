@@ -7,7 +7,7 @@ public class ChessBoard {
     public String[] fenParts;
     public int[] whiteKingPosition,blackKingPosition;
     public HashMap<Integer,Integer> pinnedPieces; // 1st element holds the 1D index of the pinned piece, 2nd element holds the index of Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS it is being pinned from
-    public ArrayList<Integer> checkers; // 1D index of the opponent piece(the piece attacking the king)
+    public HashMap<Integer,Integer> checkers; // 1D index of the opponent piece(the piece attacking the king)
     public GameState gs;
 
     public Set<Integer> pieceLocations;// holds 1D index of piece locations in a 2D array
@@ -35,7 +35,7 @@ public class ChessBoard {
         pieceLocations = new HashSet<>();
         whiteKingPosition = new int[2];
         blackKingPosition = new int[2];
-        checkers = new ArrayList<>();
+        checkers = new HashMap<>();
 
         for(int i=0;i<8;i++){
             for(int j=0;j<8;j++){
@@ -90,7 +90,7 @@ public class ChessBoard {
                     foundOpponentPiece = true;
                     if (!foundAlly) {
                         gs = GameState.CHECK;
-                        checkers.add(file + rank * 8);
+                        checkers.put(file + rank * 8,i);
                     }
                     break;
                 }else if(Character.toUpperCase(board[rank][file]) != Constants.WHITE_KNIGHT){
@@ -99,12 +99,12 @@ public class ChessBoard {
                         if(turn == Constants.WHITE){
                             if(kingPosition[1] > rank){
                                 gs = GameState.CHECK;
-                                checkers.add(file + rank * 8);
+                                checkers.put(file + rank * 8,i);
                             }
                         }else{
                             if(kingPosition[1] < rank){
                                 gs = GameState.CHECK;
-                                checkers.add(file + rank * 8);
+                                checkers.put(file + rank * 8,i);
                             }
                         }
                     }
@@ -120,20 +120,20 @@ public class ChessBoard {
             }
         }
 
-        for(int[] direction:Constants.KNIGHT_DIRECTION){
-            file = kingPosition[0]+direction[0];
-            rank = kingPosition[1]+direction[1];
+        for(int i =0;i<Constants.KNIGHT_DIRECTION.length;i++){
+            file = kingPosition[0]+Constants.KNIGHT_DIRECTION[i][0];
+            rank = kingPosition[1]+Constants.KNIGHT_DIRECTION[i][1];
             if(Util.isValid(file,rank)){
                 switch(board[rank][file]){
                     case Constants.BLACK_KNIGHT:
                         if(turn == Constants.WHITE){
                             gs = GameState.CHECK;
-                            checkers.add(file + rank * 8);
+                            checkers.put(file + rank * 8,i);
                         }
                     case Constants.WHITE_KNIGHT:
                         if(turn == Constants.BLACK){
                             gs = GameState.CHECK;
-                            checkers.add(file + rank * 8);
+                            checkers.put(file + rank * 8,i);
                         }
                 }
 
