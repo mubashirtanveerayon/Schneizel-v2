@@ -1,14 +1,4 @@
-package move;
-
-import board.ChessBoard;
-import piece.Piece;
-import util.Constants;
-import util.FenUtils;
-import util.GameState;
-import util.Util;
-
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class Move {
 

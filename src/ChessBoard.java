@@ -1,11 +1,3 @@
-package board;
-
-import move.Move;
-import util.Constants;
-import util.FenUtils;
-import util.GameState;
-import util.Util;
-
 import java.util.*;
 
 public class ChessBoard {
@@ -15,7 +7,7 @@ public class ChessBoard {
     public String[] fenParts;
     public int[] whiteKingPosition,blackKingPosition;
     public HashMap<Integer,Integer> pinnedPieces; // 1st element holds the 1D index of the pinned piece, 2nd element holds the index of Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS it is being pinned from
-    public ArrayList<Integer> checkPieces; // 1D index of the opponent piece(the piece attacking the king)
+    public ArrayList<Integer> checkers; // 1D index of the opponent piece(the piece attacking the king)
     public GameState gs;
 
     public Set<Integer> pieceLocations;// holds 1D index of piece locations in a 2D array
@@ -43,7 +35,7 @@ public class ChessBoard {
         pieceLocations = new HashSet<>();
         whiteKingPosition = new int[2];
         blackKingPosition = new int[2];
-        checkPieces = new ArrayList<>();
+        checkers = new ArrayList<>();
 
         for(int i=0;i<8;i++){
             for(int j=0;j<8;j++){
@@ -66,7 +58,7 @@ public class ChessBoard {
 
     public void resetStats(){
         pinnedPieces.clear();
-        checkPieces.clear();
+        checkers.clear();
         gs = GameState.NORMAL;
     }
 
@@ -98,7 +90,7 @@ public class ChessBoard {
                     foundOpponentPiece = true;
                     if (!foundAlly) {
                         gs = GameState.CHECK;
-                        checkPieces.add(file + rank * 8);
+                        checkers.add(file + rank * 8);
                     }
                     break;
                 }else if(Character.toUpperCase(board[rank][file]) != Constants.WHITE_KNIGHT){
@@ -107,12 +99,12 @@ public class ChessBoard {
                         if(turn == Constants.WHITE){
                             if(kingPosition[1] > rank){
                                 gs = GameState.CHECK;
-                                checkPieces.add(file + rank * 8);
+                                checkers.add(file + rank * 8);
                             }
                         }else{
                             if(kingPosition[1] < rank){
                                 gs = GameState.CHECK;
-                                checkPieces.add(file + rank * 8);
+                                checkers.add(file + rank * 8);
                             }
                         }
                     }
@@ -136,18 +128,38 @@ public class ChessBoard {
                     case Constants.BLACK_KNIGHT:
                         if(turn == Constants.WHITE){
                             gs = GameState.CHECK;
-                            checkPieces.add(file + rank * 8);
+                            checkers.add(file + rank * 8);
                         }
                     case Constants.WHITE_KNIGHT:
                         if(turn == Constants.BLACK){
                             gs = GameState.CHECK;
-                            checkPieces.add(file + rank * 8);
+                            checkers.add(file + rank * 8);
                         }
                 }
 
             }
         }
 
+    }
+
+    public boolean canReach(int fromF,int fromR,int toF,int toR){
+        int[] direction = Util.getDirection(fromF,fromR,toF,toR);
+        int f=fromF+direction[0],r = fromR+direction[1];
+        while(Util.isValid(f,r)){
+            if(f == toF && r == toR){
+                return true;
+            }else if(board[r][f] == Constants.EMPTY_SQUARE) {
+                f += direction[0];
+                r += direction[1];
+            }else{
+                break;
+            }
+        }
+        return false;
+    }
+
+    public int[] getKingPosition(){
+        return turn == Constants.WHITE?whiteKingPosition:blackKingPosition;
     }
 
     public static void main(String[] args) {

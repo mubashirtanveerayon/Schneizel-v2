@@ -1,10 +1,3 @@
-package piece;
-
-import board.ChessBoard;
-import util.Constants;
-import util.GameState;
-import util.Util;
-
 import java.util.ArrayList;
 
 public class Piece {
@@ -70,8 +63,8 @@ public class Piece {
             int checkerIndex = cb.checkers.get(0);
             int checkerFile = checkerIndex % 8;
             int checkerRank = checkerIndex / 8;
-            int[] kingPosition = cb.turn == Constants.WHITE?cb.whiteKingPosition:cb.blackKingPosition;
-            if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT) {
+            int[] kingPosition = cb.getKingPosition();
+            if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT || Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_PAWN) {
                 int[] checkDirection = Util.getDirection(kingPosition[0], kingPosition[1], checkerFile, checkerRank);
                 if (checkDirection[0] == 0) {
                     if (Math.abs(file - checkerFile) == 1) {
@@ -97,11 +90,25 @@ public class Piece {
                     }
                 }
             }else{
-                // no way to block a check from knight, only possible move is to capture
+                // no way to block a check from knight or pawn, only possible move is to capture
                 if(Math.abs(checkerFile-file) == 1 && Math.abs(checkerRank-rank) == 1){
                     if((cb.turn == Constants.WHITE && checkerRank<rank) || (cb.turn == Constants.BLACK && checkerRank>rank)){
                         moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank));
                     }
+                }else if(!cb.fenParts[10].equals("-")){
+                    // en passant move to resolve the check!
+                    if(Math.abs(Constants.FILES.indexOf(cb.fenParts[10].charAt(0)) - file) == 1){
+                        if(Util.isUpperCase(cb.board[rank][file])){
+                            if(rank-1 == 8-Integer.parseInt(Character.toString(cb.fenParts[10].charAt(10)))){
+                                moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), 2));
+                            }
+                        }else{
+                            if(rank+1 == 8-Integer.parseInt(Character.toString(cb.fenParts[10].charAt(10)))){
+                                moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), 5));
+                            }
+                        }
+                    }
+
                 }
             }
             return moves;
@@ -139,16 +146,69 @@ public class Piece {
             }
         }
 
-
-
         if(cb.fenParts[10].equals("-")){
             // do nothing
         }else{
             if(Math.abs(file-Constants.FILES.indexOf(cb.fenParts[10].charAt(0))) == 1){
+                int[] kingPosition = cb.getKingPosition();
+                int enPassantPawn = Constants.FILES.indexOf(cb.fenParts[10].charAt(0)),direction = file - kingPosition[0]/Math.abs(file - kingPosition[0]);
+                boolean enPassant = false;
                 if(Util.isUpperCase(cb.board[rank][file]) && rank == 3){
-                    moves.add(Util.cvtMove(file,rank,Constants.FILES.indexOf(cb.fenParts[10].charAt(0)),2));
+                    if(kingPosition[1] == rank){
+                        // possible occurrence https://lichess.org/editor/r2k3r/4p1pp/8/2K1Pp1q/8/8/PP1P1PP1/R7_w_k_-_0_1?color=white
+                        // en passant reveals a check
+                        // make en-passant move
+                        cb.board[2][enPassantPawn] = cb.board[rank][file];
+                        cb.board[rank][file] = Constants.EMPTY_SQUARE;
+                        cb.board[rank][enPassantPawn] = Constants.EMPTY_SQUARE;
+                        // check if it reveals a check on the king
+                        f = kingPosition[0] + direction;
+                        while(f>=0 && f<8){
+                            if(cb.board[rank][f] == Constants.EMPTY_SQUARE){
+                                f+=direction;
+                            }else{
+                                enPassant = cb.board[rank][f] != Constants.BLACK_ROOK || cb.board[rank][f] != Constants.BLACK_QUEEN;
+                                break;
+                            }
+                        }
+                        // undo en-passant move
+                        cb.board[2][enPassantPawn] = Constants.EMPTY_SQUARE;
+                        cb.board[rank][file] = Constants.WHITE_PAWN;
+                        cb.board[rank][enPassantPawn] = Constants.BLACK_PAWN;
+                        if(enPassant){
+                            moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), 2));
+                        }
+                    }else {
+                        moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), 2));
+                    }
                 }else if(!Util.isUpperCase(cb.board[rank][file]) && rank == 4){
-                    moves.add(Util.cvtMove(file,rank,Constants.FILES.indexOf(cb.fenParts[10].charAt(0)),5));
+                    if(kingPosition[1] == rank){
+                        // possible occurrence https://lichess.org/editor/r6r/4p1pp/8/8/2k1Pp1Q/8/PP1P1PP1/R7_b_h_-_0_1?color=white
+                        // en passant reveals a check
+                        // make en-passant move
+                        cb.board[5][enPassantPawn] = cb.board[rank][file];
+                        cb.board[rank][file] = Constants.EMPTY_SQUARE;
+                        cb.board[rank][enPassantPawn] = Constants.EMPTY_SQUARE;
+                        // check if it reveals a check on the king
+                        f = kingPosition[0] + direction;
+                        while(f>=0 && f<8){
+                            if(cb.board[rank][f] == Constants.EMPTY_SQUARE){
+                                f+=direction;
+                            }else{
+                                enPassant = cb.board[rank][f] != Constants.WHITE_ROOK || cb.board[rank][f] != Constants.WHITE_QUEEN;
+                                break;
+                            }
+                        }
+                        // undo en-passant move
+                        cb.board[5][enPassantPawn] = Constants.EMPTY_SQUARE;
+                        cb.board[rank][file] = Constants.BLACK_PAWN;
+                        cb.board[rank][enPassantPawn] = Constants.WHITE_PAWN;
+                        if(enPassant){
+                            moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), 5));
+                        }
+                    }else {
+                        moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), 5));
+                    }
                 }
 
             }
@@ -160,6 +220,9 @@ public class Piece {
     public ArrayList<String> queen(final int file,final int rank){
         int pinnedIndex = file + rank * 8;
         if(cb.pinnedPieces.containsKey(pinnedIndex)){
+            if(cb.gs == GameState.CHECK){
+                return moves; // a pinned piece cannot resolve check
+            }
             int[] pinDirection = Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[cb.pinnedPieces.get(pinnedIndex)];
             // can move along pinned squares
             boolean foundKing=false,foundEnemyPiece=false;
@@ -185,6 +248,32 @@ public class Piece {
                         foundKing = true;
                     }
                 }
+            }
+            return moves;
+        }else if(cb.gs == GameState.CHECK){
+            if(cb.checkers.size()>1){
+                return moves;// a two-way check cannot be resolved without the king moving to a safe square
+            }
+            int checkerIndex = cb.checkers.get(0);
+            int checkerFile = checkerIndex % 8;
+            int checkerRank = checkerIndex / 8;
+            if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT || Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_PAWN){
+                int[] kingPosition = cb.getKingPosition();
+                int[] checkDirection = Util.getDirection(kingPosition[0],kingPosition[1],checkerFile,checkerRank);
+                int f=kingPosition[0]+checkDirection[0],r=kingPosition[1]+checkDirection[1];
+                while(f<checkerFile && r<checkerRank){
+                    if(cb.canReach(f,r,file,rank)){
+                        moves.add(Util.cvtMove(file,rank,f,r));
+                    }
+                    f+=checkDirection[0];
+                    r+=checkDirection[1];
+                }
+            }else{
+                // no way to block the check, only possible move is to capture
+            }
+            if(cb.canReach(checkerFile,checkerRank,file,rank)){
+                // capture
+                moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank));
             }
             return moves;
         }
