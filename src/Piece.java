@@ -60,12 +60,15 @@ public class Piece {
             if(cb.checkers.size()>1){
                 return moves; // a two-way check cannot be resolved without the king moving to a safe square
             }
-            int checkerIndex = cb.checkers.get(0);
+            int checkerIndex=0;
+            for(Integer i:cb.checkers.keySet()){
+                checkerIndex = i;
+            }
             int checkerFile = checkerIndex % 8;
             int checkerRank = checkerIndex / 8;
             int[] kingPosition = cb.getKingPosition();
             if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT || Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_PAWN) {
-                int[] checkDirection = Util.getDirection(kingPosition[0], kingPosition[1], checkerFile, checkerRank);
+                int[] checkDirection = Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[cb.checkers.get(checkerIndex)];
                 if (checkDirection[0] == 0) {
                     if (Math.abs(file - checkerFile) == 1) {
                         // only possible move is to capture the checker why? https://lichess.org/editor/4k3/8/3q4/4P3/8/3K4/8/8_w_-_-_0_1?color=white
@@ -74,16 +77,16 @@ public class Piece {
                         }
                     }
                 } else if (checkDirection[1] == 0) {
-                    boolean hasPotential = (Util.isUpperCase(cb.board[rank][file]) && kingPosition[1] < rank) || (!Util.isUpperCase(cb.board[rank][file]) && kingPosition[1] > rank);
+                    boolean hasPotential = (Util.isUpperCase(cb.board[rank][file]) && kingPosition[1] - rank == -1) || (!Util.isUpperCase(cb.board[rank][file]) && kingPosition[1] - rank == 1);
                     if (file == checkerFile) {
                         // cannot resolve the check, why? https://lichess.org/editor/7k/8/2K3q1/4P3/8/8/8/8_w_-_-_0_1?color=white
-                    }else if(Math.abs(rank - checkerRank) == 1){
+                    }else if(hasPotential){
                         // possible move is to block the check how? https://lichess.org/editor/7k/8/1K2q3/3P4/8/8/8/8_w_-_-_0_1?color=white
                         int destRank = cb.turn == Constants.WHITE?rank-1:rank+1;
-                        if(hasPotential && file>kingPosition[0] && file<checkerFile && destRank<8 && destRank>=0 && cb.board[destRank][file] == Constants.EMPTY_SQUARE){
+                        if(file>kingPosition[0] && file<checkerFile && destRank<8 && destRank>=0 && cb.board[destRank][file] == Constants.EMPTY_SQUARE){
                             moves.add(Util.cvtMove(file, rank, file, destRank));
                         }
-                        if(Math.abs(file-checkerFile) == 1 && hasPotential ) {
+                        if(Math.abs(file-checkerFile) == 1) {
                             // possible move is to capture the checker how? https://lichess.org/editor/7k/8/1K2q3/3P4/8/8/8/8_w_-_-_0_1?color=white
                             moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank));
                         }
@@ -254,12 +257,15 @@ public class Piece {
             if(cb.checkers.size()>1){
                 return moves;// a two-way check cannot be resolved without the king moving to a safe square
             }
-            int checkerIndex = cb.checkers.get(0);
+            int checkerIndex=0;
+            for(Integer i:cb.checkers.keySet()){
+                checkerIndex = i;
+            }
             int checkerFile = checkerIndex % 8;
             int checkerRank = checkerIndex / 8;
             if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT || Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_PAWN){
                 int[] kingPosition = cb.getKingPosition();
-                int[] checkDirection = Util.getDirection(kingPosition[0],kingPosition[1],checkerFile,checkerRank);
+                int[] checkDirection = Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[cb.checkers.get(checkerIndex)];
                 int f=kingPosition[0]+checkDirection[0],r=kingPosition[1]+checkDirection[1];
                 while(f<checkerFile && r<checkerRank){
                     if(cb.canReach(f,r,file,rank)){
@@ -304,6 +310,9 @@ public class Piece {
     public ArrayList<String> rook(final int file,final int rank){
         int pinnedIndex = file + rank * 8;
         if(cb.pinnedPieces.containsKey(pinnedIndex)){
+            if(cb.gs == GameState.CHECK){
+                return moves;
+            }
             int[] pinDirection = Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[cb.pinnedPieces.get(pinnedIndex)];
             if(pinDirection[0] != 0 && pinDirection[1] != 0){
                 // a rook pinned by bishop or diagonally by queen cannot move
@@ -331,6 +340,60 @@ public class Piece {
                         }else{
                             foundKing = true;
                         }
+                    }
+                }
+            }
+            return moves;
+        }else if(cb.gs==GameState.CHECK){
+            if(cb.checkers.size()>1){
+                return moves;
+            }
+            int checkerIndex=0;
+            for(Integer i:cb.checkers.keySet()){
+                checkerIndex = i;
+            }
+            int checkerFile = checkerIndex % 8;
+            int checkerRank = checkerIndex / 8;
+            if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_PAWN && Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT){
+                int[] kingPosition = cb.getKingPosition();
+                int[] checkDirection = Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS[cb.checkers.get(checkerIndex)];
+                if(checkDirection[0] == 0){
+                    if(rank != kingPosition[1] && Util.sign(rank,checkerRank) != Util.sign(rank,kingPosition[1])){
+                        // means the rook is in between the checker and the king, therefore it might be able to block the check
+                        if(cb.canReach(file,rank,kingPosition[0],rank)){
+                            moves.add(Util.cvtMove(file,rank,kingPosition[0],rank));
+                        }
+                    }
+                }else if(checkDirection[1] == 0){
+                    if(file != kingPosition[0] && Util.sign(file,checkerFile) != Util.sign(file,kingPosition[0])){
+                        // means the rook is in between the checker and the king, therefore it might be able to block the check
+                        if(cb.canReach(file,rank,file,kingPosition[1])){
+                            moves.add(Util.cvtMove(file,rank,file,kingPosition[1]));
+                        }
+                    }
+                }else{
+                    if(rank != kingPosition[1] && Util.sign(rank,checkerRank) != Util.sign(rank,kingPosition[1])){
+                        // means the rook is in between the checker and the king, therefore it might be able to block the check
+                        if(cb.canReach(file,rank,kingPosition[0],rank)){
+                            moves.add(Util.cvtMove(file,rank,kingPosition[0],rank));
+                        }
+                    }
+                    if(file != kingPosition[0] && Util.sign(file,checkerFile) != Util.sign(file,kingPosition[0])){
+                        // means the rook is in between the checker and the king, therefore it might be able to block the check
+                        if(cb.canReach(file,rank,file,kingPosition[1])){
+                            moves.add(Util.cvtMove(file,rank,file,kingPosition[1]));
+                        }
+                    }
+                }
+            }else{
+                // no way to block, only possible move is to capture the checker
+                if(file == checkerFile){
+                    if(cb.canReach(file,rank,checkerFile,checkerRank)){
+                        moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank));
+                    }
+                }else if(rank == checkerRank){
+                    if(cb.canReach(file,rank,checkerFile,checkerRank)){
+                        moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank));
                     }
                 }
             }
