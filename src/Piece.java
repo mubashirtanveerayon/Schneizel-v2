@@ -499,9 +499,10 @@ public class Piece {
                     }
                 }
             }else{
-                //TODO only possible move is to capture
-                for(int[] direction:Constants.KNIGHT_DIRECTION){
-                    if(checkerFile+direction[0] == file && checkerRank+direction[1] == rank){
+                //only possible move is to capture
+                int[] direction = Util.getDirection(file,rank,checkerFile,checkerRank);
+                for(int i=0;i<2;i++){
+                    if(file+Constants.KNIGHT_DIRECTION[i][0]*direction[0] == checkerFile && rank+Constants.KNIGHT_DIRECTION[i][1]*direction[1] == checkerRank){
                         moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank));
                         break;
                     }

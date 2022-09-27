@@ -58,10 +58,11 @@ public class Constants {
 
     public static String QUEEN_SIDE_CASTLING = "O-O-O";
 
+    //                                                                      index mustn't be modified
     public static final int[][] ALL_DIRECTIONS = {{1,0},{-1,0},{0,1},{0,-1},{1,1},{-1,1},{-1,-1},{1,-1}};
-//                                                                      index mustn't be modified
 
-    public static final int[][] KNIGHT_DIRECTION= {{2, -1}, {1, -2}, {1, 2}, {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2},{2,1}};
+    //                                                                      index mustn't be modified
+    public static final int[][] KNIGHT_DIRECTION= {{1, 2},{2,1},{2, -1}, {1, -2},  {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}};
 
     public static final  String STARTING_FEN="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 //                                              0       1       2 3 4 5     6       7      8  9  10 11 12
