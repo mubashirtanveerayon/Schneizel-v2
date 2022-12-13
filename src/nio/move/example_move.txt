@@ -1,0 +1,7 @@
+Normal move=from(file-index/rank-index)/to(file-index/rank-index)/to_square
+0102 ,0112q
+castling=o-o-o/previous_castling o-o/previous_castling
+o-o-oKQkq, o-oKQ
+promotion=Normal move/promotion **this is case sensitive**
+[Normal move]Q
+en-passant=[Normal move]/previous en-passant **not the fen, coord must be converted before constructing a move**

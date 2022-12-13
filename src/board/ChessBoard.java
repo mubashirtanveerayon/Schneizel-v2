@@ -238,12 +238,12 @@ public boolean isSquareSafe(int file,int rank){
 
     public static void main(String[] args) {
         char[][] board = new char[][]{{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                                      {' ', ' ', 'q', ' ', ' ', 'p', ' ', ' '},
                                       {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                                      {' ', ' ', ' ', ' ', 'n', ' ', ' ', ' '},
-                                      {' ', ' ', ' ', ' ', ' ', ' ', 'N', ' '},
-                                      {' ', ' ', 'k', ' ', 'b', ' ', ' ', ' '},
-                                      {' ', 'P', ' ', ' ', ' ', ' ', ' ', ' '},
+                                      {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                                      {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                                      {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                                      {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                                      {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                                       {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '}};
 
 
@@ -253,28 +253,30 @@ public boolean isSquareSafe(int file,int rank){
 //        System.out.println(fen);
         ChessBoard cb = new ChessBoard();
 
-        Scanner sc = new Scanner(System.in);
         Util.printBoard(cb.board,false);
-        int startF = sc.nextInt(),startR = sc.nextInt();
-        while(true){
-            char prev = cb.board[startR][startF];
-            cb.board[startR][startF] = 'O';
-            Util.printBoard(cb.board,false);
 
-            cb.board[startR][startF] = prev;
-            System.out.println("square safe: "+cb.isSquareSafe(startF,startR));
-
-            char in = sc.next().charAt(0);
-            if(in == 'w'){
-                startR-=1;
-            }else if(in == 'a'){
-                startF-=1;
-            }else if(in == 's'){
-                startR+=1;
-            }else if(in == 'd'){
-                startF+=1;
-            }
-        }
+//        Scanner sc = new Scanner(System.in);
+//        Util.printBoard(cb.board,false);
+//        int startF = sc.nextInt(),startR = sc.nextInt();
+//        while(true){
+//            char prev = cb.board[startR][startF];
+//            cb.board[startR][startF] = 'O';
+//            Util.printBoard(cb.board,false);
+//
+//            cb.board[startR][startF] = prev;
+//            System.out.println("square safe: "+cb.isSquareSafe(startF,startR));
+//
+//            char in = sc.next().charAt(0);
+//            if(in == 'w'){
+//                startR-=1;
+//            }else if(in == 'a'){
+//                startF-=1;
+//            }else if(in == 's'){
+//                startR+=1;
+//            }else if(in == 'd'){
+//                startF+=1;
+//            }
+//        }
 //
 //        util.Util.printBoard(cb.board,false);
 //        move.Move move = new move.Move(cb);
