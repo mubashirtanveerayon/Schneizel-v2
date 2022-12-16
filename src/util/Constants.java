@@ -10,6 +10,10 @@ public class Constants {
 
     public static final char WHITE = 'w';
 
+    public static final String EN_PASSANT_NOTATION = "en";
+
+    public static final String MOVE_SEPARATOR = "/";
+
     public static final char BLACK = 'b';
 
     public static final String WHITE_PIECE_CHAR = "PNBRQK";

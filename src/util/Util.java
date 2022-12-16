@@ -53,6 +53,13 @@ public class Util {
         return Character.toString(Constants.FILES.charAt(lf))+Character.toString(Constants.RANKS.charAt(8-lr))+Character.toString(Constants.FILES.charAt(df))+Character.toString(Constants.RANKS.charAt(8-dr));
     }
 
+    //constructs a normal move, special moves are castling, en-passant, promotions
+    public static String cvtMove(int lf,int lr,int df,int dr,char[][] board,String[] fenParts) throws InvalidCoordinateException {
+        if(!isValid(lf,lr)) throw new InvalidCoordinateException(lf,lr);
+        if(!isValid(df,dr)) throw new InvalidCoordinateException(df,dr);
+        return String.valueOf(lf)+String.valueOf(lr)+String.valueOf(df)+String.valueOf(dr)+Constants.MOVE_SEPARATOR+board[dr][df]+Constants.MOVE_SEPARATOR+fenParts[9]+Constants.MOVE_SEPARATOR+fenParts[10];
+    }
+
     public static char[][] getEmptyBoard(){
         char[][] board = new char[8][8];
         for(int i=0;i<8;i++){
@@ -61,7 +68,43 @@ public class Util {
         return board;
     }
 
+
+
+    public static void printBoard(char[][] board){
+        printBoard(board,false);
+    }
+
     public static void printBoard(char[][] boardChar,boolean flipped) {
+        if(flipped){
+            String board = "\n    7   6   5   4   3   2   1   0\n  +---+---+---+---+---+---+---+---+\n" ;
+            for(int i=Constants.COLUMNS-1;i>=0;i--){
+                board += String.valueOf( i) + " | ";
+                for(int j = Constants.ROWS-1; j >= 0; j--){
+                    board += (String.valueOf(boardChar[i][j]) + " | ");
+                }
+                board += String.valueOf( i) + "\n  +---+---+---+---+---+---+---+---+\n";
+            }
+            board+="    7   6   5   4   3   2   1   0\n";
+            System.out.println(board);
+        }else{
+            String board = "\n    0   1   2   3   4   5   6   7\n  +---+---+---+---+---+---+---+---+\n";
+            for (int i = 0; i < Constants.COLUMNS; i++) {
+                board += String.valueOf(i) + " | ";
+                for (int j = 0; j < Constants.ROWS; j++) {
+                    board += (String.valueOf(boardChar[i][j]) + " | ");
+                }         //r | n | b | q | k | b | n | r |
+                board += String.valueOf(i) + "\n  +---+---+---+---+---+---+---+---+\n";
+            }
+            board += "    0   1   2   3   4   5   6   7\n";
+            System.out.println(board);
+        }
+    }
+
+    public static void printBoardClassic(char[][] board){
+        printBoardClassic(board,false);
+    }
+
+    public static void printBoardClassic(char[][] boardChar,boolean flipped) {
         if(flipped){
             String board = "\n    h   g   f   e   d   c   b   a\n  +---+---+---+---+---+---+---+---+\n" ;
             for(int i=Constants.COLUMNS-1;i>=0;i--){

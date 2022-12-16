@@ -16,6 +16,15 @@ public class FenUtils {
         return fen;
     }
 
+    public static String generate(char[][] board,char turn){
+        String fen = "";
+        for(int i=0;i<board.length-1;i++){
+            fen+=FenUtils.getRank(board[i])+"/";
+        }
+        fen+=FenUtils.getRank(board[board.length-1])+" "+turn+" - - 0 1";
+        return fen;
+    }
+
     public static char[][] parse(String[] fenParts){
         int file = 0;
         int rank = 0;

@@ -1,0 +1,7 @@
+Normal move=from(file-index/rank-index)/to(file-index/rank-index)/piece_on_to_square/castling fen/en-passant
+0102/ /KQkq/-,0112/q/Kk/- **max length is 14** **min length is 11**
+castling=O-O-O/previous_castling/en-passant O-O/previous_castling/en-passant
+O-O-O/KQkq/- **max length is 13** **min length is 9**, O-O/KQ/- **max length is 11** **min length is 7**
+promotion=Normal move/promotion **this is case sensitive**
+[Normal move]/Q **max length is 16** **min length is 12**
+en-passant=[Normal move]/"en" **max length is 17** **min length is 13**
