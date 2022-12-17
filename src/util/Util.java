@@ -47,10 +47,6 @@ public class Util {
         return file >= 0 && file < 8 && rank >= 0 && rank < 8;
     }
 
-    public static String parseMove(String stdMove){
-
-        return null;
-    }
 
     public static String cvtMove(int lf,int lr,int df,int dr) throws InvalidCoordinateException {
         if(!isValid(lf,lr)) throw new InvalidCoordinateException(lf,lr);
@@ -73,10 +69,8 @@ public class Util {
         return board;
     }
 
-
-
     public static void printBoard(char[][] board){
-        printBoard(board,false);
+        printBoardStd(board,false);
     }
 
     public static void printBoard(char[][] boardChar,boolean flipped) {
@@ -105,11 +99,11 @@ public class Util {
         }
     }
 
-    public static void printBoardClassic(char[][] board){
-        printBoardClassic(board,false);
+    public static void printBoardStd(char[][] board){
+        printBoard(board,false);
     }
 
-    public static void printBoardClassic(char[][] boardChar,boolean flipped) {
+    public static void printBoardStd(char[][] boardChar, boolean flipped) {
         if(flipped){
             String board = "\n    h   g   f   e   d   c   b   a\n  +---+---+---+---+---+---+---+---+\n" ;
             for(int i=Constants.COLUMNS-1;i>=0;i--){

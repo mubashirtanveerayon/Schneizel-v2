@@ -135,5 +135,17 @@ public class FenUtils {
     }
 
 
-
+    public static String cat(String[] fenParts) {
+        String fen="";
+        for(int i=0;i< fenParts.length;i++){
+            if(i<7) {
+                fen += fenParts[i] + "/";
+            }else{
+                fen += fenParts[i] + " ";
+            }
+        }
+        //fen = fen.substring(0,fen.length()-1);
+        //System.out.println(fen);
+        return fen.trim();
+    }
 }
