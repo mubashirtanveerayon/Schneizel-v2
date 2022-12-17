@@ -8,20 +8,15 @@ public class FenUtils {
 
 
     public static String generate(char[][] board){
-        String fen = "";
-        for(int i=0;i<board.length-1;i++){
-            fen+=FenUtils.getRank(board[i])+"/";
-        }
-        fen+=FenUtils.getRank(board[board.length-1])+" w - - 0 1";
-        return fen;
+        return generate(board,"w - - 0 1");
     }
 
-    public static String generate(char[][] board,char turn){
+    public static String generate(char[][] board,String rest){
         String fen = "";
         for(int i=0;i<board.length-1;i++){
             fen+=FenUtils.getRank(board[i])+"/";
         }
-        fen+=FenUtils.getRank(board[board.length-1])+" "+turn+" - - 0 1";
+        fen+=FenUtils.getRank(board[board.length-1])+" "+rest;
         return fen;
     }
 

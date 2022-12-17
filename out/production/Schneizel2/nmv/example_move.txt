@@ -1,7 +1,0 @@
-Normal move=from(file-index/rank-index)/to(file-index/rank-index)/piece_on_to_square/castling fen
-0102 KQkq,0112qKk **max length is 9**
-castling=O-O-O/previous_castling O-O/previous_castling
-O-O-OKQkq **max length is 9**, O-OKQ **max length is 7**
-promotion=Normal move/promotion **this is case sensitive**
-[Normal move]Q **max length is 10**
-en-passant=[Normal move]/"en"/previous en-passant **the fen** **max length is 13**

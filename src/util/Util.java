@@ -47,10 +47,15 @@ public class Util {
         return file >= 0 && file < 8 && rank >= 0 && rank < 8;
     }
 
+    public static String parseMove(String stdMove){
+
+        return null;
+    }
+
     public static String cvtMove(int lf,int lr,int df,int dr) throws InvalidCoordinateException {
         if(!isValid(lf,lr)) throw new InvalidCoordinateException(lf,lr);
         if(!isValid(df,dr)) throw new InvalidCoordinateException(df,dr);
-        return Character.toString(Constants.FILES.charAt(lf))+Character.toString(Constants.RANKS.charAt(8-lr))+Character.toString(Constants.FILES.charAt(df))+Character.toString(Constants.RANKS.charAt(8-dr));
+        return Character.toString(Constants.FILES.charAt(lf))+Integer.toString(8-lr)+Character.toString(Constants.FILES.charAt(df))+Integer.toString(8-dr);
     }
 
     //constructs a normal move, special moves are castling, en-passant, promotions

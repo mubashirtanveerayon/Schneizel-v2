@@ -20,7 +20,35 @@ public class MoveManager {
     }
 
 
-    public int moveGenerationTest(int depth){
+    public void moveGenerationTest(int depth,boolean stdOutput){
+        ArrayList<String> moves = getAllMoves() ;
+        int numPositions = 0;
+        for (String moveStr:moves) {
+            makeMove(moveStr);
+            int numMoves = recurseMoveGeneration(depth-1);
+            numPositions += numMoves;
+            undoMove(moveStr);
+            if(stdOutput){
+                String stdMove;
+                if(moveStr.contains(Constants.KING_SIDE_CASTLING)){
+                    int rank = cb.turn == Constants.WHITE?7:0;
+                    stdMove = Util.cvtMove(4,rank,5,rank);
+                }else if(moveStr.contains(Constants.QUEEN_SIDE_CASTLING)){
+                    int rank = cb.turn == Constants.WHITE?7:0;
+                    stdMove = Util.cvtMove(4,rank,2,rank);
+                }else{
+                    stdMove = Util.cvtMove(Integer.parseInt(Character.toString(moveStr.charAt(0))),Integer.parseInt(Character.toString(moveStr.charAt(1))),Integer.parseInt(Character.toString(moveStr.charAt(2))),Integer.parseInt(Character.toString(moveStr.charAt(3))));
+                }
+                System.out.println(stdMove + ": " + numMoves);
+            }else {
+                System.out.println(moveStr + ": " + numMoves);
+            }
+        }
+        System.out.println("Total number of moves for depth "+depth+" : "+numPositions);
+
+    }
+
+    private int recurseMoveGeneration(int depth){
         if (depth == 0) {
             return 1;
         }
@@ -28,12 +56,12 @@ public class MoveManager {
         int numPositions = 0;
         for (String moveStr:moves) {
             makeMove(moveStr);
-            numPositions += moveGenerationTest(depth-1);
+            numPositions += recurseMoveGeneration(depth-1);
             undoMove(moveStr);
         }
         return numPositions;
-
     }
+
 
     public ArrayList<String> getAllMoves() {
         ArrayList<String> allMoves = new ArrayList<>();
@@ -611,7 +639,7 @@ public class MoveManager {
             queenSide = queenSide && cb.fenParts[9].contains(Character.toString(Constants.BLACK_QUEEN));
         }
         if(kingSide){
-            for(int i=file;kingSide&&i<file+3;i++){
+            for(int i=file+1;kingSide&&i<file+3;i++){
                 kingSide = cb.board[rank][i] == Constants.EMPTY_SQUARE&&!cb.squareUnderAttack(i,rank);
             }
             if(kingSide){
@@ -619,7 +647,7 @@ public class MoveManager {
             }
         }
         if(queenSide){
-            for(int i=file;queenSide&&i>file-3;i--){
+            for(int i=file-1;queenSide&&i>file-3;i--){
                 queenSide = cb.board[rank][i] == Constants.EMPTY_SQUARE&&!cb.squareUnderAttack(i,rank);
             }
             if(queenSide){
