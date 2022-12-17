@@ -410,8 +410,8 @@ public boolean _isSquareSafe(int file,int rank){
 
 
     public static void main(String[] args) {
-        char[][] board = new char[][]{{' ', ' ', ' ', ' ', ' ', ' ', ' ', 'k'},
-                                      {' ', ' ', ' ', ' ', 'P', ' ', ' ', ' '},
+        char[][] board = new char[][]{{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                                      {' ', ' ', ' ', ' ', 'Q', ' ', 'p', 'k'},
                                       {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                                       {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                                       {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
@@ -420,7 +420,7 @@ public boolean _isSquareSafe(int file,int rank){
                                       {' ', ' ', ' ', ' ', ' ', ' ', 'K', ' '}};
 
 
-        String fen = FenUtils.generate(board,'w');
+        String fen = FenUtils.generate(board,'b');
 
 
         System.out.println(fen);
@@ -447,8 +447,7 @@ public boolean _isSquareSafe(int file,int rank){
 
         System.out.println(moves.size());
         System.out.println(moves);
-        //mg.makeMove(moves.get(0));
-        System.out.println(mg.moveGenerationTest(2));
+        System.out.println(mg.moveGenerationTest(3));
         //System.out.println(mg.getAllMoves());
 
 

@@ -27,16 +27,9 @@ public class MoveManager {
         ArrayList<String> moves = getAllMoves() ;
         int numPositions = 0;
         for (String moveStr:moves) {
-
-
             makeMove(moveStr);
-
-            int n = moveGenerationTest(depth-1);
-            System.out.println(moveStr+" : "+n);
-            numPositions += n;
+            numPositions += moveGenerationTest(depth-1);
             undoMove(moveStr);
-
-
         }
         return numPositions;
 
@@ -653,8 +646,8 @@ public class MoveManager {
                             moves.add(Util.cvtMove(file,rank,df,dr,cb.board,cb.fenParts));
                         }
                     }
-                    return moves;
                 }
+                return moves;
             }else{
                 // generate pushes, that is done below
             }
