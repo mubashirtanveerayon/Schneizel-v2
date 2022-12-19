@@ -25,9 +25,18 @@ public class ChessBoard {
         initialize();
     }
 
-    public ChessBoard(String fen) {
-        if(!FenUtils.isValid(fen)){
-            return;
+    public ChessBoard(String fen){
+        fenParts = FenUtils.split(fen);
+        initialize();
+    }
+
+    public ChessBoard(String fen,boolean checkFen) {
+        if(checkFen) {
+            try {
+                FenUtils.isValid(fen);
+            } catch (Exception e) {
+                return;
+            }
         }
         fenParts = FenUtils.split(fen);
         initialize();
@@ -155,6 +164,14 @@ public class ChessBoard {
 
     public void checkBoard(){
         resetStats();
+        //temporary debug code exists
+//        try{
+//            FenUtils.isValid(FenUtils.cat(fenParts));
+//        }catch(Exception e){
+//            e.printStackTrace();
+//            System.out.println(FenUtils.cat(fenParts));
+//            System.exit(0);
+//        }
         int[] kingPos = kingPosition();
         int file,rank ,pinnedPieceIndex=0;
         boolean foundAlly,foundEnemyPiece;

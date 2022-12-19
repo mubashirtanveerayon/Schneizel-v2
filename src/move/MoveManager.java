@@ -20,6 +20,20 @@ public class MoveManager {
         moves = new ArrayList<>();
     }
 
+    public String cvt(String moveStr){
+        String stdMove;
+        if(moveStr.contains(Constants.KING_SIDE_CASTLING)){
+            int rank = cb.turn == Constants.WHITE?7:0;
+            stdMove = Util.cvtMove(4,rank,5,rank);
+        }else if(moveStr.contains(Constants.QUEEN_SIDE_CASTLING)){
+            int rank = cb.turn == Constants.WHITE?7:0;
+            stdMove = Util.cvtMove(4,rank,2,rank);
+        }else{
+            stdMove = Util.cvtMove(Integer.parseInt(Character.toString(moveStr.charAt(0))),Integer.parseInt(Character.toString(moveStr.charAt(1))),Integer.parseInt(Character.toString(moveStr.charAt(2))),Integer.parseInt(Character.toString(moveStr.charAt(3))));
+        }
+        return stdMove;
+    }
+
     public String parse(String stdMove){
         int lf = Constants.FILES.indexOf(stdMove.charAt(0));
         int lr = Constants.RANKS.indexOf(stdMove.charAt(1));
@@ -58,11 +72,17 @@ public class MoveManager {
     public void moveGenerationTest(int depth,boolean stdOutput){
         ArrayList<String> moves = getAllMoves() ;
         int numPositions = 0;
+        String fen = FenUtils.cat(cb.fenParts);
         for (String moveStr:moves) {
             makeMove(moveStr);
             int numMoves = recurseMoveGeneration(depth-1);
             numPositions += numMoves;
             undoMove(moveStr);
+            if(!fen.equals(FenUtils.cat(cb.fenParts))){
+                System.out.println(fen);
+                System.out.println(FenUtils.cat(cb.fenParts));
+                System.out.println(cvt(moveStr));
+            }
             if(stdOutput){
                 String stdMove;
                 if(moveStr.contains(Constants.KING_SIDE_CASTLING)){
@@ -89,10 +109,15 @@ public class MoveManager {
         }
         ArrayList<String> moves = getAllMoves() ;
         int numPositions = 0;
+        String fen = FenUtils.cat(cb.fenParts);
         for (String moveStr:moves) {
+
             makeMove(moveStr);
             numPositions += recurseMoveGeneration(depth-1);
             undoMove(moveStr);
+            if(!fen.equals(FenUtils.cat(cb.fenParts))){
+                System.out.println(cvt(moveStr));
+            }
         }
         return numPositions;
     }
@@ -409,7 +434,9 @@ public class MoveManager {
             cb.fenParts[8] = Character.toString(cb.turn);
         }
         cb.checkBoard();
-
+        if(cb.fenParts[9].equals(" ")){
+            cb.fenParts[9] = "-";
+        }
     }
     public void undoMove(String move){
         if(move.contains(Constants.KING_SIDE_CASTLING)){
@@ -513,17 +540,6 @@ public class MoveManager {
             cb.fenParts[10] = moveParts[3];
 
             if(locRank == 0 || locRank == 7){
-                switch(cb.board[locRank][file]){
-                    case Constants.WHITE_ROOK:
-
-                    case Constants.WHITE_KING:
-
-                    case Constants.BLACK_ROOK:
-
-                    case Constants.BLACK_KING:
-                        cb.fenParts[9] = moveParts[2];
-                }
-
                 if(moveParts.length==5){
                     switch(cb.turn){
                         case Constants.WHITE:
@@ -547,7 +563,7 @@ public class MoveManager {
             cb.fenParts[destRank] = FenUtils.getRank(cb.board[destRank]);
             cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
             cb.fenParts[8] = Character.toString(cb.turn);
-
+            cb.fenParts[9] = moveParts[2];
         }
         else if(move.contains(Constants.EN_PASSANT_NOTATION)){
             int locFile = Integer.parseInt(String.valueOf(move.charAt(2)));
@@ -593,11 +609,6 @@ public class MoveManager {
             cb.fenParts[10] = moveParts[3];
 
             if(locRank == 0 || locRank == 7){
-                switch(cb.board[locRank][locFile]){
-                    case Constants.BLACK_KING:
-                    case Constants.WHITE_KING:
-                        cb.fenParts[9] = moveParts[2];
-                }
                 if(moveParts.length==5){
                     switch(cb.turn){
                         case Constants.WHITE:
@@ -620,6 +631,7 @@ public class MoveManager {
             cb.fenParts[destRank] = FenUtils.getRank(cb.board[destRank]);
             cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
             cb.fenParts[8] = Character.toString(cb.turn);
+            cb.fenParts[9] = moveParts[2];
 
         }
         cb.checkBoard();
@@ -719,7 +731,7 @@ public class MoveManager {
         }
         if(kingSide){
             for(int i=file+1;kingSide&&i<file+3;i++){
-                kingSide = cb.board[rank][i] == Constants.EMPTY_SQUARE&&!cb.squareUnderAttack(i,rank);
+                kingSide = cb.board[rank][i] == Constants.EMPTY_SQUARE && !cb.squareUnderAttack(i, rank);
             }
             if(kingSide){
                 moves.add(Constants.KING_SIDE_CASTLING+Constants.MOVE_SEPARATOR+cb.fenParts[9]+Constants.MOVE_SEPARATOR+cb.fenParts[10]);
@@ -768,91 +780,120 @@ public class MoveManager {
             }
             int checkerFile = checkerIndex % 8;
             int checkerRank = checkerIndex / 8;
-            int[] kingPosition = cb.kingPosition();
-            if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT && Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_PAWN) {
-                int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
-                if (checkDirection[0] == 0) {
-                    if (Math.abs(file - checkerFile) == 1) {
-                        // only possible move is to capture the checker why? https://lichess.org/editor/4k3/8/3q4/4P3/8/3K4/8/8_w_-_-_0_1?color=white
-                        if (Math.abs(rank - checkerRank) == 1 && ((Util.isUpperCase(cb.board[rank][file]) && checkDirection[1] == -1) || (!Util.isUpperCase(cb.board[rank][file]) && checkDirection[1] == 1))) {
-                            moves.add(Util.cvtMove(file, rank, file + checkDirection[0], rank + checkDirection[1],cb.board,cb.fenParts));
-                        }
-                    }
-                } else if (checkDirection[1] == 0) {
-                    boolean hasPotential = (Util.isUpperCase(cb.board[rank][file]) && kingPosition[1] - rank == -1) || (!Util.isUpperCase(cb.board[rank][file]) && kingPosition[1] - rank == 1);
-                    if (file == checkerFile) {
-                        // cannot resolve the check, why? https://lichess.org/editor/7k/8/2K3q1/6P1/8/8/8/8_w_-_-_0_1?color=white
-                    }else if(hasPotential){
-                        // possible move is to block the check how? https://lichess.org/editor/7k/8/1K2q3/3P4/8/8/8/8_w_-_-_0_1?color=white
-                        int destRank = cb.turn == Constants.WHITE?rank-1:rank+1;
-                        if(file>kingPosition[0] && file<checkerFile && destRank<8 && destRank>=0 && cb.board[destRank][file] == Constants.EMPTY_SQUARE){
-                            if(destRank == 0 || destRank == 7){
-                                switch(cb.turn){
-                                    case Constants.WHITE:
-                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
-                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
-                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
-                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
-                                        break;
-                                    case Constants.BLACK:
-                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
-                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
-                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
-                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
-                                        break;
-                                }
 
-                            }else {
-                                moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts));
-                            }
 
-                        }
-                        if(Math.abs(file-checkerFile) == 1) {
-                            // possible move is to capture the checker how? https://lichess.org/editor/7k/8/1K2q3/3P4/8/8/8/8_w_-_-_0_1?color=white
-                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank,cb.board,cb.fenParts));
-                        }
-                    }
-                }
-            }else{
-                // no way to block a check from knight or pawn, only possible move is to capture
-                if(Math.abs(checkerFile-file) == 1 && Math.abs(checkerRank-rank) == 1){
-                    if((cb.turn == Constants.WHITE && checkerRank<rank) || (cb.turn == Constants.BLACK && checkerRank>rank)){
-                        if(checkerRank == 0 || checkerRank == 7){
-                            switch(cb.turn){
-                                case Constants.WHITE:
-                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
-                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
-                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
-                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
-                                    break;
-                                case Constants.BLACK:
-                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
-                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
-                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
-                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
-                                    break;
-                            }
 
-                        }else {
-                            moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank,cb.board,cb.fenParts));
+            switch(Character.toUpperCase(cb.board[checkerRank][checkerFile])){
+                case Constants.WHITE_KNIGHT:
+                case Constants.WHITE_PAWN:
+                    //no way to block the check, capture move generation is done below
+                    break;
+                default:
+                    int[] kingPosition = cb.kingPosition();
+                    int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
+                    if (checkDirection[0] == 0) {
+                        if (Math.abs(file - checkerFile) == 1) {
+                            // only possible move is to capture the checker why? https://lichess.org/editor/4k3/8/3q4/4P3/8/3K4/8/8_w_-_-_0_1?color=white
+                            //capture move generation is done below
                         }
+                    }else{
+                        ylglyijg
                     }
-                }else if(!cb.fenParts[10].equals("-")){
-                    // en passant move to resolve the check!
-                    if(Math.abs(Constants.FILES.indexOf(cb.fenParts[10].charAt(0)) - file) == 1){
-                        if(Util.isUpperCase(cb.board[rank][file])){
-                            if(rank-1 == 8-Integer.parseInt(Character.toString(cb.fenParts[10].charAt(10)))){
-                                moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), 2,cb.board,cb.fenParts)+Constants.MOVE_SEPARATOR+"en");
-                            }
-                        }else{
-                            if(rank+1 == 8-Integer.parseInt(Character.toString(cb.fenParts[10].charAt(10)))){
-                                moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), 5,cb.board,cb.fenParts)+Constants.MOVE_SEPARATOR+"en");
-                            }
-                        }
-                    }
+                    break;
+            }
 
+
+            if(Math.abs(file-checkerFile) == 1) {
+                if ((cb.turn == Constants.WHITE &&rank-checkerRank==1) || (cb.turn == Constants.BLACK &&rank-checkerRank==-1)){
+                    moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank,cb.board,cb.fenParts));
                 }
             }
+
+
+//            if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT && Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_PAWN) {
+//                int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
+//                if (checkDirection[0] == 0) {
+//                    if (Math.abs(file - checkerFile) == 1) {
+//                        // only possible move is to capture the checker why? https://lichess.org/editor/4k3/8/3q4/4P3/8/3K4/8/8_w_-_-_0_1?color=white
+//                        if (Math.abs(rank - checkerRank) == 1 && ((Util.isUpperCase(cb.board[rank][file]) && checkDirection[1] == -1) || (!Util.isUpperCase(cb.board[rank][file]) && checkDirection[1] == 1))) {
+//                            moves.add(Util.cvtMove(file, rank, file + checkDirection[0], rank + checkDirection[1],cb.board,cb.fenParts));
+//                        }
+//                    }
+//                } else if (checkDirection[1] == 0) {
+//                    boolean hasPotential = (Util.isUpperCase(cb.board[rank][file]) && kingPosition[1] - rank == -1) || (!Util.isUpperCase(cb.board[rank][file]) && kingPosition[1] - rank == 1);
+//                    if (file == checkerFile) {
+//                        // cannot resolve the check, why? https://lichess.org/editor/7k/8/2K3q1/6P1/8/8/8/8_w_-_-_0_1?color=white
+//                    }else if(hasPotential){
+//                        // possible move is to block the check how? https://lichess.org/editor/7k/8/1K2q3/3P4/8/8/8/8_w_-_-_0_1?color=white
+//                        int destRank = cb.turn == Constants.WHITE?rank-1:rank+1;
+//                        if(file>kingPosition[0] && file<checkerFile && destRank<8 && destRank>=0 && cb.board[destRank][file] == Constants.EMPTY_SQUARE){
+//                            if(destRank == 0 || destRank == 7){
+//                                switch(cb.turn){
+//                                    case Constants.WHITE:
+//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
+//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
+//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
+//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
+//                                        break;
+//                                    case Constants.BLACK:
+//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
+//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
+//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
+//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
+//                                        break;
+//                                }
+//
+//                            }else {
+//                                moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts));
+//                            }
+//
+//                        }
+//                        if(Math.abs(file-checkerFile) == 1) {
+//                            // possible move is to capture the checker how? https://lichess.org/editor/7k/8/1K2q3/3P4/8/8/8/8_w_-_-_0_1?color=white
+//                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank,cb.board,cb.fenParts));
+//                        }
+//                    }
+//                }
+//            }else{
+//                // no way to block a check from knight or pawn, only possible move is to capture
+//                if(Math.abs(checkerFile-file) == 1 && Math.abs(checkerRank-rank) == 1){
+//                    if((cb.turn == Constants.WHITE && checkerRank<rank) || (cb.turn == Constants.BLACK && checkerRank>rank)){
+//                        if(checkerRank == 0 || checkerRank == 7){
+//                            switch(cb.turn){
+//                                case Constants.WHITE:
+//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
+//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
+//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
+//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
+//                                    break;
+//                                case Constants.BLACK:
+//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
+//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
+//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
+//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
+//                                    break;
+//                            }
+//
+//                        }else {
+//                            moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank,cb.board,cb.fenParts));
+//                        }
+//                    }
+//                }else if(!cb.fenParts[10].equals("-")){
+//                    // en passant move to resolve the check!
+//                    if(Math.abs(Constants.FILES.indexOf(cb.fenParts[10].charAt(0)) - file) == 1){
+//                        if(Util.isUpperCase(cb.board[rank][file])){
+//                            if(rank-1 == 8-Integer.parseInt(Character.toString(cb.fenParts[10].charAt(10)))){
+//                                moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), 2,cb.board,cb.fenParts)+Constants.MOVE_SEPARATOR+"en");
+//                            }
+//                        }else{
+//                            if(rank+1 == 8-Integer.parseInt(Character.toString(cb.fenParts[10].charAt(10)))){
+//                                moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), 5,cb.board,cb.fenParts)+Constants.MOVE_SEPARATOR+"en");
+//                            }
+//                        }
+//                    }
+//
+//                }
+//            }
             return moves;
         }
 
@@ -1282,8 +1323,10 @@ public class MoveManager {
             if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT && Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_PAWN){
                 int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
                 int[] kingPosition = cb.kingPosition();
-                int currentFile=kingPosition[0]+checkDirection[0],currentRank=kingPosition[1] + checkDirection[1];
+                int currentFile=kingPosition[0],currentRank=kingPosition[1];
                 while(moves.size()<2 && currentFile!=checkerFile && currentRank!=checkerRank){
+                    currentRank+=checkDirection[1];
+                    currentFile+=checkDirection[0];
                     if(currentFile == file || currentRank == rank){
                         continue;
                     }
@@ -1294,6 +1337,7 @@ public class MoveManager {
                             break;
                         }
                     }
+
                 }
 
             }else{

@@ -1,5 +1,6 @@
 package util;
 
+import board.ChessBoard;
 import exception.InvalidFenException;
 
 import java.util.Arrays;
@@ -85,7 +86,7 @@ public class FenUtils {
     }
 
 
-    public static boolean isValid(String fen) throws InvalidFenException {
+    public static void isValid(String fen) throws InvalidFenException {
         String[] parts = fen.split("/");
         if(parts.length!=8){
             throw new InvalidFenException("Fen string is invalid! Rank missing! "+fen);
@@ -100,7 +101,27 @@ public class FenUtils {
         }catch(Exception e){
             throw new InvalidFenException("Fen string is invalid! Could not parse halfmove or fullmove! "+fen);
         }
-        return true;
+        if(!fen.contains(Character.toString(Constants.WHITE_KING)) || !fen.contains(Character.toString(Constants.BLACK_KING))){
+            throw new InvalidFenException("Fen string is invalid! Could not find the king! "+fen);
+        }
+//        ChessBoard cb = new ChessBoard(fen,false);
+//        int[] kingPosition = cb.kingPosition();
+//        if(cb.gs == GameState.CHECK){
+//            switch(cb.turn){
+//                case Constants.WHITE:
+//                    cb.turn = Constants.BLACK;
+//                    if(cb.squareUnderAttack(kingPosition[0],kingPosition[1])){
+//                        throw new InvalidFenException("Fen string is invalid! White king is in check but its black's turn to move! "+fen);
+//                    }
+//                    break;
+//                case Constants.BLACK:
+//                    cb.turn = Constants.WHITE;
+//                    if(cb.squareUnderAttack(kingPosition[0],kingPosition[1])){
+//                        throw new InvalidFenException("Fen string is invalid! Black king is in check but its white's turn to move! "+fen);
+//                    }
+//                    break;
+//            }
+//        }
     }
 
     public static String[] split(String fen){

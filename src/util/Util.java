@@ -47,7 +47,6 @@ public class Util {
         return file >= 0 && file < 8 && rank >= 0 && rank < 8;
     }
 
-
     public static String cvtMove(int lf,int lr,int df,int dr) throws InvalidCoordinateException {
         if(!isValid(lf,lr)) throw new InvalidCoordinateException(lf,lr);
         if(!isValid(df,dr)) throw new InvalidCoordinateException(df,dr);

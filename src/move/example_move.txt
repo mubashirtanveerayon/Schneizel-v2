@@ -5,3 +5,4 @@ O-O-O/KQkq/- **max length is 13** **min length is 9**, O-O/KQ/- **max length is 
 promotion=Normal move/promotion **this is case sensitive**
 [Normal move]/Q **max length is 16** **min length is 12**
 en-passant=[Normal move]/"en" **max length is 17** **min length is 13**
+moves must be separated by commas while listing, like so: 0102/ /KQkq/-,0112/q/Kk/-
