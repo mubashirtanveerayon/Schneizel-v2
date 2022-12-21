@@ -6,6 +6,7 @@ import util.Constants;
 import util.FenUtils;
 import util.Util;
 
+import java.util.LinkedHashMap;
 import java.util.Scanner;
 
 public class UCI {
@@ -13,10 +14,10 @@ public class UCI {
     public static void main(String[] args) {
 
         char[][] board = new char[][]{
+                {' ', 'R', ' ', ' ', ' ', ' ', ' ', 'k'},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', 'R', 'k', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', 'n', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
@@ -30,6 +31,7 @@ public class UCI {
         String input;
         ChessBoard cb=new ChessBoard();
         MoveManager mm=new MoveManager(cb);
+        System.out.println(mm.getAllMoves());
         boolean exit=false,flip=false;
         while(!exit&&(input=sc.nextLine())!=null){
             String[] partsBySpace = input.split(" ");
@@ -54,6 +56,9 @@ public class UCI {
                         case "startpos":
                             cb = new ChessBoard();
                             mm = new MoveManager(cb);
+                            if(partsBySpace.length<3){
+                                break;
+                            }
                         case "thispos":
                             switch(partsBySpace[2].toLowerCase()){
                                 case "move":
@@ -68,12 +73,25 @@ public class UCI {
                                         }
                                     }
                                     break;
+                                case "undomove":
+                                    if(Character.isDigit(partsBySpace[3].charAt(0))||partsBySpace[3].contains(Constants.KING_SIDE_CASTLING)||partsBySpace[3].contains(Constants.QUEEN_SIDE_CASTLING)){
+                                        String[] moves = input.split("undomove ")[1].split(",");
+                                        for(String move:moves){
+                                            mm.undoMove(move);
+                                        }
+                                    }else{
+                                        for(int i=3;i<partsBySpace.length;i++){
+                                            mm.undoMove(mm.parse(partsBySpace[i]));
+                                        }
+                                    }
+                                    break;
                             }
                             break;
                     }
                     break;
                 case "d":
                     Util.printBoardStd(cb.board,flip);
+                    Util.printBoard(cb.board);
                     System.out.println("Fen: "+ FenUtils.cat(cb.fenParts));
                     break;
                 case "quit":

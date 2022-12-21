@@ -163,6 +163,7 @@ public class MoveManager {
             cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
             cb.fenParts[8] = Character.toString(cb.turn);
             cb.fenParts[10] = "-";
+            cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])+1);
         }else if(move.contains(Constants.QUEEN_SIDE_CASTLING)){
             int rank = cb.turn == Constants.WHITE?7:0;
             cb.board[rank][2] = cb.board[rank][4];
@@ -189,6 +190,7 @@ public class MoveManager {
             cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
             cb.fenParts[8] = Character.toString(cb.turn);
             cb.fenParts[10] = "-";
+            cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])+1);
         }else if(move.charAt(1) == move.charAt(3)){
             int rank = Integer.parseInt(String.valueOf(move.charAt(1)));
             int locFile = Integer.parseInt(String.valueOf(move.charAt(0)));
@@ -199,6 +201,11 @@ public class MoveManager {
             }else if(cb.board[rank][locFile] == Constants.BLACK_KING){
                 cb.blackKingPosition[0] = destFile;
                 cb.blackKingPosition[1] = rank;
+            }
+            if(cb.board[rank][destFile]!=Constants.EMPTY_SQUARE){
+                cb.fenParts[11] = "0";
+            }else{
+                cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])+1);
             }
 
             if(rank == 0 || rank == 7){
@@ -268,6 +275,12 @@ public class MoveManager {
                 cb.blackKingPosition[1] = destRank;
             }
 
+            if(Character.toUpperCase(cb.board[locRank][file]) == Constants.WHITE_PAWN || cb.board[destRank][file]!=Constants.EMPTY_SQUARE){
+                cb.fenParts[11] = "0";
+            }else{
+                cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])+1);
+            }
+
             if(locRank == 0 || locRank == 7){
                 switch(cb.board[locRank][file]){
                     case Constants.BLACK_ROOK:{
@@ -319,7 +332,7 @@ public class MoveManager {
                 }
 
                 if(Character.toUpperCase(cb.board[locRank][file]) == Constants.WHITE_PAWN){
-                    cb.board[locRank][file] = move.split(Constants.MOVE_SEPARATOR)[4].charAt(0);
+                    cb.board[locRank][file] = move.split(Constants.MOVE_SEPARATOR)[Constants.PROMOTION_MOVE_LENGTH-1].charAt(0);
                 }
 
             }
@@ -369,6 +382,7 @@ public class MoveManager {
             cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
             cb.fenParts[10] = "-";
             cb.fenParts[8] = Character.toString(cb.turn);
+            cb.fenParts[11] = "0";
         }
 
         else{
@@ -383,6 +397,13 @@ public class MoveManager {
                 cb.blackKingPosition[0] = destFile;
                 cb.blackKingPosition[1] = destRank;
             }
+            if(Character.toUpperCase(cb.board[locRank][locFile]) == Constants.WHITE_PAWN || cb.board[destRank][destFile]!=Constants.EMPTY_SQUARE){
+                cb.fenParts[11] = "0";
+            }else{
+                cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])+1);
+            }
+
+
 
             if(locRank == 0 || locRank == 7){
                 switch(cb.board[locRank][locFile]){
@@ -418,7 +439,7 @@ public class MoveManager {
                         break;
                 }
                 if(Character.toUpperCase(cb.board[locRank][locFile]) == Constants.WHITE_PAWN){
-                    cb.board[locRank][locFile] = move.split(Constants.MOVE_SEPARATOR)[4].charAt(0);
+                    cb.board[locRank][locFile] = move.split(Constants.MOVE_SEPARATOR)[Constants.PROMOTION_MOVE_LENGTH-1].charAt(0);
                 }
             }
 
@@ -433,10 +454,13 @@ public class MoveManager {
             cb.fenParts[10] = "-";
             cb.fenParts[8] = Character.toString(cb.turn);
         }
-        cb.checkBoard();
-        if(cb.fenParts[9].equals(" ")){
+        if(cb.fenParts[9].equals(" ")||cb.fenParts[9].equals("")){
             cb.fenParts[9] = "-";
         }
+        if(cb.turn == Constants.WHITE) {
+            cb.fenParts[12] = Integer.toString(Integer.parseInt(cb.fenParts[12]) + 1);
+        }
+        cb.checkBoard();
     }
     public void undoMove(String move){
         if(move.contains(Constants.KING_SIDE_CASTLING)){
@@ -462,6 +486,7 @@ public class MoveManager {
             cb.fenParts[10] = moveParts[2];
             cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
             cb.fenParts[8] = Character.toString(cb.turn);
+            cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.CASTLING_MOVE_LENGTH-1]));
         }else if(move.contains(Constants.QUEEN_SIDE_CASTLING)){
             int rank = cb.turn == Constants.WHITE?7:0;
             cb.board[rank][4] = cb.board[rank][2];
@@ -483,19 +508,26 @@ public class MoveManager {
             cb.fenParts[10] = moveParts[2];
             cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
             cb.fenParts[8] = Character.toString(cb.turn);
+            cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.CASTLING_MOVE_LENGTH-1]));
         }else if(move.charAt(1) == move.charAt(3)){
             int rank = Integer.parseInt(String.valueOf(move.charAt(1)));
             int locFile = Integer.parseInt(String.valueOf(move.charAt(2)));
             int destFile = Integer.parseInt(String.valueOf(move.charAt(0)));
-            if(cb.board[rank][locFile] == Constants.WHITE_KING){
-                cb.whiteKingPosition[0] = destFile;
-                cb.whiteKingPosition[1] = rank;
-            }else if(cb.board[rank][locFile] == Constants.BLACK_KING){
-                cb.blackKingPosition[0] = destFile;
-                cb.blackKingPosition[1] = rank;
+
+            switch(cb.board[rank][locFile]){
+                case Constants.WHITE_KING :
+                    cb.whiteKingPosition[0] = destFile;
+                    cb.whiteKingPosition[1] = rank;
+                    break;
+                case Constants.BLACK_KING:
+                    cb.blackKingPosition[0] = destFile;
+                    cb.blackKingPosition[1] = rank;
+                    break;
+
             }
 
             String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
+
 
             cb.fenParts[10] = moveParts[3];
 
@@ -519,6 +551,7 @@ public class MoveManager {
             if(moveParts[1].charAt(0) == Constants.EMPTY_SQUARE) {
                 cb.pieceLocations.remove((Object)(locFile + rank * 8));
             }
+            cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.NORMAL_MOVE_LENGTH-1]));
             cb.fenParts[rank] = FenUtils.getRank(cb.board[rank]);
             cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
             cb.fenParts[8] = Character.toString(cb.turn);
@@ -527,20 +560,24 @@ public class MoveManager {
             int file = Integer.parseInt(String.valueOf(move.charAt(0)));
             int locRank = Integer.parseInt(String.valueOf(move.charAt(3)));
             int destRank = Integer.parseInt(String.valueOf(move.charAt(1)));
-            if(cb.board[locRank][file] == Constants.WHITE_KING){
-                cb.whiteKingPosition[0] = file;
-                cb.whiteKingPosition[1] = destRank;
-            }else if(cb.board[locRank][file] == Constants.BLACK_KING){
-                cb.blackKingPosition[0] = file;
-                cb.blackKingPosition[1] = destRank;
-            }
-
             String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
+
+            switch(cb.board[locRank][file]){
+                case Constants.WHITE_KING :
+                    cb.whiteKingPosition[0] = file;
+                    cb.whiteKingPosition[1] = destRank;
+                    break;
+                case Constants.BLACK_KING:
+                    cb.blackKingPosition[0] = file;
+                    cb.blackKingPosition[1] = destRank;
+                    break;
+
+            }
 
             cb.fenParts[10] = moveParts[3];
 
             if(locRank == 0 || locRank == 7){
-                if(moveParts.length==5){
+                if(moveParts.length==Constants.PROMOTION_MOVE_LENGTH){
                     switch(cb.turn){
                         case Constants.WHITE:
                             cb.board[locRank][file] = Constants.WHITE_PAWN;
@@ -550,7 +587,12 @@ public class MoveManager {
                             break;
                     }
                 }
+            }
 
+            if(moveParts.length == Constants.PROMOTION_MOVE_LENGTH){
+                cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.PROMOTION_MOVE_LENGTH-2]));
+            }else{
+                cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.NORMAL_MOVE_LENGTH-1]));
             }
 
             cb.board[destRank][file] = cb.board[locRank][file];
@@ -559,11 +601,13 @@ public class MoveManager {
             if(moveParts[1].charAt(0) == Constants.EMPTY_SQUARE) {
                 cb.pieceLocations.remove((Object)(file+locRank*8));
             }
+
             cb.fenParts[locRank] = FenUtils.getRank(cb.board[locRank]);
             cb.fenParts[destRank] = FenUtils.getRank(cb.board[destRank]);
             cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
             cb.fenParts[8] = Character.toString(cb.turn);
             cb.fenParts[9] = moveParts[2];
+
         }
         else if(move.contains(Constants.EN_PASSANT_NOTATION)){
             int locFile = Integer.parseInt(String.valueOf(move.charAt(2)));
@@ -572,15 +616,14 @@ public class MoveManager {
             int destRank = Integer.parseInt(String.valueOf(move.charAt(1)));
             switch(cb.board[locRank][locFile]){
                 case Constants.WHITE_PAWN:{
-                    cb.board[locRank][destFile] = Constants.BLACK_PAWN;
-                    cb.pieceLocations.add((destFile+locRank*8));
+                    cb.board[destRank][locFile] = Constants.BLACK_PAWN;
                     break;
                 }
                 case Constants.BLACK_PAWN:{
-                    cb.board[locRank][destFile] = Constants.WHITE_PAWN;
-                    cb.pieceLocations.add((destFile+locRank*8));
+                    cb.board[destRank][locFile] = Constants.WHITE_PAWN;
                 }
             }
+            cb.pieceLocations.add((locFile+destRank*8));
             cb.board[destRank][destFile] = cb.board[locRank][locFile];
             cb.board[locRank][locFile] = Constants.EMPTY_SQUARE;
             cb.pieceLocations.add(destFile + destRank * 8);
@@ -589,27 +632,38 @@ public class MoveManager {
             cb.fenParts[destRank] = FenUtils.getRank(cb.board[destRank]);
             cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
             cb.fenParts[10] = move.split(Constants.MOVE_SEPARATOR)[3];
+            cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])-1);
             cb.fenParts[8] = Character.toString(cb.turn);
-        }
-
-        else{
+            cb.fenParts[11] = Integer.toString(Integer.parseInt(move.split(Constants.MOVE_SEPARATOR)[Constants.EN_PASSANT_MOVE_LENGTH-2]));
+        }else{
             int locFile = Integer.parseInt(String.valueOf(move.charAt(2)));
             int destFile = Integer.parseInt(String.valueOf(move.charAt(0)));
             int locRank = Integer.parseInt(String.valueOf(move.charAt(3)));
             int destRank = Integer.parseInt(String.valueOf(move.charAt(1)));
-            if(cb.board[locRank][locFile] == Constants.WHITE_KING){
-                cb.whiteKingPosition[0] = destFile;
-                cb.whiteKingPosition[1] = destRank;
-            }else if(cb.board[locRank][locFile] == Constants.BLACK_KING){
-                cb.blackKingPosition[0] = destFile;
-                cb.blackKingPosition[1] = destRank;
+            switch(cb.board[locRank][locFile]){
+                case Constants.WHITE_KING :
+                    cb.whiteKingPosition[0] = destFile;
+                    cb.whiteKingPosition[1] = destRank;
+                    break;
+                case Constants.BLACK_KING:
+                    cb.blackKingPosition[0] = destFile;
+                    cb.blackKingPosition[1] = destRank;
+                    break;
+
             }
 
             String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
+
+            if(moveParts.length == Constants.PROMOTION_MOVE_LENGTH){
+                cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.PROMOTION_MOVE_LENGTH-2]));
+            }else{
+                cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.NORMAL_MOVE_LENGTH-1]));
+            }
+
             cb.fenParts[10] = moveParts[3];
 
             if(locRank == 0 || locRank == 7){
-                if(moveParts.length==5){
+                if(moveParts.length==Constants.PROMOTION_MOVE_LENGTH){
                     switch(cb.turn){
                         case Constants.WHITE:
                             cb.board[locRank][locFile] = Constants.WHITE_PAWN;
@@ -633,6 +687,11 @@ public class MoveManager {
             cb.fenParts[8] = Character.toString(cb.turn);
             cb.fenParts[9] = moveParts[2];
 
+        }
+
+
+        if(cb.turn == Constants.BLACK) {
+            cb.fenParts[12] = Integer.toString(Integer.parseInt(cb.fenParts[12]) - 1);
         }
         cb.checkBoard();
     }
@@ -734,7 +793,7 @@ public class MoveManager {
                 kingSide = cb.board[rank][i] == Constants.EMPTY_SQUARE && !cb.squareUnderAttack(i, rank);
             }
             if(kingSide){
-                moves.add(Constants.KING_SIDE_CASTLING+Constants.MOVE_SEPARATOR+cb.fenParts[9]+Constants.MOVE_SEPARATOR+cb.fenParts[10]);
+                moves.add(Constants.KING_SIDE_CASTLING+Constants.MOVE_SEPARATOR+cb.fenParts[9]+Constants.MOVE_SEPARATOR+cb.fenParts[10]+Constants.MOVE_SEPARATOR+cb.fenParts[11]);
             }
         }
         if(queenSide){
@@ -742,7 +801,7 @@ public class MoveManager {
                 queenSide = cb.board[rank][i] == Constants.EMPTY_SQUARE&&!cb.squareUnderAttack(i,rank);
             }
             if(queenSide){
-                moves.add(Constants.QUEEN_SIDE_CASTLING+Constants.MOVE_SEPARATOR+cb.fenParts[9]+Constants.MOVE_SEPARATOR+cb.fenParts[10]);
+                moves.add(Constants.QUEEN_SIDE_CASTLING+Constants.MOVE_SEPARATOR+cb.fenParts[9]+Constants.MOVE_SEPARATOR+cb.fenParts[10]+Constants.MOVE_SEPARATOR+cb.fenParts[11]);
             }
         }
         return moves;
@@ -781,119 +840,88 @@ public class MoveManager {
             int checkerFile = checkerIndex % 8;
             int checkerRank = checkerIndex / 8;
 
-
+            //capture code
+            if(Math.abs(file-checkerFile) == 1) {
+                if ((cb.turn == Constants.WHITE &&rank-checkerRank==1) || (cb.turn == Constants.BLACK &&rank-checkerRank==-1)){
+                    if(checkerRank == 0 || checkerRank == 7){
+                        if(cb.turn==Constants.WHITE){
+                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
+                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
+                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
+                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
+                        }else{
+                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
+                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
+                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
+                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
+                        }
+                    }else {
+                        moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts));
+                    }
+                }
+            }
 
             switch(Character.toUpperCase(cb.board[checkerRank][checkerFile])){
                 case Constants.WHITE_KNIGHT:
                 case Constants.WHITE_PAWN:
-                    //no way to block the check, capture move generation is done below
+                    //no way to block the check
                     break;
                 default:
                     int[] kingPosition = cb.kingPosition();
                     int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
-                    if (checkDirection[0] == 0) {
-                        if (Math.abs(file - checkerFile) == 1) {
-                            // only possible move is to capture the checker why? https://lichess.org/editor/4k3/8/3q4/4P3/8/3K4/8/8_w_-_-_0_1?color=white
-                            //capture move generation is done below
+                    if(Util.inBetween(checkerFile,kingPosition[0],file)){
+                        int f=kingPosition[0];
+                        int r=kingPosition[1];
+                        while((f+=checkDirection[0])!=checkerFile&&(r+=checkDirection[1])!=checkerRank){
+                            boolean hasPotential = (cb.turn==Constants.WHITE&&rank>r&&((rank==6&&rank-r<=3)||(rank!=6&&rank-r<3)))||(cb.turn==Constants.BLACK&&rank<r&&((rank==1&&r-rank<=3)||(rank!=1&&r-rank<3)));
+                            if(!hasPotential){
+                                continue;
+                            }
+                            int limit;
+                            if(cb.turn==Constants.BLACK){
+                                limit = rank == 1?2:1;
+                                for(int currentRank=rank+1;currentRank<=rank+limit;currentRank++){
+                                    if(cb.board[currentRank][file]!=Constants.EMPTY_SQUARE){
+                                        break;
+                                    }
+                                    if(f==file&&currentRank==r){
+                                        if(r == 7){
+                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
+                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
+                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
+                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
+                                        }else{
+                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts));
+                                        }
+                                        break;
+                                    }
+                                }
+                            }else{
+                                limit = rank == 6?2:1;
+
+                                for(int currentRank=rank-1;currentRank>=rank-limit;currentRank--){
+                                    if(cb.board[currentRank][file]!=Constants.EMPTY_SQUARE){
+                                        break;
+                                    }
+                                    if(f==file&&currentRank==r){
+                                        if(r == 0){
+                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
+                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
+                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
+                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
+                                        }else{
+                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts));
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
                         }
-                    }else{
-                        ylglyijg
                     }
+
                     break;
             }
 
-
-            if(Math.abs(file-checkerFile) == 1) {
-                if ((cb.turn == Constants.WHITE &&rank-checkerRank==1) || (cb.turn == Constants.BLACK &&rank-checkerRank==-1)){
-                    moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank,cb.board,cb.fenParts));
-                }
-            }
-
-
-//            if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT && Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_PAWN) {
-//                int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
-//                if (checkDirection[0] == 0) {
-//                    if (Math.abs(file - checkerFile) == 1) {
-//                        // only possible move is to capture the checker why? https://lichess.org/editor/4k3/8/3q4/4P3/8/3K4/8/8_w_-_-_0_1?color=white
-//                        if (Math.abs(rank - checkerRank) == 1 && ((Util.isUpperCase(cb.board[rank][file]) && checkDirection[1] == -1) || (!Util.isUpperCase(cb.board[rank][file]) && checkDirection[1] == 1))) {
-//                            moves.add(Util.cvtMove(file, rank, file + checkDirection[0], rank + checkDirection[1],cb.board,cb.fenParts));
-//                        }
-//                    }
-//                } else if (checkDirection[1] == 0) {
-//                    boolean hasPotential = (Util.isUpperCase(cb.board[rank][file]) && kingPosition[1] - rank == -1) || (!Util.isUpperCase(cb.board[rank][file]) && kingPosition[1] - rank == 1);
-//                    if (file == checkerFile) {
-//                        // cannot resolve the check, why? https://lichess.org/editor/7k/8/2K3q1/6P1/8/8/8/8_w_-_-_0_1?color=white
-//                    }else if(hasPotential){
-//                        // possible move is to block the check how? https://lichess.org/editor/7k/8/1K2q3/3P4/8/8/8/8_w_-_-_0_1?color=white
-//                        int destRank = cb.turn == Constants.WHITE?rank-1:rank+1;
-//                        if(file>kingPosition[0] && file<checkerFile && destRank<8 && destRank>=0 && cb.board[destRank][file] == Constants.EMPTY_SQUARE){
-//                            if(destRank == 0 || destRank == 7){
-//                                switch(cb.turn){
-//                                    case Constants.WHITE:
-//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
-//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
-//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
-//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
-//                                        break;
-//                                    case Constants.BLACK:
-//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
-//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
-//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
-//                                        moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
-//                                        break;
-//                                }
-//
-//                            }else {
-//                                moves.add(Util.cvtMove(file, rank, file, destRank, cb.board, cb.fenParts));
-//                            }
-//
-//                        }
-//                        if(Math.abs(file-checkerFile) == 1) {
-//                            // possible move is to capture the checker how? https://lichess.org/editor/7k/8/1K2q3/3P4/8/8/8/8_w_-_-_0_1?color=white
-//                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank,cb.board,cb.fenParts));
-//                        }
-//                    }
-//                }
-//            }else{
-//                // no way to block a check from knight or pawn, only possible move is to capture
-//                if(Math.abs(checkerFile-file) == 1 && Math.abs(checkerRank-rank) == 1){
-//                    if((cb.turn == Constants.WHITE && checkerRank<rank) || (cb.turn == Constants.BLACK && checkerRank>rank)){
-//                        if(checkerRank == 0 || checkerRank == 7){
-//                            switch(cb.turn){
-//                                case Constants.WHITE:
-//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
-//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
-//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
-//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
-//                                    break;
-//                                case Constants.BLACK:
-//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
-//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
-//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
-//                                    moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
-//                                    break;
-//                            }
-//
-//                        }else {
-//                            moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank,cb.board,cb.fenParts));
-//                        }
-//                    }
-//                }else if(!cb.fenParts[10].equals("-")){
-//                    // en passant move to resolve the check!
-//                    if(Math.abs(Constants.FILES.indexOf(cb.fenParts[10].charAt(0)) - file) == 1){
-//                        if(Util.isUpperCase(cb.board[rank][file])){
-//                            if(rank-1 == 8-Integer.parseInt(Character.toString(cb.fenParts[10].charAt(10)))){
-//                                moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), 2,cb.board,cb.fenParts)+Constants.MOVE_SEPARATOR+"en");
-//                            }
-//                        }else{
-//                            if(rank+1 == 8-Integer.parseInt(Character.toString(cb.fenParts[10].charAt(10)))){
-//                                moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), 5,cb.board,cb.fenParts)+Constants.MOVE_SEPARATOR+"en");
-//                            }
-//                        }
-//                    }
-//
-//                }
-//            }
             return moves;
         }
 
@@ -1067,91 +1095,42 @@ public class MoveManager {
             }
             int checkerFile = checkerIndex % 8;
             int checkerRank = checkerIndex / 8;
-            if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT || Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_PAWN){
-                int[] kingPosition = cb.kingPosition();
-                int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
 
-                if(checkDirection[1] == 0){
-                    //bishop part
-                    for(int i=checkerFile;Util.inBetween(checkerFile,kingPosition[0],i);i-=checkDirection[0]){
-                        if((i+checkerRank)%2 == (file+rank)%2 && cb.canSlide(file,rank,i,checkerRank)){
-                            moves.add(Util.cvtMove(file,rank,i,checkerRank,cb.board,cb.fenParts));
-                        }
-                    }
-
-                    //rook
-                    if(Util.inBetween(kingPosition[0],checkerFile,file)){
-                        // means the rook is in between the checker and the king, therefore it might be able to block the check
-                        if(cb.canSlide(file,rank,file,kingPosition[1])){
-                            moves.add(Util.cvtMove(file,rank,file,kingPosition[1],cb.board,cb.fenParts));
-                        }
-                    }
-                }else if(checkDirection[0] == 0){
-                    //bishop
-                    for(int i=checkerRank;Util.inBetween(checkerRank,kingPosition[1],i);i-=checkDirection[1]){
-                        if((i+checkerRank)%2 == (file+rank)%2 && cb.canSlide(file,rank,checkerFile,i)){
-                            moves.add(Util.cvtMove(file,rank,checkerFile,i,cb.board,cb.fenParts));
-                        }
-                    }
-
-                    //rook
-                    if(Util.inBetween(kingPosition[1],checkerRank,rank)){
-                        // means the rook is in between the checker and the king, therefore it might be able to block the check
-                        if(cb.canSlide(file,rank,kingPosition[0],rank)){
-                            moves.add(Util.cvtMove(file,rank,kingPosition[0],rank,cb.board,cb.fenParts));
-                        }
-                    }
-                }else{
-
-                    //rook
-                    if(Util.inBetween(kingPosition[0],checkerFile,file)){
-                        int f = checkerFile-checkDirection[0],r = checkerRank-checkDirection[1];
-                        while(Util.inBetween(f+checkDirection[0],kingPosition[0],f)){
-                            if(f == file){
-                                if(cb.canSlide(file,rank,f,r)) {
-                                    moves.add(Util.cvtMove(file, rank, f, r,cb.board,cb.fenParts));
-                                }
-                                break;
-                            }
-                            f -= checkDirection[0];
-                            r -= checkDirection[1];
-                        }
-                    }
-                    if(Util.inBetween(kingPosition[1],checkerRank,rank)){
-                        int f = checkerFile-checkDirection[0],r = checkerRank-checkDirection[1];
-                        while(Util.inBetween(r+checkDirection[1],kingPosition[1],r)){
-                            if(r == rank){
-                                if(cb.canSlide(file,rank,f,r)) {
-                                    moves.add(Util.cvtMove(file, rank, f, r,cb.board,cb.fenParts));
-                                }
-                                break;
-                            }
-                            f -= checkDirection[0];
-                            r -= checkDirection[1];
-                        }
-                    }
-
-                    //bishop
-                    if((file+rank)%2 == (checkerFile+checkerRank)%2){
-                        int f = checkerFile,r = checkerRank;
-                        while(Util.inBetween(f,kingPosition[0],f) && Util.inBetween(r,kingPosition[1],r)){
-                            if(rank-file == r-f){
-                                if(cb.canSlide(file,rank,f,r)) {
-                                    moves.add(Util.cvtMove(file, rank, f, r,cb.board,cb.fenParts));
-                                }
-                                break;
-                            }
-                            f -= checkDirection[0];
-                            r -= checkDirection[1];
-                        }
-                    }
-                }
-            }else{
-                // no way to block the check, only possible move is to capture
-            }
-            if(cb.canSlide(checkerFile,checkerRank,file,rank)){
-                // capture
+            if(cb.canSlide(file,rank,checkerFile,checkerRank)){
                 moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank,cb.board,cb.fenParts));
+            }
+
+            switch(Character.toUpperCase(cb.board[checkerRank][checkerFile])){
+                case Constants.WHITE_PAWN:
+                case Constants.WHITE_KNIGHT:
+                    break;
+                default:
+                    int[] kingPosition = cb.kingPosition();
+                    int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
+
+                    if(checkDirection[0]==0){
+                        int r = kingPosition[1];
+                        while ((r += checkDirection[1]) != checkerRank) {
+                            if(cb.canSlide(file,rank,checkerFile,r)){
+                                moves.add(Util.cvtMove(file,rank,checkerFile,r,cb.board,cb.fenParts));
+                            }
+                        }
+                    }else if(checkDirection[1] == 0){
+                        int f = kingPosition[0];
+                        while ((f += checkDirection[0]) != checkerFile) {
+                            if(cb.canSlide(file,rank,f,checkerRank)){
+                                moves.add(Util.cvtMove(file,rank,f,checkerRank,cb.board,cb.fenParts));
+                            }
+                        }
+                    }
+                    else {
+                        int f = kingPosition[0], r = kingPosition[1];
+                        while ((f += checkDirection[0]) != checkerFile && (r += checkDirection[1]) != checkerRank) {
+                            if(cb.canSlide(file,rank,f,r)){
+                                moves.add(Util.cvtMove(file,rank,f,r,cb.board,cb.fenParts));
+                            }
+                        }
+                    }
             }
             return moves;
         }
@@ -1226,60 +1205,45 @@ public class MoveManager {
             }
             int checkerFile = checkerIndex % 8;
             int checkerRank = checkerIndex / 8;
-            if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT && Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_PAWN){
-                int[] kingPosition = cb.kingPosition();
-                int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
-                if(checkDirection[0] == 0){
-                    if(Util.inBetween(kingPosition[1],checkerRank,rank)){
-                        // means the rook is in between the checker and the king, therefore it might be able to block the check
-                        if(cb.canSlide(file,rank,kingPosition[0],rank)){
-                            moves.add(Util.cvtMove(file,rank,kingPosition[0],rank,cb.board,cb.fenParts));
-                        }
-                    }
-                }else if(checkDirection[1] == 0){
-                    if(Util.inBetween(kingPosition[0],checkerFile,file)){
-                        // means the rook is in between the checker and the king, therefore it might be able to block the check
-                        if(cb.canSlide(file,rank,file,kingPosition[1])){
-                            moves.add(Util.cvtMove(file,rank,file,kingPosition[1],cb.board,cb.fenParts));
-                        }
-                    }
-                }else{
-                    // done
 
-                    if(Util.inBetween(kingPosition[0],checkerFile,file)){
-                        int f = checkerFile-checkDirection[0],r = checkerRank-checkDirection[1];
-                        while(Util.inBetween(f+checkDirection[0],kingPosition[0],f)){
-                            if(f == file){
-                                if(cb.canSlide(file,rank,f,r)) {
-                                    moves.add(Util.cvtMove(file, rank, f, r,cb.board,cb.fenParts));
-                                }
-                                break;
-                            }
-                            f -= checkDirection[0];
-                            r -= checkDirection[1];
-                        }
-                    }
-                    if(Util.inBetween(kingPosition[1],checkerRank,rank)){
-                        int f = checkerFile-checkDirection[0],r = checkerRank-checkDirection[1];
-                        while(Util.inBetween(r+checkDirection[1],kingPosition[1],r)){
-                            if(r == rank){
-                                if(cb.canSlide(file,rank,f,r)) {
-                                    moves.add(Util.cvtMove(file, rank, f, r,cb.board,cb.fenParts));
-                                }
-                                break;
-                            }
-                            f -= checkDirection[0];
-                            r -= checkDirection[1];
-                        }
-                    }
-                }
-            }else{
-                // no way to block, only possible move is to capture the checker
-            }
             if(file == checkerFile || rank == checkerRank){
                 if(cb.canSlide(file,rank,checkerFile,checkerRank)){
                     moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank,cb.board,cb.fenParts));
                 }
+            }
+
+            switch(Character.toUpperCase(cb.board[checkerRank][checkerFile])){
+                case Constants.WHITE_PAWN:
+                case Constants.WHITE_KNIGHT:
+                    break;
+                default:
+                    int[] kingPosition = cb.kingPosition();
+                    int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
+                    if(checkDirection[0] == 0){
+                        if(Util.inBetween(kingPosition[1],checkerRank,rank)){
+                            // means the rook is in between the checker and the king, therefore it might be able to block the check
+                            if(cb.canSlide(file,rank,kingPosition[0],rank)){
+                                moves.add(Util.cvtMove(file,rank,kingPosition[0],rank,cb.board,cb.fenParts));
+                            }
+                        }
+                    }else if(checkDirection[1] == 0){
+                        if(Util.inBetween(kingPosition[0],checkerFile,file)){
+                            // means the rook is in between the checker and the king, therefore it might be able to block the check
+                            if(cb.canSlide(file,rank,file,kingPosition[1])){
+                                moves.add(Util.cvtMove(file,rank,file,kingPosition[1],cb.board,cb.fenParts));
+                            }
+                        }
+                    }else{
+                        int f=kingPosition[0],r=kingPosition[1];
+                        while((f+=checkDirection[0])!=checkerFile&&(r+=checkDirection[1])!=checkerRank){
+                            if(f == file || r == rank){
+                                if(cb.canSlide(file,rank,f,r)){
+                                    moves.add(Util.cvtMove(file,rank,f,r,cb.board,cb.fenParts));
+                                }
+                                break;
+                            }
+                        }
+                    }
             }
             return moves;
         }
@@ -1320,31 +1284,9 @@ public class MoveManager {
             }
             int checkerFile = checkerIndex % 8;
             int checkerRank = checkerIndex / 8;
-            if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT && Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_PAWN){
-                int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
-                int[] kingPosition = cb.kingPosition();
-                int currentFile=kingPosition[0],currentRank=kingPosition[1];
-                while(moves.size()<2 && currentFile!=checkerFile && currentRank!=checkerRank){
-                    currentRank+=checkDirection[1];
-                    currentFile+=checkDirection[0];
-                    if(currentFile == file || currentRank == rank){
-                        continue;
-                    }
-                    int[] direction = Util.getDirection(file,rank,currentFile,currentRank);
-                    for(int i=0;i<2;i++){
-                        if(file+ Constants.KNIGHT_DIRECTION[i][0]*direction[0] == currentFile && rank+ Constants.KNIGHT_DIRECTION[i][1]*direction[1] == currentRank){
-                            moves.add(Util.cvtMove(file,rank,currentFile,currentRank,cb.board,cb.fenParts));
-                            break;
-                        }
-                    }
 
-                }
-
-            }else{
-                //only possible move is to capture
-                if(checkerFile == file || checkerRank == rank){
-                    return moves; // because when the knight moves it changes both, its file and rank, therefore it cannot reach to a tile sharing the same file or rank
-                }
+            //capture code
+            if(file!=checkerFile&&rank!=checkerRank){
                 int[] direction = Util.getDirection(file,rank,checkerFile,checkerRank);
                 for(int i=0;i<2;i++){
                     if(file+Constants.KNIGHT_DIRECTION[i][0]*direction[0] == checkerFile && rank+Constants.KNIGHT_DIRECTION[i][1]*direction[1] == checkerRank){
@@ -1352,6 +1294,68 @@ public class MoveManager {
                         break;
                     }
                 }
+
+            }
+
+            switch(Character.toUpperCase(cb.board[checkerRank][checkerFile])){
+                case Constants.WHITE_PAWN:
+                case Constants.WHITE_KNIGHT:
+                    break;
+                default:
+                    int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
+                    int[] kingPosition = cb.kingPosition();
+                    if(checkDirection[0] == 0){
+                        if(file == checkerFile || Math.abs(file-checkerFile)>2){
+                            break;
+                        }
+                        int r=kingPosition[1];
+                        while(moves.size()<2&&(r+=checkDirection[1])!=checkerRank){
+                            if(r==rank){
+                                continue;
+                            }
+                            int[] direction = Util.getDirection(file,rank,checkerFile,r);
+                            for(int i=0;i<2;i++){
+                                if(file+Constants.KNIGHT_DIRECTION[i][0]*direction[0] == checkerFile && rank+Constants.KNIGHT_DIRECTION[i][1]*direction[1] == r){
+                                    moves.add(Util.cvtMove(file,rank,checkerFile,r,cb.board,cb.fenParts));
+                                    break;
+                                }
+                            }
+
+                        }
+                    }else if(checkDirection[1] == 0){
+                        if(rank == checkerRank || Math.abs(rank-checkerRank)>2){
+                            break;
+                        }
+                        int f=kingPosition[0];
+                        while(moves.size()<2&&(f+=checkDirection[0])!=checkerFile){
+                            if(f==file){
+                                continue;
+                            }
+                            int[] direction = Util.getDirection(file,rank,f,checkerRank);
+                            for(int i=0;i<2;i++){
+                                if(file+Constants.KNIGHT_DIRECTION[i][0]*direction[0] == f && rank+Constants.KNIGHT_DIRECTION[i][1]*direction[1] == checkerRank){
+                                    moves.add(Util.cvtMove(file,rank,f,checkerRank,cb.board,cb.fenParts));
+                                    break;
+                                }
+                            }
+
+                        }
+                    }else{
+                        int f=kingPosition[0],r=kingPosition[1];
+                        while(moves.size()<2&&(f+=checkDirection[0])!=checkerFile&&(r+=checkDirection[1])!=checkerRank){
+                            if(f==file || r==rank){
+                                continue;
+                            }
+                            int[] direction = Util.getDirection(file,rank,f,r);
+                            for(int i=0;i<2;i++){
+                                if(file+Constants.KNIGHT_DIRECTION[i][0]*direction[0] == f && rank+Constants.KNIGHT_DIRECTION[i][1]*direction[1] == r){
+                                    moves.add(Util.cvtMove(file,rank,f,r,cb.board,cb.fenParts));
+                                    break;
+                                }
+                            }
+
+                        }
+                    }
             }
             return moves;
         }
@@ -1414,42 +1418,67 @@ public class MoveManager {
             }
             int checkerFile = checkerIndex % 8;
             int checkerRank = checkerIndex / 8;
-            if(Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_KNIGHT && Character.toUpperCase(cb.board[checkerRank][checkerFile]) != Constants.WHITE_PAWN){
-                int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
-                int[] kingPosition = cb.kingPosition();
-                if(checkDirection[1] == 0){
-                    for(int i=checkerFile;Util.inBetween(checkerFile+checkDirection[0],kingPosition[0],i);i-=checkDirection[0]){
-                        if((i+checkerRank)%2 == (file+rank)%2 && cb.canSlide(file,rank,i,checkerRank)){
-                            moves.add(Util.cvtMove(file,rank,i,checkerRank,cb.board,cb.fenParts));
-                        }
-                    }
-                }else if(checkDirection[0] == 0){
-                    for(int i=checkerRank;Util.inBetween(checkerRank+checkDirection[1],kingPosition[1],i);i-=checkDirection[1]){
-                        if((i+checkerRank)%2 == (file+rank)%2 && cb.canSlide(file,rank,checkerFile,i)){
-                            moves.add(Util.cvtMove(file,rank,checkerFile,i,cb.board,cb.fenParts));
-                        }
-                    }
-                }else{
-                    if((file+rank)%2 == (checkerFile+checkerRank)%2){
-                        int f = checkerFile,r = checkerRank;
-                        while(Util.inBetween(f+checkDirection[0],kingPosition[0],f) && Util.inBetween(r+checkDirection[1],kingPosition[1],r)){
-                            if(rank-file == r-f){
-                                if(cb.canSlide(file,rank,f,r)) {
-                                    moves.add(Util.cvtMove(file, rank, f, r,cb.board,cb.fenParts));
-                                }
-                                break;
-                            }
-                            f -= checkDirection[0];
-                            r -= checkDirection[1];
-                        }
-                    }
-                }
-            }else{
-                // only possible move is to capture
-                if(cb.canSlide(file,rank,checkerFile,checkerRank)){
-                    moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank,cb.board,cb.fenParts));
-                }
+
+
+            boolean onSameColoredSquare =  (file+rank)%2==(checkerFile+checkerRank)%2;
+
+            if((file!=checkerFile) && (rank!=checkerRank) && onSameColoredSquare&&cb.canSlide(file,rank,checkerFile,checkerRank)){
+                moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank,cb.board,cb.fenParts));
             }
+
+
+            switch(Character.toUpperCase(cb.board[checkerRank][checkerFile])){
+                case Constants.WHITE_PAWN:
+                case Constants.WHITE_KNIGHT:
+                    break;
+                default:
+                    int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
+                    if(checkDirection[0]==0){
+                        if(file==checkerFile){
+                            break;
+                        }
+                        int[] kingPosition = cb.kingPosition();
+                        int r = kingPosition[1];
+                        while((r+=checkDirection[1])!=checkerRank){
+                            if(rank!=r&&(file+rank)%2==(checkerFile+r)%2){
+                                if(cb.canSlide(file,rank,checkerFile,r)){
+                                    moves.add(Util.cvtMove(file,rank,checkerFile,r,cb.board,cb.fenParts));
+                                }
+                            }
+                        }
+
+                    }else if(checkDirection[1]==0){
+                        if(rank==checkerRank){
+                            break;
+                        }
+                        int[] kingPosition = cb.kingPosition();
+                        int f = kingPosition[0];
+                        while((f+=checkDirection[0])!=checkerFile){
+                            if(file!=f&&(file+rank)%2==(f+checkerRank)%2){
+                                if(cb.canSlide(file,rank,f,checkerRank)){
+                                    moves.add(Util.cvtMove(file,rank,f,checkerRank,cb.board,cb.fenParts));
+                                }
+                            }
+                        }
+                    }else{
+                        if(!onSameColoredSquare || file==checkerFile||rank==checkerRank){
+                            break;
+                        }
+                        int[] kingPosition = cb.kingPosition();
+                        int f = kingPosition[0],r = kingPosition[1];
+                        while((f+=checkDirection[0])!=checkerFile&&(r+=checkDirection[1])!=checkerRank){
+                            if((file!=f) && (rank!=r)&&(file+rank)%2==(f+r)%2){
+                                if(cb.canSlide(file,rank,f,r)){
+                                    moves.add(Util.cvtMove(file,rank,f,r,cb.board,cb.fenParts));
+                                }
+                            }
+                        }
+                    }
+
+
+            }
+
+
 
 
             return moves;

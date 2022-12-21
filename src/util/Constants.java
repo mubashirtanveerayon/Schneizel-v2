@@ -59,6 +59,10 @@ public class Constants {
     public static final String FILES = "abcdefgh";
 
     public static final String RANKS = "87654321";
+    public static final int PROMOTION_MOVE_LENGTH = 6;
+    public static final int EN_PASSANT_MOVE_LENGTH = 6;
+    public static final int NORMAL_MOVE_LENGTH = 5;
+    public static final int CASTLING_MOVE_LENGTH = 4;
 
     public static String KING_SIDE_CASTLING = "O-O";
 

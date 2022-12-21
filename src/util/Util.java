@@ -57,7 +57,7 @@ public class Util {
     public static String cvtMove(int lf,int lr,int df,int dr,char[][] board,String[] fenParts) throws InvalidCoordinateException {
         if(!isValid(lf,lr)) throw new InvalidCoordinateException(lf,lr);
         if(!isValid(df,dr)) throw new InvalidCoordinateException(df,dr);
-        return String.valueOf(lf)+String.valueOf(lr)+String.valueOf(df)+String.valueOf(dr)+Constants.MOVE_SEPARATOR+board[dr][df]+Constants.MOVE_SEPARATOR+fenParts[9]+Constants.MOVE_SEPARATOR+fenParts[10];
+        return String.valueOf(lf)+String.valueOf(lr)+String.valueOf(df)+String.valueOf(dr)+Constants.MOVE_SEPARATOR+board[dr][df]+Constants.MOVE_SEPARATOR+fenParts[9]+Constants.MOVE_SEPARATOR+fenParts[10]+Constants.MOVE_SEPARATOR+fenParts[11];
     }
 
     public static char[][] getEmptyBoard(){
@@ -69,7 +69,7 @@ public class Util {
     }
 
     public static void printBoard(char[][] board){
-        printBoardStd(board,false);
+        printBoard(board,false);
     }
 
     public static void printBoard(char[][] boardChar,boolean flipped) {
