@@ -1,5 +1,6 @@
 package board;
 
+import exception.NoPieceOnSquareException;
 import util.*;
 
 import java.util.*;
@@ -16,7 +17,7 @@ public class ChessBoard {
 
     public GameState gs;
 
-    public Set<Integer> pieceLocations;// holds 1D index of piece locations in a 2D array
+    public Set<Integer> pieceLocations, attackedSquares;// holds 1D index of piece locations in a 2D array
                                         // used a set to avoid duplicate elements
 
     public ChessBoard(){
@@ -48,6 +49,7 @@ public class ChessBoard {
         turn = fenParts[8].charAt(0);
         pinnedPieces = new HashMap<>();
         pieceLocations = new HashSet<>();
+        //attackedSquares = new HashSet<>();
         whiteKingPosition = new int[2];
         blackKingPosition = new int[2];
         checkers = new HashMap<>();
@@ -72,6 +74,7 @@ public class ChessBoard {
 
     public void resetStats(){
         pinnedPieces.clear();
+        //attackedSquares.clear();
         checkers.clear();
         gs = GameState.NORMAL;
     }
@@ -164,14 +167,6 @@ public class ChessBoard {
 
     public void checkBoard(){
         resetStats();
-        //temporary debug code exists
-//        try{
-//            FenUtils.isValid(FenUtils.cat(fenParts));
-//        }catch(Exception e){
-//            e.printStackTrace();
-//            System.out.println(FenUtils.cat(fenParts));
-//            System.exit(0);
-//        }
         int[] kingPos = kingPosition();
         int file,rank ,pinnedPieceIndex=0;
         boolean foundAlly,foundEnemyPiece;
@@ -271,12 +266,65 @@ public class ChessBoard {
 
             }
         }
-
+        //checkForAttackedSquares();
 
     }
 
 
 
+//    public void checkForAttackedSquares(){
+//        for(Integer coord:pieceLocations){
+//            int file = coord%8;
+//            int rank = coord/8;
+//            if(!Util.isEnemyPiece(turn,board[rank][file])){
+//                continue;
+//            }
+//            switch(Character.toUpperCase(board[rank][file])){
+//                case Constants.WHITE_PAWN:
+//                    int dstFile = file-1,dstRank = rank-1;
+//                    if(Util.isValid(dstFile,dstRank)){
+//                        attackedSquares.add(dstFile+dstRank*8);
+//                    }
+//                    dstFile = file+1;
+//                    if(Util.isValid(dstFile,dstRank)){
+//                        attackedSquares.add(dstFile+dstRank*8);
+//                    }
+//                    break;
+//                case Constants.WHITE_KNIGHT:
+//                    for(int[] dir:Constants.KNIGHT_DIRECTION){
+//                        int f = file+dir[0];
+//                        int r = rank+dir[1];
+//                        if(Util.isValid(f,r)){
+//                            attackedSquares.add(f+r*8);
+//                        }
+//                    }
+//                    break;
+//                case Constants.WHITE_KING:
+//                    for(int[] dir:Constants.ALL_DIRECTIONS){
+//                        int f = file+dir[0];
+//                        int r = rank+dir[1];
+//                        if(Util.isValid(f,r)){
+//                            attackedSquares.add(f+r*8);
+//                        }
+//                    }
+//                    break;
+//                default:
+//                    int startIndex=0,endIndex=Constants.ALL_DIRECTIONS.length-1;
+//                    if(Character.toUpperCase(board[rank][file]) == Constants.WHITE_BISHOP){
+//                        startIndex = 4;
+//                    }else if(Character.toUpperCase(board[rank][file]) == Constants.WHITE_ROOK){
+//                        endIndex = 3;
+//                    }
+//                    for(int i=startIndex;i<=endIndex;i++){
+//                        int f=file,r=rank;
+//                        while(Util.isValid(f+=Constants.ALL_DIRECTIONS[i][0],r+=Constants.ALL_DIRECTIONS[i][1])&&board[r][f] == Constants.EMPTY_SQUARE){
+//                            attackedSquares.add(f+r*8);
+//                        }
+//                    }
+//            }
+//        }
+//    }
+//
 
     public boolean canSlide(int fromF, int fromR, int toF, int toR){
         int[] direction = Util.getDirection(fromF,fromR,toF,toR);

@@ -4,7 +4,36 @@ import exception.InvalidCoordinateException;
 
 import java.util.Arrays;
 
+import java.util.logging.*;
+
 public class Util {
+
+    private static Logger logger = Logger.getLogger("Engine Log");
+
+    static{
+        FileHandler handler;
+        try{
+            handler = new FileHandler("Log",true);
+            handler.setFormatter(new SimpleFormatter());
+            logger.addHandler(handler);
+            logger.info("Logger initialized!");
+
+        }catch(Exception e){
+            logger.log(Level.WARNING,"Exception: ",e);
+        }
+    }
+
+    public static void writeToLog(String msg){
+        logger.info(msg);
+    }
+
+    public static void writeToLog(String msg,Exception e){
+        logger.log(Level.WARNING,msg,e);
+    }
+
+    public static void writeToLog(Exception e){
+        writeToLog("Exception: ",e);
+    }
 
     public static int[] getDirection(final int fromF,final int fromR,final int toF,final int toR){
         return new int[]{getSign(toF,fromF), getSign(toR,fromR)};
@@ -73,8 +102,9 @@ public class Util {
     }
 
     public static void printBoard(char[][] boardChar,boolean flipped) {
+        String board;
         if(flipped){
-            String board = "\n    7   6   5   4   3   2   1   0\n  +---+---+---+---+---+---+---+---+\n" ;
+            board = "\n    7   6   5   4   3   2   1   0\n  +---+---+---+---+---+---+---+---+\n";
             for(int i=Constants.COLUMNS-1;i>=0;i--){
                 board += String.valueOf( i) + " | ";
                 for(int j = Constants.ROWS-1; j >= 0; j--){
@@ -83,9 +113,8 @@ public class Util {
                 board += String.valueOf( i) + "\n  +---+---+---+---+---+---+---+---+\n";
             }
             board+="    7   6   5   4   3   2   1   0\n";
-            System.out.println(board);
         }else{
-            String board = "\n    0   1   2   3   4   5   6   7\n  +---+---+---+---+---+---+---+---+\n";
+            board = "\n    0   1   2   3   4   5   6   7\n  +---+---+---+---+---+---+---+---+\n";
             for (int i = 0; i < Constants.COLUMNS; i++) {
                 board += String.valueOf(i) + " | ";
                 for (int j = 0; j < Constants.ROWS; j++) {
@@ -94,8 +123,8 @@ public class Util {
                 board += String.valueOf(i) + "\n  +---+---+---+---+---+---+---+---+\n";
             }
             board += "    0   1   2   3   4   5   6   7\n";
-            System.out.println(board);
         }
+        Util.writeToLog(board);
     }
 
     public static void printBoardStd(char[][] board){
@@ -103,8 +132,9 @@ public class Util {
     }
 
     public static void printBoardStd(char[][] boardChar, boolean flipped) {
+        String board;
         if(flipped){
-            String board = "\n    h   g   f   e   d   c   b   a\n  +---+---+---+---+---+---+---+---+\n" ;
+            board = "\n    h   g   f   e   d   c   b   a\n  +---+---+---+---+---+---+---+---+\n";
             for(int i=Constants.COLUMNS-1;i>=0;i--){
                 board += String.valueOf(Constants.ROWS - i) + " | ";
                 for(int j = Constants.ROWS-1; j >= 0; j--){
@@ -113,9 +143,8 @@ public class Util {
                 board += String.valueOf(Constants.ROWS - i) + "\n  +---+---+---+---+---+---+---+---+\n";
             }
             board+="    h   g   f   e   d   c   b   a\n";
-            System.out.println(board);
         }else{
-            String board = "\n    a   b   c   d   e   f   g   h\n  +---+---+---+---+---+---+---+---+\n";
+            board = "\n    a   b   c   d   e   f   g   h\n  +---+---+---+---+---+---+---+---+\n";
             for (int i = 0; i < Constants.COLUMNS; i++) {
                 board += String.valueOf(Constants.ROWS - i) + " | ";
                 for (int j = 0; j < Constants.ROWS; j++) {
@@ -124,7 +153,7 @@ public class Util {
                 board += String.valueOf(Constants.ROWS - i) + "\n  +---+---+---+---+---+---+---+---+\n";
             }
             board += "    a   b   c   d   e   f   g   h\n";
-            System.out.println(board);
         }
+        Util.writeToLog(board);
     }
 }

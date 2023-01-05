@@ -42,9 +42,9 @@ public class FenUtils {
 
     public static void printFile(char[] file){
         for(char c:file){
-            System.out.print(c);
+            Util.writeToLog(Character.toString(c));
         }
-        System.out.println();
+        Util.writeToLog("\n");
     }
 
     public static char[] parseFile(String fileFen){
@@ -166,7 +166,7 @@ public class FenUtils {
             }
         }
         //fen = fen.substring(0,fen.length()-1);
-        //System.out.println(fen);
+        //Util.writeToLogln(fen);
         return fen.trim();
     }
 }

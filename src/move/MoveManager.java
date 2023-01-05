@@ -22,12 +22,13 @@ public class MoveManager {
 
     public String cvt(String moveStr){
         String stdMove;
-        if(moveStr.contains(Constants.KING_SIDE_CASTLING)){
-            int rank = cb.turn == Constants.WHITE?7:0;
-            stdMove = Util.cvtMove(4,rank,5,rank);
-        }else if(moveStr.contains(Constants.QUEEN_SIDE_CASTLING)){
+        if(moveStr.contains(Constants.QUEEN_SIDE_CASTLING)){
             int rank = cb.turn == Constants.WHITE?7:0;
             stdMove = Util.cvtMove(4,rank,2,rank);
+        }else if(moveStr.contains(Constants.KING_SIDE_CASTLING)){
+            int rank = cb.turn == Constants.WHITE?7:0;
+            stdMove = Util.cvtMove(4,rank,6,rank);
+
         }else{
             stdMove = Util.cvtMove(Integer.parseInt(Character.toString(moveStr.charAt(0))),Integer.parseInt(Character.toString(moveStr.charAt(1))),Integer.parseInt(Character.toString(moveStr.charAt(2))),Integer.parseInt(Character.toString(moveStr.charAt(3))));
         }
@@ -79,9 +80,9 @@ public class MoveManager {
             numPositions += numMoves;
             undoMove(moveStr);
             if(!fen.equals(FenUtils.cat(cb.fenParts))){
-                System.out.println(fen);
-                System.out.println(FenUtils.cat(cb.fenParts));
-                System.out.println(cvt(moveStr));
+                Util.writeToLog("Original "+fen);
+                Util.writeToLog("Current  "+FenUtils.cat(cb.fenParts));
+                Util.writeToLog(cvt(moveStr));
             }
             if(stdOutput){
                 String stdMove;
@@ -94,12 +95,12 @@ public class MoveManager {
                 }else{
                     stdMove = Util.cvtMove(Integer.parseInt(Character.toString(moveStr.charAt(0))),Integer.parseInt(Character.toString(moveStr.charAt(1))),Integer.parseInt(Character.toString(moveStr.charAt(2))),Integer.parseInt(Character.toString(moveStr.charAt(3))));
                 }
-                System.out.println(stdMove + ": " + numMoves);
+                Util.writeToLog(stdMove + ": " + numMoves);
             }else {
-                System.out.println(moveStr + ": " + numMoves);
+                Util.writeToLog(moveStr + ": " + numMoves);
             }
         }
-        System.out.println("Total number of moves for depth "+depth+" : "+numPositions);
+        Util.writeToLog("Nodes searched : "+numPositions);
 
     }
 
@@ -109,15 +110,15 @@ public class MoveManager {
         }
         ArrayList<String> moves = getAllMoves() ;
         int numPositions = 0;
-        String fen = FenUtils.cat(cb.fenParts);
+//        String fen = FenUtils.cat(cb.fenParts);
         for (String moveStr:moves) {
 
             makeMove(moveStr);
             numPositions += recurseMoveGeneration(depth-1);
             undoMove(moveStr);
-            if(!fen.equals(FenUtils.cat(cb.fenParts))){
-                System.out.println(cvt(moveStr));
-            }
+//            if(!fen.equals(FenUtils.cat(cb.fenParts))){
+//                Util.writeToLog(cvt(moveStr));
+//            }
         }
         return numPositions;
     }
@@ -137,34 +138,8 @@ public class MoveManager {
 
     // Here are all the functions from previous move class
     public void makeMove(String move){
-        if(move.contains(Constants.KING_SIDE_CASTLING)){
-            int rank = cb.turn == Constants.WHITE?7:0;
-            cb.board[rank][6] = cb.board[rank][4];
-            cb.board[rank][4] = Constants.EMPTY_SQUARE;
-            cb.board[rank][5] = cb.board[rank][7];
-            cb.board[rank][7] = Constants.EMPTY_SQUARE;
-            cb.pieceLocations.add(6 + rank * 8);
-            cb.pieceLocations.remove((Object)(4 + rank * 8));
-            cb.pieceLocations.add(5 + rank * 8);
-            cb.pieceLocations.remove((Object)(7 + rank * 8));
-            if(cb.turn == Constants.WHITE){
-                cb.whiteKingPosition[0] = 6;
-                cb.whiteKingPosition[1] = 7;
-            }else{
-                cb.blackKingPosition[0] = 6;
-                cb.blackKingPosition[1] = 0;
-            }
-            cb.fenParts[rank] = FenUtils.getRank(cb.board[rank]);
-            if(cb.turn  == Constants.WHITE){
-                cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_KING),"").replace(Character.toString(Constants.WHITE_QUEEN),"");
-            }else{
-                cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_KING),"").replace(Character.toString(Constants.BLACK_QUEEN),"");
-            }
-            cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
-            cb.fenParts[8] = Character.toString(cb.turn);
-            cb.fenParts[10] = "-";
-            cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])+1);
-        }else if(move.contains(Constants.QUEEN_SIDE_CASTLING)){
+        if(move.contains(Constants.QUEEN_SIDE_CASTLING)){
+
             int rank = cb.turn == Constants.WHITE?7:0;
             cb.board[rank][2] = cb.board[rank][4];
             cb.board[rank][4] = Constants.EMPTY_SQUARE;
@@ -191,6 +166,36 @@ public class MoveManager {
             cb.fenParts[8] = Character.toString(cb.turn);
             cb.fenParts[10] = "-";
             cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])+1);
+        }else if(move.contains(Constants.KING_SIDE_CASTLING)){
+
+            int rank = cb.turn == Constants.WHITE?7:0;
+            cb.board[rank][6] = cb.board[rank][4];
+            cb.board[rank][4] = Constants.EMPTY_SQUARE;
+            cb.board[rank][5] = cb.board[rank][7];
+            cb.board[rank][7] = Constants.EMPTY_SQUARE;
+            cb.pieceLocations.add(6 + rank * 8);
+            cb.pieceLocations.remove((Object)(4 + rank * 8));
+            cb.pieceLocations.add(5 + rank * 8);
+            cb.pieceLocations.remove((Object)(7 + rank * 8));
+            if(cb.turn == Constants.WHITE){
+                cb.whiteKingPosition[0] = 6;
+                cb.whiteKingPosition[1] = 7;
+            }else{
+                cb.blackKingPosition[0] = 6;
+                cb.blackKingPosition[1] = 0;
+            }
+            cb.fenParts[rank] = FenUtils.getRank(cb.board[rank]);
+            if(cb.turn  == Constants.WHITE){
+                cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_KING),"").replace(Character.toString(Constants.WHITE_QUEEN),"");
+            }else{
+                cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_KING),"").replace(Character.toString(Constants.BLACK_QUEEN),"");
+            }
+            cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
+            cb.fenParts[8] = Character.toString(cb.turn);
+            cb.fenParts[10] = "-";
+            cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])+1);
+
+
         }else if(move.charAt(1) == move.charAt(3)){
             int rank = Integer.parseInt(String.valueOf(move.charAt(1)));
             int locFile = Integer.parseInt(String.valueOf(move.charAt(0)));
@@ -463,8 +468,30 @@ public class MoveManager {
         cb.checkBoard();
     }
     public void undoMove(String move){
-        if(move.contains(Constants.KING_SIDE_CASTLING)){
-            int rank = cb.turn == Constants.WHITE?7:0;
+        if(move.contains(Constants.QUEEN_SIDE_CASTLING)){
+            int rank = cb.turn == Constants.WHITE?0:7;
+            cb.board[rank][4] = cb.board[rank][2];
+            cb.board[rank][2] = Constants.EMPTY_SQUARE;
+            cb.board[rank][0] = cb.board[rank][3];
+            cb.board[rank][3] = Constants.EMPTY_SQUARE;
+            cb.pieceLocations.add(4 + rank * 8);
+            cb.pieceLocations.remove((Object)(2 + rank * 8));
+            cb.pieceLocations.add(0 + rank * 8);
+            cb.pieceLocations.remove((Object)(3 + rank * 8));
+            if(cb.turn == Constants.WHITE){
+                cb.whiteKingPosition[0] = 4;
+            }else{
+                cb.blackKingPosition[0] = 4;
+            }
+            cb.fenParts[rank] = FenUtils.getRank(cb.board[rank]);
+            String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
+            cb.fenParts[9] = moveParts[1];
+            cb.fenParts[10] = moveParts[2];
+            cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
+            cb.fenParts[8] = Character.toString(cb.turn);
+            cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.CASTLING_MOVE_LENGTH-1]));
+        }else if(move.contains(Constants.KING_SIDE_CASTLING)){
+            int rank = cb.turn == Constants.WHITE?0:7;
             cb.board[rank][4] = cb.board[rank][6];
             cb.board[rank][6] = Constants.EMPTY_SQUARE;
             cb.board[rank][7] = cb.board[rank][5];
@@ -482,28 +509,6 @@ public class MoveManager {
 
             String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
 
-            cb.fenParts[9] = moveParts[1];
-            cb.fenParts[10] = moveParts[2];
-            cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
-            cb.fenParts[8] = Character.toString(cb.turn);
-            cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.CASTLING_MOVE_LENGTH-1]));
-        }else if(move.contains(Constants.QUEEN_SIDE_CASTLING)){
-            int rank = cb.turn == Constants.WHITE?7:0;
-            cb.board[rank][4] = cb.board[rank][2];
-            cb.board[rank][2] = Constants.EMPTY_SQUARE;
-            cb.board[rank][0] = cb.board[rank][3];
-            cb.board[rank][3] = Constants.EMPTY_SQUARE;
-            cb.pieceLocations.add(4 + rank * 8);
-            cb.pieceLocations.remove((Object)(2 + rank * 8));
-            cb.pieceLocations.add(0 + rank * 8);
-            cb.pieceLocations.remove((Object)(3 + rank * 8));
-            if(cb.turn == Constants.WHITE){
-                cb.whiteKingPosition[0] = 4;
-            }else{
-                cb.blackKingPosition[0] = 4;
-            }
-            cb.fenParts[rank] = FenUtils.getRank(cb.board[rank]);
-            String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
             cb.fenParts[9] = moveParts[1];
             cb.fenParts[10] = moveParts[2];
             cb.turn  = cb.turn  == Constants.WHITE?Constants.BLACK:Constants.WHITE;
@@ -561,7 +566,6 @@ public class MoveManager {
             int locRank = Integer.parseInt(String.valueOf(move.charAt(3)));
             int destRank = Integer.parseInt(String.valueOf(move.charAt(1)));
             String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
-
             switch(cb.board[locRank][file]){
                 case Constants.WHITE_KING :
                     cb.whiteKingPosition[0] = file;
@@ -587,14 +591,15 @@ public class MoveManager {
                             break;
                     }
                 }
-            }
 
-            if(moveParts.length == Constants.PROMOTION_MOVE_LENGTH){
-                cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.PROMOTION_MOVE_LENGTH-2]));
+            }
+            //position startpos move d2d3 e7e6 c1f4 f8b4 d1d2 b8c6 b1c3
+            //go perft 2
+            if(moveParts.length==Constants.PROMOTION_MOVE_LENGTH){
+                cb.fenParts[11] = moveParts[Constants.PROMOTION_MOVE_LENGTH-2];
             }else{
-                cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.NORMAL_MOVE_LENGTH-1]));
+                cb.fenParts[11] = moveParts[Constants.NORMAL_MOVE_LENGTH-1];
             }
-
             cb.board[destRank][file] = cb.board[locRank][file];
             cb.board[locRank][file] = moveParts[1].charAt(0);
             cb.pieceLocations.add(file + destRank * 8);
@@ -654,12 +659,6 @@ public class MoveManager {
 
             String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
 
-            if(moveParts.length == Constants.PROMOTION_MOVE_LENGTH){
-                cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.PROMOTION_MOVE_LENGTH-2]));
-            }else{
-                cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.NORMAL_MOVE_LENGTH-1]));
-            }
-
             cb.fenParts[10] = moveParts[3];
 
             if(locRank == 0 || locRank == 7){
@@ -674,7 +673,11 @@ public class MoveManager {
                     }
                 }
             }
-
+            if(moveParts.length==Constants.PROMOTION_MOVE_LENGTH){
+                cb.fenParts[11] = moveParts[Constants.PROMOTION_MOVE_LENGTH-2];
+            }else{
+                cb.fenParts[11] = moveParts[Constants.NORMAL_MOVE_LENGTH-1];
+            }
             cb.board[destRank][destFile] = cb.board[locRank][locFile];
             cb.board[locRank][locFile] = moveParts[1].charAt(0);
             cb.pieceLocations.add(destFile + destRank * 8);
@@ -760,6 +763,10 @@ public class MoveManager {
                     continue;
                 }
 
+//                if(!cb.attackedSquares.contains(newFile+newRank*8)){
+//                    moves.add(Util.cvtMove(file,rank,newFile,newRank,cb.board,cb.fenParts));
+//                }
+
                 if(!cb.squareUnderAttack(newFile,newRank)){
                     moves.add(Util.cvtMove(file,rank,newFile,newRank,cb.board,cb.fenParts));
                 }
@@ -775,12 +782,16 @@ public class MoveManager {
             if(cb.board[newRank][newFile] != Constants.EMPTY_SQUARE&&Util.isAlly(cb.board[rank][file],cb.board[newRank][newFile])){
                 continue;
             }
+//            if(!cb.attackedSquares.contains(newFile+newRank*8)){
+//                moves.add(Util.cvtMove(file,rank,newFile,newRank,cb.board,cb.fenParts));
+//            }
+
             if(!cb.squareUnderAttack(newFile,newRank)){
                 moves.add(Util.cvtMove(file,rank,newFile,newRank,cb.board,cb.fenParts));
             }
         }
         // castling
-        boolean kingSide=cb.gs!=GameState.CHECK,queenSide = cb.gs!=GameState.CHECK;
+        boolean kingSide=cb.gs!=GameState.CHECK && cb.board[rank][6] == Constants.EMPTY_SQUARE,queenSide = cb.gs!=GameState.CHECK && cb.board[rank][1] == Constants.EMPTY_SQUARE;
         if(cb.turn == Constants.WHITE){
             kingSide = kingSide && cb.fenParts[9].contains(Character.toString(Constants.WHITE_KING));
             queenSide = queenSide && cb.fenParts[9].contains(Character.toString(Constants.WHITE_QUEEN));
@@ -790,7 +801,7 @@ public class MoveManager {
         }
         if(kingSide){
             for(int i=file+1;kingSide&&i<file+3;i++){
-                kingSide = cb.board[rank][i] == Constants.EMPTY_SQUARE && !cb.squareUnderAttack(i, rank);
+                kingSide = cb.board[rank][i] == Constants.EMPTY_SQUARE && !cb.squareUnderAttack(i,rank);
             }
             if(kingSide){
                 moves.add(Constants.KING_SIDE_CASTLING+Constants.MOVE_SEPARATOR+cb.fenParts[9]+Constants.MOVE_SEPARATOR+cb.fenParts[10]+Constants.MOVE_SEPARATOR+cb.fenParts[11]);
@@ -798,7 +809,7 @@ public class MoveManager {
         }
         if(queenSide){
             for(int i=file-1;queenSide&&i>file-3;i--){
-                queenSide = cb.board[rank][i] == Constants.EMPTY_SQUARE&&!cb.squareUnderAttack(i,rank);
+                queenSide = cb.board[rank][i] == Constants.EMPTY_SQUARE&& !cb.squareUnderAttack(i,rank);
             }
             if(queenSide){
                 moves.add(Constants.QUEEN_SIDE_CASTLING+Constants.MOVE_SEPARATOR+cb.fenParts[9]+Constants.MOVE_SEPARATOR+cb.fenParts[10]+Constants.MOVE_SEPARATOR+cb.fenParts[11]);
@@ -869,61 +880,144 @@ public class MoveManager {
                 default:
                     int[] kingPosition = cb.kingPosition();
                     int[] checkDirection = Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)];
-                    if(Util.inBetween(checkerFile,kingPosition[0],file)){
-                        int f=kingPosition[0];
-                        int r=kingPosition[1];
-                        while((f+=checkDirection[0])!=checkerFile&&(r+=checkDirection[1])!=checkerRank){
-                            boolean hasPotential = (cb.turn==Constants.WHITE&&rank>r&&((rank==6&&rank-r<=3)||(rank!=6&&rank-r<3)))||(cb.turn==Constants.BLACK&&rank<r&&((rank==1&&r-rank<=3)||(rank!=1&&r-rank<3)));
-                            if(!hasPotential){
-                                continue;
-                            }
-                            int limit;
-                            if(cb.turn==Constants.BLACK){
-                                limit = rank == 1?2:1;
-                                for(int currentRank=rank+1;currentRank<=rank+limit;currentRank++){
-                                    if(cb.board[currentRank][file]!=Constants.EMPTY_SQUARE){
-                                        break;
-                                    }
-                                    if(f==file&&currentRank==r){
-                                        if(r == 7){
-                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
-                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
-                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
-                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
-                                        }else{
-                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts));
+
+                    if(checkDirection[0] == 0){
+                        //available move is capturing the checker
+                    }else if(checkDirection[1] == 0){
+                        if(Util.inBetween(checkerFile,kingPosition[0],file)) {
+                            if (cb.turn == Constants.WHITE && rank>checkerRank) {
+                                if ((rank == 6 && rank - checkerRank<3) || ((rank - checkerRank<2))){
+                                    for(int i=rank-1;i>=checkerRank;i--){
+                                        if(cb.board[i][file] != Constants.EMPTY_SQUARE){
+                                            break;
+                                        } else if(i==checkerRank){
+                                            if(i==0){
+                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
+                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
+                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
+                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
+                                            }else {
+                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts));
+                                            }
+                                            break;
                                         }
-                                        break;
                                     }
                                 }
-                            }else{
-                                limit = rank == 6?2:1;
+                            } else if(cb.turn == Constants.BLACK && rank<checkerRank) {
+                                if ((rank == 1 && checkerRank-rank  <3) || ((checkerRank-rank<2))){
 
-                                for(int currentRank=rank-1;currentRank>=rank-limit;currentRank--){
-                                    if(cb.board[currentRank][file]!=Constants.EMPTY_SQUARE){
-                                        break;
-                                    }
-                                    if(f==file&&currentRank==r){
-                                        if(r == 0){
-                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
-                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
-                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
-                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
-                                        }else{
-                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts));
+                                    for(int i=rank+1;i<=checkerRank;i++){
+                                        if(cb.board[i][file] != Constants.EMPTY_SQUARE){
+                                            break;
+                                        } else if(i==checkerRank){
+                                            if(i==7){
+                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
+                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
+                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
+                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
+                                            }else {
+                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts));
+                                            }
+                                            break;
                                         }
-                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }else{
+                        if(Util.inBetween(checkerFile,kingPosition[0],file)){
+                            int f=kingPosition[0];
+                            int r=kingPosition[1];
+                            int dstRank=0;
+                            while((f+=checkDirection[0])!=checkerFile&&(r+=checkDirection[1])!=checkerRank){
+                                if(f == file){
+                                    dstRank = r;
+                                    break;
+                                }
+                            }
+                            if (cb.turn == Constants.WHITE && rank>dstRank) {
+                                if ((rank == 6 && rank - dstRank<3) || ((rank - dstRank<2))){
+                                    for(int i=rank-1;i>=dstRank;i--){
+                                        if(cb.board[i][file] != Constants.EMPTY_SQUARE){
+                                            break;
+                                        } else if(i==dstRank){
+                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts));
+                                            break;
+                                        }
+                                    }
+                                }
+                            } else if(cb.turn == Constants.BLACK && rank<dstRank) {
+                                if ((rank == 1 && dstRank-rank  <3) || ((dstRank-rank<2))){
+                                    for(int i=rank+1;i<=dstRank;i++){
+                                        if(cb.board[i][file] != Constants.EMPTY_SQUARE){
+                                            break;
+                                        } else if(i==dstRank){
+                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts));
+                                            break;
+                                        }
                                     }
                                 }
                             }
                         }
                     }
 
+
+//                    if(Util.inBetween(checkerFile,kingPosition[0],file)){
+//                        int f=kingPosition[0];
+//                        int r=kingPosition[1];
+//                        while((f+=checkDirection[0])!=checkerFile&&(r+=checkDirection[1])!=checkerRank){
+//                            boolean hasPotential = (cb.turn==Constants.WHITE&&rank>r&&((rank==6&&rank-r<=3)||(rank!=6&&rank-r<3)))||(cb.turn==Constants.BLACK&&rank<r&&((rank==1&&r-rank<=3)||(rank!=1&&r-rank<3)));
+//                            if(!hasPotential){
+//                                continue;
+//                            }
+//                            int limit;
+//                            if(cb.turn==Constants.BLACK){
+//                                limit = rank == 1?2:1;
+//                                for(int currentRank=rank+1;currentRank<=rank+limit;currentRank++){
+//                                    if(cb.board[currentRank][file]!=Constants.EMPTY_SQUARE){
+//                                        break;
+//                                    }
+//                                    if(f==file&&currentRank==r){
+//                                        if(r == 7){
+//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
+//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
+//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
+//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
+//                                        }else{
+//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts));
+//                                        }
+//                                        break;
+//                                    }
+//                                }
+//                            }else{
+//                                limit = rank == 6?2:1;
+//
+//                                for(int currentRank=rank-1;currentRank>=rank-limit;currentRank--){
+//                                    if(cb.board[currentRank][file]!=Constants.EMPTY_SQUARE){
+//                                        break;
+//                                    }
+//                                    if(f==file&&currentRank==r){
+//                                        if(r == 0){
+//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
+//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
+//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
+//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
+//                                        }else{
+//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts));
+//                                        }
+//                                        break;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+
                     break;
             }
 
             return moves;
         }
+
 
 
         // generating pushes
@@ -933,7 +1027,7 @@ public class MoveManager {
 
 
         for(int i=0;i<endIndex;i++){// needs to be fixed
-            //System.out.println(i);
+            //Util.writeToLog(i);
             f += Constants.ALL_DIRECTIONS[startIndex][0];
             r += Constants.ALL_DIRECTIONS[startIndex][1];
             if(Util.isValid(f,r)){
@@ -1058,6 +1152,7 @@ public class MoveManager {
             if(cb.gs == GameState.CHECK){
                 return moves; // a pinned piece cannot resolve check
             }
+            //Util.writeToLog();
             int[] pinDirection = Constants.ALL_DIRECTIONS[cb.pinnedPieces.get(pinnedIndex)];
             // can move along pinned squares
             boolean foundKing=false,foundEnemyPiece=false;
@@ -1077,12 +1172,24 @@ public class MoveManager {
                 }else {
                     df -= pinDirection[0];
                     dr -= pinDirection[1];
-                    if(cb.board[dr][df] == Constants.EMPTY_SQUARE) {
-                        moves.add(Util.cvtMove(file, rank, df, dr,cb.board,cb.fenParts));
-                    }else{
+                    if (cb.board[dr][df] == Constants.EMPTY_SQUARE) {
+                        moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts));
+                    } else {
                         foundKing = true;
                     }
-                }
+
+//                    try {
+//                        if (cb.board[dr][df] == Constants.EMPTY_SQUARE) {
+//                            moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts));
+//                        } else {
+//                            foundKing = true;
+//                        }
+//                    }catch (Exception e){
+//                        Util.writeToLog(file);
+//                        Util.writeToLog(rank);
+//                        Util.writeToLog(cb.board[rank][file]);
+//                    }
+                }//position startpos move d2d3 e7e6 c1f4 f8b4 d1d2 b8c6 b1c3 a8b8 e1c1 g8h6 c3e4
             }
             return moves;
         }else if(cb.gs == GameState.CHECK){
@@ -1461,18 +1568,32 @@ public class MoveManager {
                             }
                         }
                     }else{
-                        if(!onSameColoredSquare || file==checkerFile||rank==checkerRank){
-                            break;
-                        }
                         int[] kingPosition = cb.kingPosition();
                         int f = kingPosition[0],r = kingPosition[1];
                         while((f+=checkDirection[0])!=checkerFile&&(r+=checkDirection[1])!=checkerRank){
-                            if((file!=f) && (rank!=r)&&(file+rank)%2==(f+r)%2){
+                           if((file!=f) && (rank!=r)&&(file+rank)%2==(f+r)%2){
                                 if(cb.canSlide(file,rank,f,r)){
                                     moves.add(Util.cvtMove(file,rank,f,r,cb.board,cb.fenParts));
                                 }
                             }
+
                         }
+
+//                        if(!onSameColoredSquare || file==checkerFile||rank==checkerRank){
+//                            break;
+//                        }
+//                        int[] kingPosition = cb.kingPosition();
+//                        int f = kingPosition[0],r = kingPosition[1];
+//                        while((f+=checkDirection[0])!=checkerFile&&(r+=checkDirection[1])!=checkerRank){
+//                            Util.writeToLog(f);
+//                            Util.writeToLog(r);
+//                            if((file!=f) && (rank!=r)&&(file+rank)%2==(f+r)%2){
+//
+//                                if(cb.canSlide(file,rank,f,r)){
+//                                    moves.add(Util.cvtMove(file,rank,f,r,cb.board,cb.fenParts));
+//                                }
+//                            }
+//                        }
                     }
 
 

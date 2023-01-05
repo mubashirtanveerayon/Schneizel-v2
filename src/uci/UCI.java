@@ -6,45 +6,49 @@ import util.Constants;
 import util.FenUtils;
 import util.Util;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class UCI {
 
     public static void main(String[] args) {
 
         char[][] board = new char[][]{
-                {' ', 'R', ' ', ' ', ' ', ' ', ' ', 'k'},
+                {' ', 'k', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', 'n', ' '},
+                {' ', ' ', ' ', ' ', ' ', ' ', ' ', 'b'},
+                {' ', ' ', ' ', ' ', ' ', ' ', 'P', ' '},
+                {' ', ' ', ' ', ' ', ' ', 'Q', ' ', ' '},
                 {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', 'K', ' ', ' ', ' '}};
+                {' ', ' ', ' ', 'K', ' ', ' ', ' ', ' '}};
 
 
-        String fen = FenUtils.generate(board,"b - - 0 1");
+        String fen = FenUtils.generate(board,"w - - 0 1");
 
 
         Scanner sc = new Scanner(System.in);
         String input;
         ChessBoard cb=new ChessBoard();
         MoveManager mm=new MoveManager(cb);
-        System.out.println(mm.getAllMoves());
+        //Util.writeToLog(mm.getAllMoves());
         boolean exit=false,flip=false;
         while(!exit&&(input=sc.nextLine())!=null){
             String[] partsBySpace = input.split(" ");
             switch(partsBySpace[0].toLowerCase()){
                 case "uci":
-                    System.out.println("id name Schneizel 2");
-                    System.out.println("id author see AUTHORS file");
-                    System.out.println("uciok");
+                    Util.writeToLog("id name Schneizel 2");
+                    Util.writeToLog("id author see AUTHORS file");
+                    Util.writeToLog("uciok");
                     break;
                 case "go":
                     if(input.contains("perft")){
                         int depth = Integer.parseInt(partsBySpace[2]);
+                        long currentTime = System.nanoTime();
                         mm.moveGenerationTest(depth,true);
+                        Util.writeToLog("Time taken: "+ TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime)+" ms");
                     }
                     break;
                 case "position":
@@ -79,26 +83,31 @@ public class UCI {
                                         for(String move:moves){
                                             mm.undoMove(move);
                                         }
-                                    }else{
-                                        for(int i=3;i<partsBySpace.length;i++){
-                                            mm.undoMove(mm.parse(partsBySpace[i]));
-                                        }
                                     }
                                     break;
                             }
                             break;
                     }
                     break;
+                case "moves":
+                    ArrayList<String> moves = mm.getAllMoves();
+                    Util.writeToLog(moves.toString());
+                    String std="";
+                    for(String move:moves){
+                        std+=mm.cvt(move)+" ";
+                    }
+                    Util.writeToLog(std.trim());
+                    break;
                 case "d":
                     Util.printBoardStd(cb.board,flip);
                     Util.printBoard(cb.board);
-                    System.out.println("Fen: "+ FenUtils.cat(cb.fenParts));
+                    Util.writeToLog("Fen: "+ FenUtils.cat(cb.fenParts));
                     break;
                 case "quit":
                     exit = true;
                     break;
                 case "fen":
-                    System.out.println("Fen: "+ FenUtils.cat(cb.fenParts));
+                    Util.writeToLog("Fen: "+ FenUtils.cat(cb.fenParts));
                     break;
                 case "flip":
                     flip = !flip;
