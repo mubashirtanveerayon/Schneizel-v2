@@ -124,11 +124,12 @@ public class Util {
             }
             board += "    0   1   2   3   4   5   6   7\n";
         }
-        Util.writeToLog(board);
+        //Util.writeToLog(board);
+        System.out.println(board);
     }
 
     public static void printBoardStd(char[][] board){
-        printBoard(board,false);
+        printBoardStd(board,false);
     }
 
     public static void printBoardStd(char[][] boardChar, boolean flipped) {
@@ -154,6 +155,7 @@ public class Util {
             }
             board += "    a   b   c   d   e   f   g   h\n";
         }
-        Util.writeToLog(board);
+        //Util.writeToLog(board);
+        System.out.println(board);
     }
 }

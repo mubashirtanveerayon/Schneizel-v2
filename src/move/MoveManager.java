@@ -69,6 +69,41 @@ public class MoveManager {
         return move;
     }
 
+    public String moveGenerationTestWOLog(int depth,boolean stdOutput){//for debug purpose using stockfish
+        ArrayList<String> moves = getAllMoves() ;
+        StringBuilder output=new StringBuilder();
+        int numPositions = 0;
+        String fen = FenUtils.cat(cb.fenParts);
+        for (String moveStr:moves) {
+            makeMove(moveStr);
+            int numMoves = recurseMoveGeneration(depth-1);
+            numPositions += numMoves;
+            undoMove(moveStr);
+            if(!fen.equals(FenUtils.cat(cb.fenParts))){
+                System.out.println("Original "+fen);
+                System.out.println("Current  "+FenUtils.cat(cb.fenParts));
+                System.out.println(cvt(moveStr));
+            }
+            if(stdOutput){
+                String stdMove;
+                if(moveStr.contains(Constants.KING_SIDE_CASTLING)){
+                    int rank = cb.turn == Constants.WHITE?7:0;
+                    stdMove = Util.cvtMove(4,rank,5,rank);
+                }else if(moveStr.contains(Constants.QUEEN_SIDE_CASTLING)){
+                    int rank = cb.turn == Constants.WHITE?7:0;
+                    stdMove = Util.cvtMove(4,rank,2,rank);
+                }else{
+                    stdMove = Util.cvtMove(Integer.parseInt(Character.toString(moveStr.charAt(0))),Integer.parseInt(Character.toString(moveStr.charAt(1))),Integer.parseInt(Character.toString(moveStr.charAt(2))),Integer.parseInt(Character.toString(moveStr.charAt(3))));
+                }
+                output.append(stdMove).append(": ").append(numMoves).append("\n");
+            }else {
+                output.append(moveStr).append(": ").append(numMoves).append("\n");
+            }
+        }
+        output.append("Nodes searched : ").append(numPositions).append( "\n");
+        return output.toString();
+    }
+
 
     public void moveGenerationTest(int depth,boolean stdOutput){
         ArrayList<String> moves = getAllMoves() ;
@@ -351,7 +386,10 @@ public class MoveManager {
                 } else {
                     cb.fenParts[10] = "-";
                 }
+            }else{
+                cb.fenParts[10] = "-";
             }
+
 
             cb.board[destRank][file] = cb.board[locRank][file];
             cb.board[locRank][file] = Constants.EMPTY_SQUARE;
@@ -731,6 +769,7 @@ public class MoveManager {
             for(Integer checkerIndex:cb.checkers.keySet()){
                 int checkerFile = checkerIndex%8;
                 int checkerRank = checkerIndex/8;
+
                 switch(Util.toUpper(cb.board[checkerRank][checkerFile])){
                     case Constants.WHITE_KNIGHT:
                         checkDirections.add(Constants.KNIGHT_DIRECTION[cb.checkers.get(checkerIndex)]);
@@ -739,23 +778,15 @@ public class MoveManager {
                         checkDirections.add(Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)]);
                 }
             }
+
             for(int[] direction:Constants.ALL_DIRECTIONS){
                 int newFile = file+direction[0];
                 int newRank = rank+direction[1];
                 if(!Util.isValid(newFile,newRank)){
                     continue;
                 }
-                if(!cb.checkers.containsKey(file+direction[0]+(rank+direction[1])*8)&&checkDirections.contains(direction)){
-                    continue;
-                }
-                boolean pruneDirection = false;
-                for(int[] checkDir:checkDirections){
-                    if(direction[0] == -checkDir[0] && direction[1] == -checkDir[1]){
-                        pruneDirection = true;
-                    }
-                }
 
-                if(pruneDirection){
+                if(checkDirections.contains(direction) && !cb.checkers.containsKey(file+direction[0]+(rank+direction[1])*8)){
                     continue;
                 }
 
@@ -767,9 +798,16 @@ public class MoveManager {
 //                    moves.add(Util.cvtMove(file,rank,newFile,newRank,cb.board,cb.fenParts));
 //                }
 
+                char king = cb.board[rank][file];
+
+                cb.board[rank][file] = Constants.EMPTY_SQUARE;
+
                 if(!cb.squareUnderAttack(newFile,newRank)){
                     moves.add(Util.cvtMove(file,rank,newFile,newRank,cb.board,cb.fenParts));
                 }
+
+                cb.board[rank][file] = king;
+
             }
             return moves;
         }
@@ -1380,6 +1418,8 @@ public class MoveManager {
 
     public ArrayList<String> knight(final int file,final int rank){//complete
         if(cb.pinnedPieces.containsKey(file + rank * 8)){
+            //System.out.println("file "+file);
+            //System.out.println("rank "+rank);
             return moves; // a pinned knight cannot move
         }else if(cb.gs == GameState.CHECK){
             if(cb.checkers.size()>1){

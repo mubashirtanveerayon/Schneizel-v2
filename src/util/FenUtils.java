@@ -165,8 +165,7 @@ public class FenUtils {
                 fen += fenParts[i] + " ";
             }
         }
-        //fen = fen.substring(0,fen.length()-1);
-        //Util.writeToLogln(fen);
+
         return fen.trim();
     }
 }

@@ -17,7 +17,7 @@ public class ChessBoard {
 
     public GameState gs;
 
-    public Set<Integer> pieceLocations, attackedSquares;// holds 1D index of piece locations in a 2D array
+    public Set<Integer> pieceLocations /*, attackedSquares*/;// holds 1D index of piece locations in a 2D array
                                         // used a set to avoid duplicate elements
 
     public ChessBoard(){
@@ -183,11 +183,15 @@ public class ChessBoard {
 
                         foundEnemyPiece = true;
                         switch(Character.toUpperCase(board[rank][file])){
-                            case Constants.WHITE_KING:
-                            case Constants.WHITE_PAWN:
                             case Constants.WHITE_KNIGHT:
+                            case Constants.WHITE_PAWN:
                                 if(foundAlly){
                                     pinnedPieces.remove(pinnedPieceIndex);
+                                }
+                                boolean inCheck = ((turn == Constants.WHITE && rank+1 == kingPos[1]) || (turn == Constants.BLACK && rank-1 == kingPos[1])) && Math.abs(kingPos[0]-file) == 1;
+                                if (inCheck){
+                                    gs = GameState.CHECK;
+                                    checkers.put(file + rank * 8,i);
                                 }
                                 break;
                             case Constants.WHITE_QUEEN:{
@@ -206,6 +210,7 @@ public class ChessBoard {
                                 }else{
                                     if(foundAlly){
                                         pinnedPieces.remove(pinnedPieceIndex);
+
                                     }
                                 }
                                 break;
@@ -219,6 +224,7 @@ public class ChessBoard {
                                 }else{
                                     if(foundAlly){
                                         pinnedPieces.remove(pinnedPieceIndex);
+
                                     }
                                 }
                                 break;
@@ -242,8 +248,11 @@ public class ChessBoard {
             }
             if(foundAlly && !foundEnemyPiece){
                 pinnedPieces.remove(pinnedPieceIndex);
+
             }
+
         }
+
 
         for(int i =0;i<Constants.KNIGHT_DIRECTION.length;i++){
             file = kingPos[0]+Constants.KNIGHT_DIRECTION[i][0];

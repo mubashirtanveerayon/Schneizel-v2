@@ -86,28 +86,30 @@ public class UCI {
                                     }
                                     break;
                             }
-                            break;
+                        Util.writeToLog("Fen "+FenUtils.cat(cb.fenParts));
+                        break;
                     }
+
                     break;
                 case "moves":
                     ArrayList<String> moves = mm.getAllMoves();
-                    Util.writeToLog(moves.toString());
+                    //Util.writeToLog(moves.toString());
                     String std="";
                     for(String move:moves){
                         std+=mm.cvt(move)+" ";
                     }
-                    Util.writeToLog(std.trim());
+                    System.out.println(std.trim());
                     break;
                 case "d":
                     Util.printBoardStd(cb.board,flip);
                     Util.printBoard(cb.board);
-                    Util.writeToLog("Fen: "+ FenUtils.cat(cb.fenParts));
+                    System.out.println("Fen: "+ FenUtils.cat(cb.fenParts));
                     break;
                 case "quit":
                     exit = true;
                     break;
                 case "fen":
-                    Util.writeToLog("Fen: "+ FenUtils.cat(cb.fenParts));
+                    System.out.println("Fen: "+ FenUtils.cat(cb.fenParts));
                     break;
                 case "flip":
                     flip = !flip;
@@ -118,6 +120,7 @@ public class UCI {
 
 
 }
-// position startpos move c2c3 c7c5 c3c4 b7b5 a2a3 b5c4 d2d3 d8b6 b1c3 c8b7
+// position startpos move c2c3 c7c5 c3c4 b7b5 a2a3 b5c4 d2d3 d8b6 b1c3 c8b7 a3a4
 // ,g1f3,g1h3,c1d2,c1e3,c1f4,c1g5,c1h6,d1c2,d1d2,d1a4,e1d2
-//position startpos move e2e3 d7d6 g1f3 e7e5 f3h4 c8g4 f1b5->go perft 1: output doesnt match
+// position startpos move c2c3 c7c5 c3c4 b7b5 a2a3 b5c4 d2d3 d8b6 b1c3 c8b7 a3a4 d7d5 a1a2 d5d4 e1d2 d4c3 -> solved
+// position startpos move c2c3 c7c5 c3c4 b7b5 a2a3 b5c4 d2d3 d8b6 b1c3 c8b7 a3a4 d7d5 a1a2 d5d4 e1d2 b8d7 g1h3 -> depth 1 d7 not found after going perft 2 and then 1, fen changes somewhere in between
