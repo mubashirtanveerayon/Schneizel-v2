@@ -71,6 +71,7 @@ public class Engine {
     public float minimax(int depth,float alpha,float beta,boolean maximizing){
 
         ArrayList<String> moves = mm.getAllMoves();
+        orderMoves(moves);
         if (moves.isEmpty()){
             if(cb.gs == GameState.CHECK){
                 if(cb.turn == Constants.WHITE){
