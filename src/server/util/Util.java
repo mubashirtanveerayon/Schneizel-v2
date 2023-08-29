@@ -80,6 +80,10 @@ public class Util {
         return Character.toString(Constants.FILES.charAt(index%8))+Integer.toString(8-index/8);
     }
 
+    public static int getSquareIndex(String coord){
+        return Constants.FILES.indexOf(coord.charAt(0)) + Constants.RANKS.indexOf(coord.charAt(1)) * 8;
+    }
+
     public static String cvtMove(int lf,int lr,int df,int dr) throws InvalidCoordinateException {
         if(!isValid(lf,lr)) throw new InvalidCoordinateException(lf,lr);
         if(!isValid(df,dr)) throw new InvalidCoordinateException(df,dr);

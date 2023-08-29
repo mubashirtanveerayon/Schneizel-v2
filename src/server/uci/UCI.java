@@ -114,11 +114,11 @@ public class UCI {
                                     if(Character.isDigit(partsBySpace[3].charAt(0))||partsBySpace[3].contains(Constants.KING_SIDE_CASTLING)||partsBySpace[3].contains(Constants.QUEEN_SIDE_CASTLING)){
                                         String[] moves = input.split("move ")[1].split(",");
                                         for(String move:moves){
-                                            engine.mm.makeMove(move);
+                                            engine.makeFinalMove(move);
                                         }
                                     }else{
                                         for(int i=3;i<partsBySpace.length;i++){
-                                            engine.mm.makeMove(engine.mm.parse(partsBySpace[i]));
+                                            engine.makeFinalMove(engine.mm.parse(partsBySpace[i]));
                                         }
                                     }
                                     break;
@@ -169,18 +169,18 @@ public class UCI {
                         long currTime = System.nanoTime();
                         String move = engine.search();
                         long timeTaken = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currTime);
-                        engine.mm.makeMove(move);
-                        output = "played "+move+"\n";
+                        engine.makeFinalMove(move);
+                        output = "played "+engine.mm.cvt(move)+"\n";
                         output += "Time taken: "+timeTaken + " ms\n";
                         output += "Fen " + FenUtils.cat(engine.cb.fenParts);
                         print(output,saveToLog);
                         break;
                     }
                     try{
-                        engine.mm.makeMove(engine.mm.getAllMoves().get(Integer.parseInt(partsBySpace[1])-1));
+                        engine.makeFinalMove(engine.mm.getAllMoves().get(Integer.parseInt(partsBySpace[1])-1));
                         print("Fen " + FenUtils.cat(engine.cb.fenParts), saveToLog);
                     }catch(Exception e) {
-                        engine.mm.makeMove(engine.mm.parse(partsBySpace[1]));
+                        engine.makeFinalMove(engine.mm.parse(partsBySpace[1]));
                         print("Fen " + FenUtils.cat(engine.cb.fenParts), saveToLog);
                     }
                     break;
@@ -209,7 +209,7 @@ public class UCI {
                     int i=1;
                     for(String move : engine.mm.getAllMoves()){
                         output += Integer.toString(i) + ". "+engine.mm.cvt(move) + " eval ";
-                        engine.mm.makeMove(move);
+                        engine.makeFinalMove(move);
                         output += engine.ev.evaluate()+"\n";
                         engine.mm.undoMove(move);
                         i+=1;
@@ -223,9 +223,9 @@ public class UCI {
 
     }
 
-    private static void print(Object o,boolean saveToLog){
+    private void print(Object o,boolean saveToLog){
         if(saveToLog){
-            Util.writeToLog(o.toString());
+            Util.writeToLog("Input: "+input+"\n"+o.toString());
         }else{
             System.out.println(o);
         }

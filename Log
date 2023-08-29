@@ -3390,3 +3390,183 @@ Aug 28, 2023 11:29:06 AM server.util.Util <clinit>
 INFO: Logger initialized!
 Aug 28, 2023 11:31:51 AM server.util.Util <clinit>
 INFO: Logger initialized!
+Aug 28, 2023 1:14:56 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 28, 2023 2:10:04 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 28, 2023 2:10:47 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 28, 2023 2:12:11 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 28, 2023 2:16:34 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 28, 2023 5:51:09 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 28, 2023 6:02:21 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 28, 2023 6:02:38 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 28, 2023 6:03:41 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 28, 2023 6:05:39 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 29, 2023 12:27:12 AM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 29, 2023 12:28:01 AM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 29, 2023 12:32:24 AM server.util.Util writeToLog
+INFO: Pinned pieces: 
+Checkers: 
+Pieces at squares:
+a8 r
+b8 n
+c8 b
+d8 q
+e8 k
+f8 b
+g8 n
+h8 r
+a7 p
+b7 p
+c7 p
+d7 p
+e7 p
+f7 p
+g7 p
+h7 p
+a2 P
+b2 P
+c2 P
+d2 P
+e2 P
+f2 P
+g2 P
+h2 P
+a1 R
+b1 N
+c1 B
+d1 Q
+e1 K
+f1 B
+g1 N
+h1 R
+White king position: e1 [4, 7]
+Black king position: e8 [4, 0]
+Turn: w
+
+    a   b   c   d   e   f   g   h
+  +---+---+---+---+---+---+---+---+
+8 | r | n | b | q | k | b | n | r | 8
+  +---+---+---+---+---+---+---+---+
+7 | p | p | p | p | p | p | p | p | 7
+  +---+---+---+---+---+---+---+---+
+6 |   |   |   |   |   |   |   |   | 6
+  +---+---+---+---+---+---+---+---+
+5 |   |   |   |   |   |   |   |   | 5
+  +---+---+---+---+---+---+---+---+
+4 |   |   |   |   |   |   |   |   | 4
+  +---+---+---+---+---+---+---+---+
+3 |   |   |   |   |   |   |   |   | 3
+  +---+---+---+---+---+---+---+---+
+2 | P | P | P | P | P | P | P | P | 2
+  +---+---+---+---+---+---+---+---+
+1 | R | N | B | Q | K | B | N | R | 1
+  +---+---+---+---+---+---+---+---+
+    a   b   c   d   e   f   g   h
+
+Fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+Aug 29, 2023 12:32:51 AM server.util.Util writeToLog
+INFO: bestmove a2a3
+Time taken: 460 ms
+Aug 29, 2023 12:33:00 AM server.util.Util writeToLog
+INFO: bestmove a2a3
+Time taken: 311 ms
+Aug 29, 2023 12:33:07 AM server.util.Util writeToLog
+INFO: bestmove a2a3
+Time taken: 3248 ms
+Aug 29, 2023 12:33:21 AM server.util.Util writeToLog
+INFO: bestmove a2a3
+Time taken: 10924 ms
+Aug 29, 2023 12:33:36 AM server.util.Util writeToLog
+INFO: bestmove a2a3
+Time taken: 9688 ms
+Aug 29, 2023 12:34:51 AM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 29, 2023 12:35:04 AM server.util.Util writeToLog
+INFO: Pinned pieces: 
+Checkers: 
+Pieces at squares:
+a8 r
+b8 n
+c8 b
+d8 q
+e8 k
+f8 b
+g8 n
+h8 r
+a7 p
+b7 p
+c7 p
+d7 p
+e7 p
+f7 p
+g7 p
+h7 p
+a2 P
+b2 P
+c2 P
+d2 P
+e2 P
+f2 P
+g2 P
+h2 P
+a1 R
+b1 N
+c1 B
+d1 Q
+e1 K
+f1 B
+g1 N
+h1 R
+White king position: e1 [4, 7]
+Black king position: e8 [4, 0]
+Turn: w
+
+    a   b   c   d   e   f   g   h
+  +---+---+---+---+---+---+---+---+
+8 | r | n | b | q | k | b | n | r | 8
+  +---+---+---+---+---+---+---+---+
+7 | p | p | p | p | p | p | p | p | 7
+  +---+---+---+---+---+---+---+---+
+6 |   |   |   |   |   |   |   |   | 6
+  +---+---+---+---+---+---+---+---+
+5 |   |   |   |   |   |   |   |   | 5
+  +---+---+---+---+---+---+---+---+
+4 |   |   |   |   |   |   |   |   | 4
+  +---+---+---+---+---+---+---+---+
+3 |   |   |   |   |   |   |   |   | 3
+  +---+---+---+---+---+---+---+---+
+2 | P | P | P | P | P | P | P | P | 2
+  +---+---+---+---+---+---+---+---+
+1 | R | N | B | Q | K | B | N | R | 1
+  +---+---+---+---+---+---+---+---+
+    a   b   c   d   e   f   g   h
+
+Fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+Aug 29, 2023 12:35:10 AM server.util.Util writeToLog
+INFO: bestmove a2a3
+Time taken: 645 ms
+Aug 29, 2023 12:35:13 AM server.util.Util writeToLog
+INFO: bestmove a2a3
+Time taken: 333 ms
+Aug 29, 2023 12:35:18 AM server.util.Util writeToLog
+INFO: bestmove a2a3
+Time taken: 2851 ms
+Aug 29, 2023 12:35:27 AM server.util.Util writeToLog
+INFO: bestmove a2a3
+Time taken: 2478 ms
+Aug 29, 2023 12:35:39 AM server.util.Util writeToLog
+INFO: bestmove a2a3
+Time taken: 10119 ms
+Aug 29, 2023 12:40:22 AM server.util.Util <clinit>
+INFO: Logger initialized!

@@ -9,11 +9,11 @@ import server.util.Constants;
 import server.util.Util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PGNParser {
-
 
     public static String cvtMove(String move,MoveManager mm){
         if(move.contains(Constants.QUEEN_SIDE_CASTLING)){
@@ -27,6 +27,55 @@ public class PGNParser {
         return null;
     }
 
+    public static ArrayList<HashMap<String,String>> parseFile(String path){
+        ArrayList<HashMap<String,String>> games = new ArrayList<>();
+        boolean parsingGame = false;
+        HashMap<String,String> gameInfo = new HashMap<>();
+        Pattern coordPattern = Pattern.compile("[a-h][1-8]");
+        String moveText = "";
+        for(String line:getContent(path)){
+            String[] parts = line.split(" ");
+            if(line.startsWith("[Event ")){
+                parsingGame = true;
+                gameInfo=new HashMap<>();
+                moveText = "";
+            }else if(!line.contains("\"") && parts[parts.length-1].contains("-")){
+                parsingGame = false;
+                moveText += line;
+                gameInfo.put("Moves",moveText.trim());
+                games.add(gameInfo);
+            }
+            if (parsingGame){
+                if(line.startsWith("[")){
+                    String infoLine = line.replace("[", "").replace("]","");
+                    String[] infoSegments = infoLine.split("\"");
+                    String key = infoSegments[0].trim();
+                    String value = infoSegments[1].trim();
+                    //System.out.println(key+": "+value);
+                    gameInfo.put(key,value);
+                }else if(Character.isDigit(line.charAt(0)) || parts[0].contains("O-O") || coordPattern.matcher(parts[0]).find()){
+                    moveText += line+" ";
+                }
+            }
+        }
+        return games;
+    }
+
+
+    public static ArrayList<String> getContent(String filePath){
+        ArrayList<String> content = new ArrayList<>();
+        try(BufferedReader reader = new BufferedReader(new FileReader(filePath))){
+            for(String line;(line = reader.readLine()) != null;){
+                if(!line.isEmpty()){
+                    content.add(line.trim());
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        //System.out.println(content);
+        return content;
+    }
     public static String parseSAN(String san, MoveManager mm){
         ArrayList<String> allMoves = mm.getAllMoves();
         if (san.toUpperCase().contains(Constants.QUEEN_SIDE_CASTLING)){

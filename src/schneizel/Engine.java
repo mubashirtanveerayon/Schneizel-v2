@@ -6,7 +6,10 @@ import server.util.Constants;
 import server.util.GameState;
 import server.util.Util;
 
+import java.security.SecureRandom;
+import java.security.Security;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Engine {
 
@@ -14,24 +17,32 @@ public class Engine {
     public MoveManager mm;
 
     public Evaluation ev;
-    public int depth = 5;
+    public int depth = 4;
+
+    private long[][][] zArray;
+
+    HashMap<Long, Float > transpositionTable;
+    long turnRandomValue;
 
     public Engine(){
         cb = new ChessBoard();
         mm = new MoveManager(cb);
         ev = new Evaluation(cb);
+        initZobristArray();
     }
 
     public Engine(ChessBoard cb_){
         cb = cb_;
         mm = new MoveManager(cb);
         ev = new Evaluation (cb);
+        initZobristArray();
     }
 
     public Engine(String fen){
         cb = new ChessBoard(fen);
         mm = new MoveManager(cb);
         ev = new Evaluation (cb);
+        initZobristArray();
     }
 
     public void setDepth(int value){
@@ -85,7 +96,14 @@ public class Engine {
         }else if(Integer.parseInt(cb.fenParts[11]) == 100){
             return 0;
         }else if(depth == 0){
-            return ev.evaluate();
+            long posKey = generateZobristKey();
+            if(transpositionTable.containsKey(posKey)){
+                return transpositionTable.get(posKey);
+            }
+            float eval = ev.evaluate();
+            savePosition(posKey,eval);
+            return eval;
+//            return ev.evaluate();
         }
 
         float score,bestScore = maximizing?Float.NEGATIVE_INFINITY:Float.POSITIVE_INFINITY;
@@ -112,9 +130,6 @@ public class Engine {
         return bestScore;
     }
 
-
-
-
     private void orderMoves(ArrayList<String> moves) {
 
         ArrayList<String> bestMoves = new ArrayList<>();
@@ -134,6 +149,83 @@ public class Engine {
         }
         moves.removeAll(bestMoves);
         moves.addAll(0,bestMoves);
+    }
+
+
+    public void makeFinalMove(String move){
+        mm.makeMove(move);
+        if(!move.contains(Constants.KING_SIDE_CASTLING) ){
+            if(move.split(Constants.MOVE_SEPARATOR)[1].charAt(0) != Constants.EMPTY_SQUARE || move.contains(Constants.EN_PASSANT_NOTATION)){
+                transpositionTable.clear();
+            }
+        }
+    }
+
+    private void initZobristArray(){
+        transpositionTable = new HashMap<>();
+        SecureRandom rand = new SecureRandom();
+        zArray = new long[2][6][64];
+        for (int i=0;i<2;i++){
+            for(int j=0;j<6;j++){
+                for(int k=0;k<64;k++){
+                    zArray[i][j][k] = rand.nextLong();
+                }
+            }
+        }
+        turnRandomValue = rand.nextLong();
+    }
+
+
+    public long generateZobristKey(){
+        long key = 0;
+        for(int pieceIndex:cb.pieceLocations){
+            switch(cb.board[pieceIndex/8][pieceIndex%8]){
+                case Constants.WHITE_PAWN:
+                    key ^= zArray[1][0][pieceIndex];
+                    break;
+                case Constants.BLACK_PAWN:
+                    key ^= zArray[0][0][pieceIndex];
+                    break;
+                case Constants.WHITE_QUEEN:
+                    key ^= zArray[1][1][pieceIndex];
+                    break;
+                case Constants.BLACK_QUEEN:
+                    key ^= zArray[0][1][pieceIndex];
+                    break;
+                case Constants.WHITE_ROOK:
+                    key ^= zArray[1][2][pieceIndex];
+                    break;
+                case Constants.BLACK_ROOK:
+                    key ^= zArray[0][2][pieceIndex];
+                    break;
+                case Constants.WHITE_BISHOP:
+                    key ^= zArray[1][3][pieceIndex];
+                    break;
+                case Constants.BLACK_BISHOP:
+                    key ^= zArray[0][3][pieceIndex];
+                    break;
+                case Constants.WHITE_KNIGHT:
+                    key ^= zArray[1][4][pieceIndex];
+                    break;
+                case Constants.BLACK_KNIGHT:
+                    key ^= zArray[0][4][pieceIndex];
+                    break;
+                case Constants.WHITE_KING:
+                    key ^= zArray[1][5][pieceIndex];
+                    break;
+                case Constants.BLACK_KING:
+                    key ^= zArray[0][5][pieceIndex];
+                    break;
+            }
+        }
+        if (cb.turn == Constants.WHITE){
+            key ^= turnRandomValue;
+        }
+        return key;
+    }
+
+    public void savePosition(long key, float eval){
+        transpositionTable.put(key,eval);
     }
 
 

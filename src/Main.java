@@ -15,24 +15,24 @@ public class Main {
     public static void main(String[] args) {
 
 
-
-        ChessBoard cb = new ChessBoard();
-        MoveManager mm = new MoveManager(cb);
-
-        ArrayList<String> pgn = (PGNParser.getMoveText("data/game1.pgn"));
-        System.out.println(pgn);
-        System.out.println(cb.stats());
-        for(String san : pgn){
-            String move = PGNParser.parseSAN(san,mm);
-            if(move == null){
-                System.out.println("move is null: "+san);
-                System.out.println(FenUtils.cat(cb.fenParts));
-                break;
-            }else{
-                mm.makeMove(move);
-                System.out.println(cb.stats());
-            }
-        }
+//
+//        ChessBoard cb = new ChessBoard();
+//        MoveManager mm = new MoveManager(cb);
+//
+//        ArrayList<String> pgn = (PGNParser.getMoveText("data/game1.pgn"));
+//        System.out.println(pgn);
+//        System.out.println(cb.stats());
+//        for(String san : pgn){
+//            String move = PGNParser.parseSAN(san,mm);
+//            if(move == null){
+//                System.out.println("move is null: "+san);
+//                System.out.println(FenUtils.cat(cb.fenParts));
+//                break;
+//            }else{
+//                mm.makeMove(move);
+//                System.out.println(cb.stats());
+//            }
+//        }
 
         UCI cli = new UCI();
         cli.toggle();
