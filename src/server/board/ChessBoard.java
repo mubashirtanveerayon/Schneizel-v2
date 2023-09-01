@@ -521,4 +521,16 @@ public boolean _isSquareSafe(int file,int rank){
         return turn == Constants.WHITE?whiteKingPosition:blackKingPosition;
     }
 
+
+    public int countPieces(boolean white) {
+
+        int pieces = 0;
+        for(int index:pieceLocations){
+            if((white && Character.isUpperCase(board[index/8][index%8])) || (!white && !Character.isUpperCase(board[index/8][index%8]))){
+                pieces += 1;
+            }
+        }
+        return pieces;
+    }
+
 }

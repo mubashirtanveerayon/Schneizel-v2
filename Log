@@ -3570,3 +3570,20 @@ INFO: bestmove a2a3
 Time taken: 10119 ms
 Aug 29, 2023 12:40:22 AM server.util.Util <clinit>
 INFO: Logger initialized!
+Aug 31, 2023 3:49:49 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 31, 2023 4:06:12 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 31, 2023 4:07:31 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 31, 2023 4:09:25 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 31, 2023 4:26:53 PM server.util.Util <clinit>
+INFO: Logger initialized!
+Aug 31, 2023 10:51:56 PM server.util.Util initLogger
+INFO: Logger initialized!
+Aug 31, 2023 11:24:11 PM server.util.Util initLogger
+INFO: Logger initialized!
+Aug 31, 2023 11:24:11 PM server.util.Util writeToLog
+INFO: bestmove d1d4
+Time taken: 1116 ms

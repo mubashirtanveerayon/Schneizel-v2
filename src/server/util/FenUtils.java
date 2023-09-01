@@ -1,7 +1,7 @@
 package server.util;
 
 import server.board.ChessBoard;
-import exception.InvalidFenException;
+import server.exception.InvalidFenException;
 
 import java.util.Arrays;
 

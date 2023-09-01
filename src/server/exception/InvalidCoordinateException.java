@@ -1,4 +1,4 @@
-package exception;
+package server.exception;
 
 public class InvalidCoordinateException extends RuntimeException{
 

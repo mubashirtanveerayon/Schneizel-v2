@@ -1,6 +1,6 @@
 package server.util;
 
-import exception.InvalidCoordinateException;
+import server.exception.InvalidCoordinateException;
 
 import java.util.Arrays;
 
@@ -8,9 +8,15 @@ import java.util.logging.*;
 
 public class Util {
 
-    private static Logger logger = Logger.getLogger("Engine Log");
+    private static Logger logger = null;
 
-    static{
+
+    public static boolean loggerInitialized(){
+        return logger != null;
+    }
+
+    public static void initLogger(){
+        logger = Logger.getLogger("Engine Log");
         FileHandler handler;
         try{
             handler = new FileHandler("Log",true);
@@ -24,10 +30,16 @@ public class Util {
     }
 
     public static void writeToLog(String msg){
+        if(logger == null){
+            return;
+        }
         logger.info(msg);
     }
 
     public static void writeToLog(String msg,Exception e){
+        if(logger == null){
+            return;
+        }
         logger.log(Level.WARNING,msg,e);
     }
 

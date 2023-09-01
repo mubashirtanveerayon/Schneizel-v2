@@ -17,7 +17,7 @@ public class MoveManager {
     }
 
 
-    public String cvt(String moveStr){
+    public String cvt(String moveStr){//move to algebra
         String stdMove;
         String[] moveParts = moveStr.split(Constants.MOVE_SEPARATOR);
         if(moveStr.contains(Constants.QUEEN_SIDE_CASTLING)){
@@ -30,13 +30,13 @@ public class MoveManager {
         }else{
             stdMove = Util.cvtMove(Integer.parseInt(Character.toString(moveStr.charAt(0))),Integer.parseInt(Character.toString(moveStr.charAt(1))),Integer.parseInt(Character.toString(moveStr.charAt(2))),Integer.parseInt(Character.toString(moveStr.charAt(3))));
         }
-        if(moveParts.length == Constants.PROMOTION_MOVE_LENGTH){
+        if(moveParts.length == Constants.PROMOTION_MOVE_LENGTH && !moveStr.contains(Constants.EN_PASSANT_NOTATION)){
             stdMove += moveParts[moveParts.length - 1];
         }
         return stdMove;
     }
 
-    public String parse(String stdMove){
+    public String parse(String stdMove){//algebra to move
         int lf = Constants.FILES.indexOf(stdMove.charAt(0));
         int lr = Constants.RANKS.indexOf(stdMove.charAt(1));
         int df = Constants.FILES.indexOf(stdMove.charAt(2));

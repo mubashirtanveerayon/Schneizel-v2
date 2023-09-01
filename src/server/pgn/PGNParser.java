@@ -53,7 +53,7 @@ public class PGNParser {
                     String value = infoSegments[1].trim();
                     //System.out.println(key+": "+value);
                     gameInfo.put(key,value);
-                }else if(Character.isDigit(line.charAt(0)) || parts[0].contains("O-O") || coordPattern.matcher(parts[0]).find()){
+                }else if(Character.isDigit(line.charAt(0)) || parts[0].contains(Constants.KING_SIDE_CASTLING) || coordPattern.matcher(parts[0]).find()){
                     moveText += line+" ";
                 }
             }

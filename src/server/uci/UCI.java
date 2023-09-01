@@ -1,21 +1,18 @@
 package server.uci;
 
 import schneizel.Engine;
-import server.board.ChessBoard;
-import server.move.MoveManager;
 import server.util.Constants;
 import server.util.FenUtils;
 import server.util.GameState;
 import server.util.Util;
 
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class UCI {
 
-    private boolean running = false,initialized = false;
+    private boolean running = false,initialized = false, saveToLog = false;;
 
 
     Scanner sc;
@@ -52,52 +49,61 @@ public class UCI {
             return;
         }else {
             initialized = true;
-            Thread t=inputThread();
-            t.start();
         }
 
-        boolean saveToLog = false;
+        print("Schneizel chess engine v2.0");
+
         boolean flip=false;
         String output="";
-        while(running){
-            System.out.print("");
-            if (input.isEmpty()){
-                continue;
-            }
+        while(running ){
+            input = sc.nextLine();
             String[] partsBySpace = input.split(" ");
             switch(partsBySpace[0].toLowerCase()){
                 case "uci":
-                    output = "id name Schneizel 2\nid author see AUTHORS file\nuciok";
-                    if(saveToLog) {
-                        Util.writeToLog(output);
-                    }else{
-                        System.out.println(output);
-                    }
+                    output = "id name Schneizel 2\nid author Ayon\nuciok";
+                    print(output);
+                    break;
+                case "isready":
+                    output = "readyok";
+                    print(output);
                     break;
                 case "go":
-                    if (partsBySpace.length == 1){
+                    print("Thinking...");
+                    if (partsBySpace.length > 1){
+
+                        if(partsBySpace[1].equals("perft")){
+                            int depth = Integer.parseInt(partsBySpace[2]);
+                            long currentTime = System.nanoTime();
+                            output = engine. mm.moveGenerationTest(depth, true);
+                            //output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
+                            print(output);
+                        }else if(partsBySpace[1].equals("depth")){
+                            int depth = Integer.parseInt(partsBySpace[2]);
+                            long currentTime = System.nanoTime();
+                            int prevdepth = engine.depth;
+                            engine.setDepth(depth);
+                            output = "bestmove "+engine.mm.cvt(engine.search());
+                            //output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
+                            engine.setDepth(prevdepth);
+                            print(output);
+
+                        }else{
+                            long currentTime = System.nanoTime();
+                            output = "bestmove "+engine.mm.cvt(engine.search());
+                            //output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
+                            print(output);
+                        }
+                    }else{
                         long currentTime = System.nanoTime();
                         output = "bestmove "+engine.mm.cvt(engine.search());
-                        output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
-                        print(output,saveToLog);
+                        //output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
+                        print(output);
                     }
-                    else if(partsBySpace[1].equals("perft")){
-                        int depth = Integer.parseInt(partsBySpace[2]);
-                        long currentTime = System.nanoTime();
-                        output = engine. mm.moveGenerationTest(depth, true);
-                        output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
-                        print(output,saveToLog);
-                    }else if(partsBySpace[1].equals("depth")){
-                        int depth = Integer.parseInt(partsBySpace[2]);
-                        long currentTime = System.nanoTime();
-                        int prevdepth = engine.depth;
-                        engine.setDepth(depth);
-                        output = "bestmove "+engine.mm.cvt(engine.search());
-                        output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
-                        print(output,saveToLog);
-                        engine.setDepth(prevdepth);
-                    }
+
                     break;
+                case "ucinewgame":
+                    input = "position startpos";
+                    partsBySpace = input.split(" ");
                 case "position":
                     switch(partsBySpace[1].toLowerCase()){
                         case "fen":
@@ -110,28 +116,26 @@ public class UCI {
                             }
                         case "thispos":
                             switch(partsBySpace[2].toLowerCase()){
-                                case "move":
-                                    if(Character.isDigit(partsBySpace[3].charAt(0))||partsBySpace[3].contains(Constants.KING_SIDE_CASTLING)||partsBySpace[3].contains(Constants.QUEEN_SIDE_CASTLING)){
+                                case "moves":
+                                    if(Character.isDigit(partsBySpace[3].charAt(0))||partsBySpace[3].contains(Constants.KING_SIDE_CASTLING)){
                                         String[] moves = input.split("move ")[1].split(",");
                                         for(String move:moves){
-                                            engine.makeFinalMove(move);
+                                            engine.makeMove(move);
                                         }
                                     }else{
                                         for(int i=3;i<partsBySpace.length;i++){
-                                            engine.makeFinalMove(engine.mm.parse(partsBySpace[i]));
+                                            engine.makeMove(engine.mm.parse(partsBySpace[i]));
                                         }
                                     }
                                     break;
                                 case "undomove":
                                     if(Character.isDigit(partsBySpace[3].charAt(0))||partsBySpace[3].contains(Constants.KING_SIDE_CASTLING)||partsBySpace[3].contains(Constants.QUEEN_SIDE_CASTLING)){
-                                        String[] moves = input.split("undomove ")[1].split(",");
-                                        for(String move:moves){
-                                            engine.mm.undoMove(move);
-                                        }
+                                        String move = input.split("undomove ")[1];
+                                        engine.undoMove(move);
                                     }
                                     break;
                             }
-                            print("Fen " + FenUtils.cat(engine.cb.fenParts),saveToLog);
+                            //print("Fen " + FenUtils.cat(engine.cb.fenParts));
                             break;
                     }
 
@@ -143,19 +147,19 @@ public class UCI {
                     for(String move:moves){
                         std+=engine.mm.cvt(move)+" ";
                     }
-                    print(std.trim(),saveToLog);
+                    print(std.trim());
                     break;
                 case "d":
                     output = Util.getBoardVisualStd(engine.cb.board,flip);
-                    output+="\n"+Util.getBoardVisual(engine.cb.board);
+                    //output+="\n"+Util.getBoardVisual(engine.cb.board);
                     output+="\n"+("Fen: "+ FenUtils.cat(engine.cb.fenParts));
-                    print(output,saveToLog);
+                    print(output);
                     break;
                 case "quit":
                     running = false;
                     break;
                 case "fen":
-                    print("Fen: "+ FenUtils.cat(engine.cb.fenParts),saveToLog);
+                    print("Fen: "+ FenUtils.cat(engine.cb.fenParts));
                     break;
                 case "flip":
                     flip = !flip;
@@ -169,62 +173,66 @@ public class UCI {
                         long currTime = System.nanoTime();
                         String move = engine.search();
                         long timeTaken = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currTime);
-                        engine.makeFinalMove(move);
+                        engine.makeMove(move);
                         output = "played "+engine.mm.cvt(move)+"\n";
                         output += "Time taken: "+timeTaken + " ms\n";
                         output += "Fen " + FenUtils.cat(engine.cb.fenParts);
-                        print(output,saveToLog);
+                        print(output);
                         break;
                     }
                     try{
-                        engine.makeFinalMove(engine.mm.getAllMoves().get(Integer.parseInt(partsBySpace[1])-1));
-                        print("Fen " + FenUtils.cat(engine.cb.fenParts), saveToLog);
+                        engine.makeMove(engine.mm.getAllMoves().get(Integer.parseInt(partsBySpace[1])-1));
+                        print("Fen " + FenUtils.cat(engine.cb.fenParts));
                     }catch(Exception e) {
-                        engine.makeFinalMove(engine.mm.parse(partsBySpace[1]));
-                        print("Fen " + FenUtils.cat(engine.cb.fenParts), saveToLog);
+                        engine.makeMove(engine.mm.parse(partsBySpace[1]));
+                        print("Fen " + FenUtils.cat(engine.cb.fenParts));
                     }
                     break;
                 case "state":
-                    print(engine.cb.gs.toString(),saveToLog);
+                    print(engine.cb.gs.toString());
                     break;
                 case "checkers":
                     if(engine.cb.gs == GameState.CHECK){
                         for(Integer index:engine.cb.checkers.keySet()){
-                            print(Util.cvtCoord(index),saveToLog);
+                            print(Util.cvtCoord(index));
                         }
                     }else{
-                        print(engine.cb.gs,saveToLog);
+                        print(engine.cb.gs);
                     }
                     break;
                 case "pinned":
                     for(Integer index:engine.cb.pinnedPieces.keySet()){
-                        print(Util.cvtCoord(index),saveToLog);
+                        print(Util.cvtCoord(index));
                     }
                     break;
                 case "stats":
-                    print(engine.cb.stats(),saveToLog);
+                    print(engine.cb.stats());
                     break;
                 case "list":
                     output = "";
                     int i=1;
                     for(String move : engine.mm.getAllMoves()){
                         output += Integer.toString(i) + ". "+engine.mm.cvt(move) + " eval ";
-                        engine.makeFinalMove(move);
+                        engine.makeMove(move);
                         output += engine.ev.evaluate()+"\n";
-                        engine.mm.undoMove(move);
+                        engine.undoMove(move);
                         i+=1;
                     }
-                    print(output,saveToLog);
+                    print(output);
                     break;
-
+                case "eval":
+                    output = "eval ";
+                    float evaluation = engine.ev.evaluate();
+                    output += String.valueOf(evaluation);
+                    print(output);
             }
-            input = "";
         }
 
     }
 
-    private void print(Object o,boolean saveToLog){
+    private void print(Object o){
         if(saveToLog){
+            if(!Util.loggerInitialized())Util.initLogger();
             Util.writeToLog("Input: "+input+"\n"+o.toString());
         }else{
             System.out.println(o);

@@ -7,7 +7,6 @@ import server.util.GameState;
 import server.util.Util;
 
 import java.security.SecureRandom;
-import java.security.Security;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -53,7 +52,6 @@ public class Engine {
 
     public String search(){
         ArrayList<String> moves = mm.getAllMoves();
-
         orderMoves(moves);
 
         String bestMove = moves.get(0);
@@ -67,7 +65,9 @@ public class Engine {
                     bestScore = score;
                     bestMove = move;
                 }
+                System.out.println(mm.cvt(move)+" eval "+score);
             }else{
+                System.out.println(mm.cvt(move)+" eval "+score);
                 if (score<bestScore){
                     bestScore = score;
                     bestMove = move;
@@ -152,8 +152,17 @@ public class Engine {
     }
 
 
-    public void makeFinalMove(String move){
+    public void makeMove(String move){
         mm.makeMove(move);
+        if(!move.contains(Constants.KING_SIDE_CASTLING) ){
+            if(move.split(Constants.MOVE_SEPARATOR)[1].charAt(0) != Constants.EMPTY_SQUARE || move.contains(Constants.EN_PASSANT_NOTATION)){
+                transpositionTable.clear();
+            }
+        }
+    }
+
+    public void undoMove(String move){
+        mm.undoMove(move);
         if(!move.contains(Constants.KING_SIDE_CASTLING) ){
             if(move.split(Constants.MOVE_SEPARATOR)[1].charAt(0) != Constants.EMPTY_SQUARE || move.contains(Constants.EN_PASSANT_NOTATION)){
                 transpositionTable.clear();
