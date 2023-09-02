@@ -1,4 +1,5 @@
 import schneizel.Engine;
+import schneizel.Engine2;
 import server.board.ChessBoard;
 import server.move.MoveManager;
 import server.pgn.PGNParser;
@@ -81,9 +82,29 @@ public class Main {
 //        System.out.println(a.toString());
 
 
-        boolean debugging = true;
+        boolean debugging = false;
         if(debugging) {
-            debug();
+            //debug();
+
+            Engine2 engine = new Engine2();
+
+            Scanner sc =  new Scanner(System.in);
+            String line;
+            engine.setDepth(2);
+            Thread search=engine.beginSearch();
+            //search.stop();
+            System.out.println(engine.engineMove);
+
+
+
+//            ArrayList<String> moves = engine.mm.getAllMoves();
+//            System.out.println(moves);
+//            engine.orderMoves(moves);
+//            System.out.println(moves);
+//
+//
+//            String g=null;
+//            System.out.println("b "+g);
 
         }else{
             UCI cli = new UCI();
@@ -296,3 +317,4 @@ public class Main {
 
 }
 //position fen rnbqkbnr/pp2pppp/8/8/2ppP3/8/PP2PPPP/RNBQKBNR w KQkq - 0 1->wrong best move
+//position fen r3kbnr/ppp1pppp/8/3P1b2/2q5/1P6/P3PPPP/RNBQKB1R b KQkq - 0 8->wrong best move

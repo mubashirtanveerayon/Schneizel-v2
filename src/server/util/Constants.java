@@ -2,6 +2,16 @@ package server.util;
 
 public class Constants {
 
+    public static final float CAPTURE_SCORE = 2;
+
+    public static final float CHECK_SCORE = 1.3f;
+
+    public static final float PROMOTION_SCORE = 2.5f;
+
+    public static final float CASTLING_SCORE = 1.62f;
+
+    public static final float EN_PASSANT_SCORE = 2;
+
     public static final float END_GAME_VALUE = 8.5f;
 
     public static final String VERSION = "2";

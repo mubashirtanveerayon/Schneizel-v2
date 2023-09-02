@@ -1,6 +1,7 @@
 package server.uci;
 
 import schneizel.Engine;
+import schneizel.Engine2;
 import server.util.Constants;
 import server.util.FenUtils;
 import server.util.GameState;
@@ -18,30 +19,18 @@ public class UCI {
     Scanner sc;
 //    ChessBoard cb;
 //    MoveManager mm;
-    Engine engine;
+    Engine2 engine;
 
     String input="";
 
     public void toggle(){
         if (!running){
             sc = new Scanner(System.in);
-            engine = new Engine();
+            engine = new Engine2();
             running = true;
         }
     }
 
-    private Thread inputThread(){
-        return new Thread(){
-
-            @Override
-            public void run(){
-                while(running) {
-                    input = sc.nextLine();
-                }
-            }
-
-        };
-    }
 
     public void run() {
 
@@ -59,6 +48,9 @@ public class UCI {
             input = sc.nextLine();
             String[] partsBySpace = input.split(" ");
             switch(partsBySpace[0].toLowerCase()){
+                case "stop":
+                    engine.searchCancelled = true;
+                    break;
                 case "uci":
                     output = "id name Schneizel 2\nid author Ayon\nuciok";
                     print(output);
@@ -68,36 +60,47 @@ public class UCI {
                     print(output);
                     break;
                 case "go":
-                    print("Thinking...");
+                    print("Calculating...");
                     if (partsBySpace.length > 1){
 
                         if(partsBySpace[1].equals("perft")){
                             int depth = Integer.parseInt(partsBySpace[2]);
                             long currentTime = System.nanoTime();
                             output = engine. mm.moveGenerationTest(depth, true);
-                            //output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
+                            output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
                             print(output);
                         }else if(partsBySpace[1].equals("depth")){
                             int depth = Integer.parseInt(partsBySpace[2]);
-                            long currentTime = System.nanoTime();
-                            int prevdepth = engine.depth;
+//                            long currentTime = System.nanoTime();
                             engine.setDepth(depth);
-                            output = "bestmove "+engine.mm.cvt(engine.search());
-                            //output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
-                            engine.setDepth(prevdepth);
-                            print(output);
+                            engine.beginSearch();
+                            //search.stop();
+//                            while(engine.searching){
+//                                System.out.print("");
+//                            }
+//                            output = "bestmove "+engine.mm.cvt(engine.engineMove);
+//                            output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
+//                            print(output);
 
                         }else{
-                            long currentTime = System.nanoTime();
-                            output = "bestmove "+engine.mm.cvt(engine.search());
-                            //output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
-                            print(output);
+//                            long currentTime = System.nanoTime();
+                            engine.beginSearch();
+//                            while(engine.searching){
+//                                System.out.print("");
+//                            }
+//                            output = "bestmove "+engine.mm.cvt(engine.engineMove);
+//                            output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
+//                            print(output);
                         }
                     }else{
-                        long currentTime = System.nanoTime();
-                        output = "bestmove "+engine.mm.cvt(engine.search());
-                        //output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
-                        print(output);
+//                        long currentTime = System.nanoTime();
+                        engine.beginSearch();
+//                        while(engine.searching){
+//                            System.out.print("");
+//                        }
+//                        output = "bestmove "+engine.mm.cvt(engine.engineMove);
+//                        output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
+//                        print(output);
                     }
 
                     break;
@@ -107,10 +110,10 @@ public class UCI {
                 case "position":
                     switch(partsBySpace[1].toLowerCase()){
                         case "fen":
-                            engine = new Engine(input.split("fen ")[1]);
+                            engine = new Engine2(input.split("fen ")[1]);
                             break;
                         case "startpos":
-                            engine = new Engine();
+                            engine = new Engine2();
                             if(partsBySpace.length<3){
                                 break;
                             }
@@ -120,18 +123,18 @@ public class UCI {
                                     if(Character.isDigit(partsBySpace[3].charAt(0))||partsBySpace[3].contains(Constants.KING_SIDE_CASTLING)){
                                         String[] moves = input.split("move ")[1].split(",");
                                         for(String move:moves){
-                                            engine.makeMove(move);
+                                            engine.mm.makeMove(move);
                                         }
                                     }else{
                                         for(int i=3;i<partsBySpace.length;i++){
-                                            engine.makeMove(engine.mm.parse(partsBySpace[i]));
+                                            engine.mm.makeMove(engine.mm.parse(partsBySpace[i]));
                                         }
                                     }
                                     break;
                                 case "undomove":
                                     if(Character.isDigit(partsBySpace[3].charAt(0))||partsBySpace[3].contains(Constants.KING_SIDE_CASTLING)||partsBySpace[3].contains(Constants.QUEEN_SIDE_CASTLING)){
                                         String move = input.split("undomove ")[1];
-                                        engine.undoMove(move);
+                                        engine.mm.undoMove(move);
                                     }
                                     break;
                             }
@@ -171,9 +174,13 @@ public class UCI {
                 case "push":
                     if (partsBySpace.length == 1){
                         long currTime = System.nanoTime();
-                        String move = engine.search();
+                        Thread searchThread = engine.beginSearch();
                         long timeTaken = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currTime);
-                        engine.makeMove(move);
+                        while(searchThread.isAlive()){
+                            System.out.print("");
+                        }
+                        String move = engine.engineMove;
+                        engine.mm.makeMove(move);
                         output = "played "+engine.mm.cvt(move)+"\n";
                         output += "Time taken: "+timeTaken + " ms\n";
                         output += "Fen " + FenUtils.cat(engine.cb.fenParts);
@@ -181,10 +188,10 @@ public class UCI {
                         break;
                     }
                     try{
-                        engine.makeMove(engine.mm.getAllMoves().get(Integer.parseInt(partsBySpace[1])-1));
+                        engine.mm.makeMove(engine.mm.getAllMoves().get(Integer.parseInt(partsBySpace[1])-1));
                         print("Fen " + FenUtils.cat(engine.cb.fenParts));
                     }catch(Exception e) {
-                        engine.makeMove(engine.mm.parse(partsBySpace[1]));
+                        engine.mm.makeMove(engine.mm.parse(partsBySpace[1]));
                         print("Fen " + FenUtils.cat(engine.cb.fenParts));
                     }
                     break;
@@ -212,10 +219,7 @@ public class UCI {
                     output = "";
                     int i=1;
                     for(String move : engine.mm.getAllMoves()){
-                        output += Integer.toString(i) + ". "+engine.mm.cvt(move) + " eval ";
-                        engine.makeMove(move);
-                        output += engine.ev.evaluate()+"\n";
-                        engine.undoMove(move);
+                        output += Integer.toString(i) + ". "+engine.mm.cvt(move) + "\n";
                         i+=1;
                     }
                     print(output);

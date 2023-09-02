@@ -1,6 +1,7 @@
 package schneizel;
 
 import server.board.ChessBoard;
+import server.evaluation.Evaluation;
 import server.move.MoveManager;
 import server.util.Constants;
 import server.util.GameState;
@@ -16,7 +17,7 @@ public class Engine {
     public MoveManager mm;
 
     public Evaluation ev;
-    public int depth = 4;
+    public int depth = 5;
 
     private long[][][] zArray;
 
@@ -33,14 +34,14 @@ public class Engine {
     public Engine(ChessBoard cb_){
         cb = cb_;
         mm = new MoveManager(cb);
-        ev = new Evaluation (cb);
+        ev = new Evaluation(cb);
         initZobristArray();
     }
 
     public Engine(String fen){
         cb = new ChessBoard(fen);
         mm = new MoveManager(cb);
-        ev = new Evaluation (cb);
+        ev = new Evaluation(cb);
         initZobristArray();
     }
 
@@ -56,18 +57,20 @@ public class Engine {
 
         String bestMove = moves.get(0);
         float score,bestScore = cb.turn == Constants.WHITE?Float.NEGATIVE_INFINITY:Float.POSITIVE_INFINITY;
+        //float bestScore = Float.NEGATIVE_INFINITY;
         for(String move:moves){
             mm.makeMove(move);
-            score = minimax(depth,Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY,cb.turn != Constants.WHITE);
+            score = minimax(depth,Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY,cb.turn == Constants.WHITE);
             mm.undoMove(move);
+            //System.out.println(mm.cvt(move)+" eval "+score);
             if(cb.turn == Constants.WHITE){
                 if (score>bestScore){
                     bestScore = score;
                     bestMove = move;
                 }
-                System.out.println(mm.cvt(move)+" eval "+score);
+
             }else{
-                System.out.println(mm.cvt(move)+" eval "+score);
+
                 if (score<bestScore){
                     bestScore = score;
                     bestMove = move;
@@ -75,7 +78,6 @@ public class Engine {
             }
         }
 
-        //System.out.println("best score "+bestScore);
         return bestMove;
     }
 
@@ -103,7 +105,7 @@ public class Engine {
             float eval = ev.evaluate();
             savePosition(posKey,eval);
             return eval;
-//            return ev.evaluate();
+            //return ev.evaluate();
         }
 
         float score,bestScore = maximizing?Float.NEGATIVE_INFINITY:Float.POSITIVE_INFINITY;
@@ -130,7 +132,27 @@ public class Engine {
         return bestScore;
     }
 
-    private void orderMoves(ArrayList<String> moves) {
+    public void orderMoves(ArrayList<String> moves) {
+
+//        HashMap<Float,String> movesWithScore = new HashMap<>();
+//        float score;
+//        String[] moveParts;
+//        for(String move:moves){
+//            score = Float.NEGATIVE_INFINITY;
+//            moveParts = move.split(Constants.MOVE_SEPARATOR);
+//            if(move.contains(Constants.KING_SIDE_CASTLING)){
+//                score = Constants.CASTLING_SCORE;
+//            }else if(move.contains(Constants.EN_PASSANT_NOTATION)){
+//                score = Constants.EN_PASSANT_SCORE;
+//            }else if(moveParts[1].charAt(0) != Constants.EMPTY_SQUARE){
+//                float valueDiff = Util.getPieceValue(moveParts[1].charAt(1)) - Util.getPieceValue(cb.board[Integer.parseInt(Character.toString(move.charAt(1)))][Integer.parseInt(Character.toString(move.charAt(0)))]) ;
+//                score = Constants.CAPTURE_SCORE * valueDiff;
+//            }else if(moveParts.length == Constants.PROMOTION_MOVE_LENGTH ){
+//                score = Constants.PROMOTION_SCORE + Util.getPieceValue(moveParts[moveParts.length -1].charAt(0));
+//            }
+//            score = -score;
+//            movesWithScore.put(score,move);
+//        }
 
         ArrayList<String> bestMoves = new ArrayList<>();
         for(String move:moves){
