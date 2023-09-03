@@ -109,7 +109,7 @@ public class Evaluation2 {
     private float countMaterialAndPositionalScore() {//ally - enemy
         float eval = 0;
         //float positionalAdvantage = (float) cb.countPieces(cb.turn == Constants.WHITE)/(Integer.parseInt(cb.fenParts[cb.fenParts.length-1]) * 10);
-        float positionalAdvantage = (float) cb.pieceLocations.size()/(Integer.parseInt(cb.fenParts[cb.fenParts.length-1]) * 10);
+        float positionalAdvantage = (float) cb.pieceLocations.size()/(Integer.parseInt(cb.fenParts[cb.fenParts.length-1]) * 12.5f);
         for(int pieceIndex:cb.pieceLocations) {
             int file = pieceIndex % 8,rank = pieceIndex / 8;
             switch(Character.toUpperCase(cb.board[rank][file])){

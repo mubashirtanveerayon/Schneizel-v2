@@ -82,7 +82,7 @@ public class Main {
 //        System.out.println(a.toString());
 
 
-        boolean debugging = true;
+        boolean debugging = false;
         if(debugging) {
             //debug();
 
