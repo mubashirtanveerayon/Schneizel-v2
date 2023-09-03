@@ -121,7 +121,7 @@ public class UCI {
                             switch(partsBySpace[2].toLowerCase()){
                                 case "moves":
                                     if(Character.isDigit(partsBySpace[3].charAt(0))||partsBySpace[3].contains(Constants.KING_SIDE_CASTLING)){
-                                        String[] moves = input.split("move ")[1].split(",");
+                                        String[] moves = input.split("moves ")[1].split(",");
                                         for(String move:moves){
                                             engine.mm.makeMove(move);
                                         }

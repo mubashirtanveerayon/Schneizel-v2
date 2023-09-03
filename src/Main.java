@@ -82,19 +82,34 @@ public class Main {
 //        System.out.println(a.toString());
 
 
-        boolean debugging = false;
+        boolean debugging = true;
         if(debugging) {
             //debug();
 
-            Engine2 engine = new Engine2();
+            Engine2 engine = new Engine2("2q1k3/RP5P/6p1/5R2/8/8/6P1/3K4 w - - 0 1");
 
-            Scanner sc =  new Scanner(System.in);
-            String line;
-            engine.setDepth(2);
-            Thread search=engine.beginSearch();
-            //search.stop();
-            System.out.println(engine.engineMove);
 
+
+
+
+            ArrayList<String> moves = engine.mm.getAllMoves();
+
+            for(String move:moves){
+                System.out.print(engine.mm.cvt(move)+" ");
+            }
+            System.out.println();
+
+            long currentTime = System.currentTimeMillis();
+
+            engine.orderMove(moves);
+
+            long timeTaken = System.currentTimeMillis() - currentTime;
+
+            for(String move:moves){
+                System.out.print(engine.mm.cvt(move)+" ");
+            }
+            System.out.println();
+            System.out.println("Time taken: "+timeTaken+" ms");
 
 
 //            ArrayList<String> moves = engine.mm.getAllMoves();

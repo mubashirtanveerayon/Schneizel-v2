@@ -5,8 +5,11 @@ import server.evaluation.Evaluation2;
 import server.move.MoveManager;
 import server.util.Constants;
 import server.util.GameState;
+import server.util.Util;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 public class Engine2 implements Runnable{
 
@@ -15,7 +18,7 @@ public class Engine2 implements Runnable{
 
     public Evaluation2 ev;
 
-    public String engineMove=null;
+    public String engineMove="";
 
 
     public boolean searchCancelled = false,searching = false;
@@ -69,7 +72,7 @@ public class Engine2 implements Runnable{
         searching = false;
         setDepth(DEFAULT_SEARCH_DEPTH);
         if(searchCancelled){
-            engineMove = null;
+            engineMove = "";
             System.out.println("Search was cancelled");
         }else{
             System.out.println("bestmove "+mm.cvt(engineMove));
@@ -81,25 +84,59 @@ public class Engine2 implements Runnable{
 
     public void orderMove(ArrayList<String>moves){
 
-//        HashMap<Float,String> movesWithScore = new HashMap<>();
-//        float score;
-//        String[] moveParts;
-//        for(String move:moves){
-//            score = Float.NEGATIVE_INFINITY;
-//            moveParts = move.split(Constants.MOVE_SEPARATOR);
-//            if(move.contains(Constants.KING_SIDE_CASTLING)){
-//                score = Constants.CASTLING_SCORE;
-//            }else if(move.contains(Constants.EN_PASSANT_NOTATION)){
-//                score = Constants.EN_PASSANT_SCORE;
-//            }else if(moveParts[1].charAt(0) != Constants.EMPTY_SQUARE){
-//                float valueDiff = Util.getPieceValue(moveParts[1].charAt(1)) - Util.getPieceValue(cb.board[Integer.parseInt(Character.toString(move.charAt(1)))][Integer.parseInt(Character.toString(move.charAt(0)))]) ;
-//                score = Constants.CAPTURE_SCORE * valueDiff;
-//            }else if(moveParts.length == Constants.PROMOTION_MOVE_LENGTH ){
-//                score = Constants.PROMOTION_SCORE + Util.getPieceValue(moveParts[moveParts.length -1].charAt(0));
+        HashMap<Float,String> movesWithScore = new HashMap<>();
+        ArrayList<Float> moveScore = new ArrayList<>();
+//        ArrayList<String> ordered = new ArrayList<>();
+        float score;
+//        int d = 1;
+        String[] moveParts;
+        for(String move:moves){
+            score = 0;
+            moveParts = move.split(Constants.MOVE_SEPARATOR);
+            if(move.contains(Constants.KING_SIDE_CASTLING)){
+                score += Constants.CASTLING_SCORE;
+            } else {
+                if (move.contains(Constants.EN_PASSANT_NOTATION)) {
+                    score += Constants.EN_PASSANT_SCORE;
+                }else {
+                    if (moveParts[1].charAt(0) != Constants.EMPTY_SQUARE) {
+                        float valueDiff = Util.getPieceValue(moveParts[1].charAt(0)) - Util.getPieceValue(cb.board[Integer.parseInt(Character.toString(move.charAt(1)))][Integer.parseInt(Character.toString(move.charAt(0)))]);
+                        score += Constants.CAPTURE_SCORE * valueDiff;
+                    }
+                    if (moveParts.length == Constants.PROMOTION_MOVE_LENGTH) {
+                        score += Constants.PROMOTION_SCORE + Util.getPieceValue(moveParts[moveParts.length - 1].charAt(0));
+                    }
+                }
+            }
+
+
+//            if(score == 0){
+//                score -= d;
+//                d+=1;
 //            }
+//
 //            score = -score;
-//            movesWithScore.put(score,move);
-//        }
+//            if(movesWithScore.containsKey(score)){
+//                score += 1f;
+//            }
+
+
+
+            moveScore.add(score);
+
+            movesWithScore.put(score,move);
+        }
+
+        System.out.println(moves.size() == movesWithScore.size());
+
+        moves.clear();
+
+        Collections.sort(moveScore);
+
+        for(float key:moveScore){
+            moves.add(movesWithScore.get(key));
+        }
+
     }
 
 
@@ -108,7 +145,7 @@ public class Engine2 implements Runnable{
             return null;
         }
         Thread thread = new Thread(this);
-        engineMove = null;
+        engineMove = "";
         searching = true;
         searchCancelled = false;
         thread.start();

@@ -19,10 +19,10 @@ public class Evaluation2 {
 
     public float evaluate(){
         float eval = 0;
-        eval += countMaterialAndPositionalScore2();
+        eval += countMaterialAndPositionalScore();
         eval -= cb.pinnedPieces.size()/3.7f;
         eval += opponentKingPosition();
-        return cb.turn == Constants.WHITE?eval:-eval;
+        return eval;
     }
 
 
@@ -36,7 +36,7 @@ public class Evaluation2 {
         return eval;
     }
 
-    private float countMaterial(){//faulty
+    private float countMaterial(){//whiteMaterial - blackMaterial
         float eval = 0;
         for(int index:cb.pieceLocations){
             eval += Character.isUpperCase(cb.board[index / 8][index % 8])? Util.getPieceValue(cb.board[index / 8][index % 8]):-Util.getPieceValue(cb.board[index/8][index%8]);
@@ -106,7 +106,7 @@ public class Evaluation2 {
 
 
 
-    private float countMaterialAndPositionalScore() {//whiteMaterial - blackMaterial
+    private float countMaterialAndPositionalScore() {//ally - enemy
         float eval = 0;
         //float positionalAdvantage = (float) cb.countPieces(cb.turn == Constants.WHITE)/(Integer.parseInt(cb.fenParts[cb.fenParts.length-1]) * 10);
         float positionalAdvantage = (float) cb.pieceLocations.size()/(Integer.parseInt(cb.fenParts[cb.fenParts.length-1]) * 10);
