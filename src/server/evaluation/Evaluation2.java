@@ -22,21 +22,21 @@ public class Evaluation2 {
         eval += countMaterialAndPositionalScore();
         eval -= cb.pinnedPieces.size()/3.7f;
         eval += opponentKingPosition();
-        if(cb.turn == Constants.WHITE){
-            if(cb.fenParts[9].contains(Character.toString(Constants.WHITE_KING))){
-                eval += Constants.CASTLING_SCORE * cb.pieceLocations.size() * 0.005f;
-            }
-            if(cb.fenParts[9].contains(Character.toString(Constants.WHITE_QUEEN))){
-                eval += Constants.CASTLING_SCORE * cb.pieceLocations.size() * 0.005f;
-            }
-        }else{
-            if(cb.fenParts[9].contains(Character.toString(Constants.BLACK_KING))){
-                eval += Constants.CASTLING_SCORE * cb.pieceLocations.size() * 0.005f;
-            }
-            if(cb.fenParts[9].contains(Character.toString(Constants.BLACK_QUEEN))){
-                eval += Constants.CASTLING_SCORE * cb.pieceLocations.size() * 0.005f;
-            }
-        }
+//        if(cb.turn == Constants.WHITE){
+//            if(cb.fenParts[9].contains(Character.toString(Constants.WHITE_KING))){
+//                eval += Constants.CASTLING_SCORE * cb.pieceLocations.size() * 0.005f;
+//            }
+//            if(cb.fenParts[9].contains(Character.toString(Constants.WHITE_QUEEN))){
+//                eval += Constants.CASTLING_SCORE * cb.pieceLocations.size() * 0.005f;
+//            }
+//        }else{
+//            if(cb.fenParts[9].contains(Character.toString(Constants.BLACK_KING))){
+//                eval += Constants.CASTLING_SCORE * cb.pieceLocations.size() * 0.005f;
+//            }
+//            if(cb.fenParts[9].contains(Character.toString(Constants.BLACK_QUEEN))){
+//                eval += Constants.CASTLING_SCORE * cb.pieceLocations.size() * 0.005f;
+//            }
+//        }
         return eval;
     }
 

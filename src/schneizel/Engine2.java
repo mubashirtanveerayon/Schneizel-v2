@@ -3,6 +3,7 @@ package schneizel;
 import server.board.ChessBoard;
 import server.evaluation.Evaluation2;
 import server.move.MoveManager;
+import server.pgn.PGNParser;
 import server.util.Constants;
 import server.util.GameState;
 import server.util.Util;
@@ -23,6 +24,10 @@ public class Engine2 implements Runnable{
 
     public boolean searchCancelled = false,searching = false;
 
+
+    private ArrayList<HashMap<String,String>> book;
+
+    private boolean useBook = false;
 
     public static final int DEFAULT_SEARCH_DEPTH = 4;
 
@@ -52,6 +57,13 @@ public class Engine2 implements Runnable{
         ev = new Evaluation2(cb);
     }
 
+    private void loadBook(){
+        if(book != null){
+            return;
+        }
+        book = PGNParser.parseFile("data/lichess_elite_2022-03.pgn");
+    }
+
     @Override
     public void run(){
         ArrayList<String> moves = mm.getAllMoves();
@@ -68,7 +80,7 @@ public class Engine2 implements Runnable{
                 bestScore = score;
                 engineMove = move;
             }
-            System.out.println(mm.cvt(move)+" eval "+score);
+            System.out.println(mm.cvt(move)+" score "+score);
         }
         searching = false;
         setDepth(DEFAULT_SEARCH_DEPTH);
@@ -76,7 +88,7 @@ public class Engine2 implements Runnable{
             engineMove = "";
             System.out.println("Search was cancelled");
         }else{
-            System.out.println("bestmove "+mm.cvt(engineMove));
+            System.out.println("bestmove "+mm.cvt(engineMove)+ " score "+bestScore);
         }
         searchCancelled = false;
 
