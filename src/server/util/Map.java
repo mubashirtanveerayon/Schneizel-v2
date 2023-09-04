@@ -21,6 +21,16 @@ public class Map {
             7,6,5,4,3,2,1,0
     };
     public static final float[] PAWN = new float[]
+
+//            {0.5f*Constants.PAWN_VALUE,0.5f*Constants.PAWN_VALUE,0.5f*Constants.PAWN_VALUE,0.5f*Constants.PAWN_VALUE,0.5f*Constants.PAWN_VALUE,0.5f*Constants.PAWN_VALUE,0.5f*Constants.PAWN_VALUE,0.5f*Constants.PAWN_VALUE,
+//                    0.55f,0.55f,0.55f,0.55f,0.55f,0.55f,0.55f,0.55f,
+//                    0.46f,0.46f,0.5f,0.5f,0.5f,0.5f,0.46f,0.46f,
+//                    0.4f,0.4f,0.45f,0.45f,0.45f,0.45f,0.4f,0.4f,
+//                    0.5f,0.5f,0.5f,0.5f,0.5f,0.5f,0.5f,0.5f,
+//                    -0.5f,-0.5f,-0.5f,-0.5f,-0.5f,-0.5f,-0.5f,-0.5f,
+//                    0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,
+//                    0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,};
+
         {
                 5,  5,  5,  5,  5,  5,  5,  5,
                 2,  2,  3,  3.5f,  3.5f,  3,  2,  2,
@@ -28,8 +38,9 @@ public class Map {
                 1,  1,  1,  2,  2,  1,  1,  1,
                 .5f,   .5f,  2,  2,  2,   .5f,   .5f,   .5f,
                 0,   0,   0,  1,   1,   0,   0,   0,
-                0,   0,   0, -1, -1f,   0,   0,   0,
-                0,   0,   0,   0,   0,   0,   0,   0};
+                -0.3f,   -0.3f,   -0.3f, -0.5f, -0.5f,   -0.3f,   -0.3f,   -0.3f,
+                0,   0,   0,   0,   0,   0,   0,   0
+        };
 
 // knight positional score
     public static final float[] KNIGHT = new float[]
@@ -37,8 +48,8 @@ public class Map {
                 -.5f,   0,   0,   0,   0,   0,   0,  -.5f,
                 -.5f,   0,   0,  1,  1,   0,   0,  -.5f,
                 -.5f,   .5f,  2,  2,  2,  2,   .5f,  -.5f,
-                -.5f,  1,  2,  3,  3,  2,  1,  -.5f,
-                -.5f,  1,  2,  3,  3,  2,  1,  -.5f,
+                -.5f,  1,  2,  2.5f,  2.5f,  2,  1,  -.5f,
+                -.5f,  1,  2,  2.5f,  2.5f,  2,  1,  -.5f,
                 -.5f,   .5f,  2,  1,  1,  2,   .5f,  -.5f,
                 -.5f,   0,   0,   0,   0,   0,   0,  -.5f,
                 -.5f, -0.7f,   0,   0,   0,   0, -0.7f,  -.5f

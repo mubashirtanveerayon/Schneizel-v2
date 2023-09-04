@@ -921,30 +921,51 @@ public class MoveManager {
             }
         }
         // castling
-        boolean kingSide=cb.gs!=GameState.CHECK && cb.board[rank][6] == Constants.EMPTY_SQUARE,queenSide = cb.gs!=GameState.CHECK && cb.board[rank][1] == Constants.EMPTY_SQUARE;
+        boolean kingSide,queenSide;
         if(cb.turn == Constants.WHITE){
-            kingSide = kingSide && cb.fenParts[9].contains(Character.toString(Constants.WHITE_KING));
-            queenSide = queenSide && cb.fenParts[9].contains(Character.toString(Constants.WHITE_QUEEN));
+            kingSide = cb.fenParts[9].contains(Character.toString(Constants.WHITE_KING));
+            queenSide = cb.fenParts[9].contains(Character.toString(Constants.WHITE_QUEEN));
         }else{
-            kingSide = kingSide && cb.fenParts[9].contains(Character.toString(Constants.BLACK_KING));
-            queenSide = queenSide && cb.fenParts[9].contains(Character.toString(Constants.BLACK_QUEEN));
+            kingSide = cb.fenParts[9].contains(Character.toString(Constants.BLACK_KING));
+            queenSide = cb.fenParts[9].contains(Character.toString(Constants.BLACK_QUEEN));
         }
+
+        kingSide = kingSide && cb.board[rank][5] == Constants.EMPTY_SQUARE && cb.board[rank][6] == Constants.EMPTY_SQUARE && !cb.squareUnderAttack(5,rank) && !cb.squareUnderAttack(6,rank);
+//        if(rank == 0) {
+//            System.out.println("queen side check");
+//            System.out.println(cb.fenParts[9].contains(Character.toString(Constants.BLACK_QUEEN)));
+//            System.out.println(cb.board[rank][1] == Constants.EMPTY_SQUARE);
+//            System.out.println(cb.board[rank][2] == Constants.EMPTY_SQUARE);
+//            System.out.println(cb.board[rank][3] == Constants.EMPTY_SQUARE);
+//            System.out.println(!cb.squareUnderAttack(1,rank));
+//            System.out.println(!cb.squareUnderAttack(2,rank));
+//            System.out.println(!cb.squareUnderAttack(3,rank));
+//        }
+        queenSide = queenSide && cb.board[rank][3] == Constants.EMPTY_SQUARE && cb.board[rank][2] == Constants.EMPTY_SQUARE && cb.board[rank][1] == Constants.EMPTY_SQUARE && !cb.squareUnderAttack(3,rank) && !cb.squareUnderAttack(2,rank) ;
         if(kingSide){
-            for(int i=file+1;kingSide&&i<file+3;i++){
-                kingSide = cb.board[rank][i] == Constants.EMPTY_SQUARE && !cb.squareUnderAttack(i,rank);
-            }
-            if(kingSide){
-                moves.add(Util.constructCastlingMove(Constants.QUEEN_SIDE_CASTLING,cb.fenParts));
-            }
+            moves.add(Util.constructCastlingMove(Constants.KING_SIDE_CASTLING,cb.fenParts));
         }
         if(queenSide){
-            for(int i=file-1;queenSide&&i>file-3;i--){
-                queenSide = cb.board[rank][i] == Constants.EMPTY_SQUARE&& !cb.squareUnderAttack(i,rank);
-            }
-            if(queenSide){
-                moves.add(Util.constructCastlingMove(Constants.QUEEN_SIDE_CASTLING,cb.fenParts));
-            }
+            moves.add(Util.constructCastlingMove(Constants.QUEEN_SIDE_CASTLING,cb.fenParts));
         }
+
+//        if(kingSide){
+//            for(int i=file+1;kingSide&&i<file+3;i++){
+//                kingSide = cb.board[rank][i] == Constants.EMPTY_SQUARE && !cb.squareUnderAttack(i,rank);
+//            }
+//
+//            if(kingSide){
+//                moves.add(Util.constructCastlingMove(Constants.QUEEN_SIDE_CASTLING,cb.fenParts));
+//            }
+//        }
+//        if(queenSide){
+//            for(int i=file-1;queenSide&&i>file-3;i--){
+//                queenSide = cb.board[rank][i] == Constants.EMPTY_SQUARE&& !cb.squareUnderAttack(i,rank);
+//            }
+//            if(queenSide){
+//                moves.add(Util.constructCastlingMove(Constants.QUEEN_SIDE_CASTLING,cb.fenParts));
+//            }
+//        }
         return moves;
     }
 
@@ -965,7 +986,21 @@ public class MoveManager {
                             moves.add(Util.cvtMove(file,rank,df,dr,cb.board,cb.fenParts));
                         }
                     }
+
+
+                    if(cb.fenParts[10].equals("-")){
+                        // do nothing
+                    }else{
+                        int dr = cb.turn == Constants.WHITE?2:5;
+                        if(Math.abs(file-Constants.FILES.indexOf(cb.fenParts[10].charAt(0))) == 1){
+                            if((!Util.isUpperCase(cb.board[rank][file]) && rank == 4)||(Util.isUpperCase(cb.board[rank][file]) && rank == 3)){
+                                moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), dr,cb.board,cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.EN_PASSANT_NOTATION);
+                            }
+                        }
+                    }
+
                 }
+
                 return moves;
             }else{
                 // generate pushes, which is done below

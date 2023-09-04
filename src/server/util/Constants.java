@@ -56,13 +56,13 @@ public class Constants {
 
     public static final char EMPTY_SQUARE = ' ';
 
-    public static final float PAWN_VALUE = 1.7f;
+    public static final float PAWN_VALUE = 2;//1.7f;
 
-    public static final float KNIGHT_VALUE = 3.3f;
+    public static final float KNIGHT_VALUE = 4;//3.3f;
 
-    public static final float BISHOP_VALUE = 3.5f;
+    public static final float BISHOP_VALUE = 4;//3.5f;
 
-    public static final float ROOK_VALUE = 5.5f;
+    public static final float ROOK_VALUE = 7;//35.5f;
 
     public static final float QUEEN_VALUE = 9f;
 

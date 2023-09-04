@@ -3587,3 +3587,1881 @@ INFO: Logger initialized!
 Aug 31, 2023 11:24:11 PM server.util.Util writeToLog
 INFO: bestmove d1d4
 Time taken: 1116 ms
+Sep 04, 2023 1:03:49 PM server.util.Util initLogger
+INFO: Logger initialized!
+Sep 04, 2023 1:03:49 PM server.util.Util writeToLog
+INFO: Input: go perft 5
+Calculating...
+Sep 04, 2023 1:04:46 PM server.util.Util writeToLog
+INFO: Input: go perft 5
+b7c7: 1104708
+b7d7: 1121178
+b7e7: 113092
+b7a7: 1056746
+b7b6: 1440629
+b7b5: 1070426
+b7b4: 1210394
+b7b3: 701030
+b7b8: 124864
+e4f2: 964424
+e4g3: 1102288
+e4g5: 1026238
+e4f6: 168261
+e4c5: 1284528
+e4c3: 1334364
+e4d6: 99040
+e4d2: 811992
+f3f4: 1528906
+h3h4: 1462117
+b2b3: 972636
+b2b4: 1551041
+e2e3: 1273621
+c1d2: 1563617
+c1e3: 1519411
+c1f4: 1659129
+c1g5: 1596930
+d1e1: 1406889
+d1d2: 1224094
+d1c2: 1346169
+d1b3: 1038535
+d1a4: 226600
+f1e1: 1282469
+f1f2: 1359225
+h1h2: 1303318
+Nodes searched: 37048909
+
+Time taken: 56569 ms
+Sep 04, 2023 2:02:59 PM server.util.Util initLogger
+INFO: Logger initialized!
+Sep 04, 2023 2:02:59 PM server.util.Util writeToLog
+INFO: Input: go perft 5
+Calculating...
+Sep 04, 2023 2:03:45 PM server.util.Util initLogger
+INFO: Logger initialized!
+Sep 04, 2023 2:03:45 PM server.util.Util writeToLog
+INFO: Input: go perft 3
+Calculating...
+Sep 04, 2023 2:03:45 PM server.util.Util writeToLog
+INFO: Input: go perft 3
+b7c7: 1088
+b7d7: 1098
+b7e7: 120
+b7a7: 1049
+b7b6: 1264
+b7b5: 1043
+b7b4: 1158
+b7b3: 803
+b7b8: 130
+e4f2: 982
+e4g3: 1051
+e4g5: 1018
+e4f6: 162
+e4c5: 1152
+e4c3: 1186
+e4d6: 98
+e4d2: 911
+f3f4: 1287
+h3h4: 1258
+b2b3: 998
+b2b4: 1325
+e2e3: 1185
+c1d2: 1316
+c1e3: 1311
+c1f4: 1377
+c1g5: 1341
+d1e1: 1233
+d1d2: 1132
+d1c2: 1211
+d1b3: 1056
+d1a4: 235
+f1e1: 1191
+f1f2: 1221
+h1h2: 1190
+Nodes searched: 34180
+
+Time taken: 210 ms
+Sep 04, 2023 2:04:47 PM server.util.Util initLogger
+INFO: Logger initialized!
+Sep 04, 2023 2:04:47 PM server.util.Util writeToLog
+INFO: Input: go perft 3
+Calculating...
+Sep 04, 2023 2:04:47 PM server.util.Util writeToLog
+INFO: Input: go perft 3
+b7c7: 1088
+b7d7: 1098
+b7e7: 120
+b7a7: 1049
+b7b6: 1264
+b7b5: 1043
+b7b4: 1158
+b7b3: 803
+b7b8: 130
+e4f2: 982
+e4g3: 1051
+e4g5: 1018
+e4f6: 162
+e4c5: 1152
+e4c3: 1186
+e4d6: 98
+e4d2: 911
+f3f4: 1287
+h3h4: 1258
+b2b3: 998
+b2b4: 1325
+e2e3: 1185
+c1d2: 1316
+c1e3: 1311
+c1f4: 1377
+c1g5: 1341
+d1e1: 1233
+d1d2: 1132
+d1c2: 1211
+d1b3: 1056
+d1a4: 235
+f1e1: 1191
+f1f2: 1221
+h1h2: 1190
+Nodes searched: 34180
+
+Time taken: 135 ms
+Sep 04, 2023 2:05:37 PM server.util.Util initLogger
+INFO: Logger initialized!
+Sep 04, 2023 2:05:37 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+Calculating...
+Sep 04, 2023 2:05:37 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+b7c7: 34
+b7d7: 34
+b7e7: 4
+b7a7: 33
+b7b6: 35
+b7b5: 33
+b7b4: 37
+b7b3: 29
+b7b8: 4
+e4f2: 35
+e4g3: 35
+e4g5: 34
+e4f6: 5
+e4c5: 35
+e4c3: 36
+e4d6: 3
+e4d2: 35
+f3f4: 36
+h3h4: 34
+b2b3: 31
+b2b4: 39
+e2e3: 35
+c1d2: 34
+c1e3: 35
+c1f4: 36
+c1g5: 34
+d1e1: 34
+d1d2: 34
+d1c2: 33
+d1b3: 27
+d1a4: 6
+f1e1: 34
+f1f2: 34
+h1h2: 34
+Nodes searched: 1011
+
+Time taken: 24 ms
+Sep 04, 2023 2:05:55 PM server.util.Util initLogger
+INFO: Logger initialized!
+Sep 04, 2023 2:05:55 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+Calculating...
+Sep 04, 2023 2:05:55 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+b7c7: 34
+b7d7: 34
+b7e7: 4
+b7a7: 33
+b7b6: 35
+b7b5: 33
+b7b4: 37
+b7b3: 29
+b7b8: 4
+e4f2: 35
+e4g3: 35
+e4g5: 34
+e4f6: 5
+e4c5: 35
+e4c3: 36
+e4d6: 3
+e4d2: 35
+f3f4: 36
+h3h4: 34
+b2b3: 31
+b2b4: 39
+e2e3: 35
+c1d2: 34
+c1e3: 35
+c1f4: 36
+c1g5: 34
+d1e1: 34
+d1d2: 34
+d1c2: 33
+d1b3: 27
+d1a4: 6
+f1e1: 34
+f1f2: 34
+h1h2: 34
+Nodes searched: 1011
+
+Time taken: 24 ms
+Sep 04, 2023 2:06:18 PM server.util.Util writeToLog
+INFO: Input: go perft 5
+Calculating...
+Sep 04, 2023 2:07:13 PM server.util.Util writeToLog
+INFO: Input: go perft 5
+b7c7: 1104708
+b7d7: 1121178
+b7e7: 113092
+b7a7: 1056746
+b7b6: 1440629
+b7b5: 1070426
+b7b4: 1210394
+b7b3: 701030
+b7b8: 124864
+e4f2: 964424
+e4g3: 1102288
+e4g5: 1026238
+e4f6: 168261
+e4c5: 1284528
+e4c3: 1334364
+e4d6: 99040
+e4d2: 811992
+f3f4: 1528906
+h3h4: 1462117
+b2b3: 972636
+b2b4: 1551041
+e2e3: 1273621
+c1d2: 1563617
+c1e3: 1519411
+c1f4: 1659129
+c1g5: 1596930
+d1e1: 1406889
+d1d2: 1224094
+d1c2: 1346169
+d1b3: 1038535
+d1a4: 226600
+f1e1: 1282469
+f1f2: 1359225
+h1h2: 1303318
+Nodes searched: 37048909
+
+Time taken: 55366 ms
+Sep 04, 2023 3:31:18 PM server.util.Util writeToLog
+INFO: Input: stats
+Pinned pieces: 
+Checkers: 
+Pieces at squares:
+a8 r
+b8 n
+e8 k
+g8 n
+h8 r
+b7 R
+e7 b
+a5 p
+c5 p
+e5 p
+g5 p
+h5 p
+a4 b
+d4 p
+e4 N
+d3 P
+f3 P
+h3 P
+a2 q
+b2 P
+e2 P
+g2 B
+c1 B
+d1 Q
+f1 K
+g1 N
+h1 R
+White king position: f1 [5, 7]
+Black king position: e8 [4, 0]
+Turn: w
+
+    a   b   c   d   e   f   g   h
+  +---+---+---+---+---+---+---+---+
+8 | r | n |   |   | k |   | n | r | 8
+  +---+---+---+---+---+---+---+---+
+7 |   | R |   |   | b |   |   |   | 7
+  +---+---+---+---+---+---+---+---+
+6 |   |   |   |   |   |   |   |   | 6
+  +---+---+---+---+---+---+---+---+
+5 | p |   | p |   | p |   | p | p | 5
+  +---+---+---+---+---+---+---+---+
+4 | b |   |   | p | N |   |   |   | 4
+  +---+---+---+---+---+---+---+---+
+3 |   |   |   | P |   | P |   | P | 3
+  +---+---+---+---+---+---+---+---+
+2 | q | P |   |   | P |   | B |   | 2
+  +---+---+---+---+---+---+---+---+
+1 |   |   | B | Q |   | K | N | R | 1
+  +---+---+---+---+---+---+---+---+
+    a   b   c   d   e   f   g   h
+
+Fen: rn2k1nr/1R2b3/8/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR w kq - 1 16
+Sep 04, 2023 3:31:50 PM server.util.Util writeToLog
+INFO: Input: push b7c7
+Fen rn2k1nr/2R1b3/8/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR b kq - 2 16
+Sep 04, 2023 3:31:52 PM server.util.Util writeToLog
+INFO: Input: stats
+Pinned pieces: 
+Checkers: 
+Pieces at squares:
+a8 r
+b8 n
+e8 k
+g8 n
+h8 r
+c7 R
+e7 b
+a5 p
+c5 p
+e5 p
+g5 p
+h5 p
+a4 b
+d4 p
+e4 N
+d3 P
+f3 P
+h3 P
+a2 q
+b2 P
+e2 P
+g2 B
+c1 B
+d1 Q
+f1 K
+g1 N
+h1 R
+White king position: f1 [5, 7]
+Black king position: e8 [4, 0]
+Turn: b
+
+    a   b   c   d   e   f   g   h
+  +---+---+---+---+---+---+---+---+
+8 | r | n |   |   | k |   | n | r | 8
+  +---+---+---+---+---+---+---+---+
+7 |   |   | R |   | b |   |   |   | 7
+  +---+---+---+---+---+---+---+---+
+6 |   |   |   |   |   |   |   |   | 6
+  +---+---+---+---+---+---+---+---+
+5 | p |   | p |   | p |   | p | p | 5
+  +---+---+---+---+---+---+---+---+
+4 | b |   |   | p | N |   |   |   | 4
+  +---+---+---+---+---+---+---+---+
+3 |   |   |   | P |   | P |   | P | 3
+  +---+---+---+---+---+---+---+---+
+2 | q | P |   |   | P |   | B |   | 2
+  +---+---+---+---+---+---+---+---+
+1 |   |   | B | Q |   | K | N | R | 1
+  +---+---+---+---+---+---+---+---+
+    a   b   c   d   e   f   g   h
+
+Fen: rn2k1nr/2R1b3/8/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR b kq - 2 16
+Sep 04, 2023 3:33:03 PM server.util.Util writeToLog
+INFO: Input: go perft 4
+Calculating...
+Sep 04, 2023 3:33:04 PM server.util.Util writeToLog
+INFO: Input: go perft 4
+a8a7: 32499
+a8a6: 36101
+b8c6: 31758
+b8d7: 33309
+b8a6: 32630
+e8f8: 34408
+e8d8: 32323
+e8f7: 30261
+g8h6: 35204
+g8f6: 36599
+h8h7: 32715
+h8h6: 36226
+e7f6: 34065
+e7d6: 34851
+e7d8: 35036
+e7f8: 35085
+c5c4: 35044
+g5g4: 40906
+h5h4: 28825
+a4b3: 25224
+a4c2: 29004
+a4d1: 21806
+a4b5: 33883
+a4c6: 31217
+a4d7: 33598
+a2b2: 31557
+a2a1: 26850
+a2a3: 30498
+a2b1: 27528
+a2b3: 28376
+a2c4: 33849
+a2d5: 32684
+a2e6: 38195
+a2f7: 32594
+Nodes searched: 1104708
+
+Time taken: 1644 ms
+Sep 04, 2023 3:33:50 PM server.util.Util writeToLog
+INFO: Input: push g8h6
+Fen rn2k2r/2R1b3/7n/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR w kq - 3 17
+Sep 04, 2023 3:34:12 PM server.util.Util writeToLog
+INFO: Input: go perft 3
+Calculating...
+Sep 04, 2023 3:34:12 PM server.util.Util writeToLog
+INFO: Input: go perft 3
+c7d7: 1264
+c7e7: 95
+c7b7: 1327
+c7a7: 1210
+c7c6: 1329
+c7c5: 1334
+c7c8: 98
+e4f2: 1044
+e4g3: 1122
+e4g5: 1091
+e4f6: 127
+e4c5: 1239
+e4c3: 1270
+e4d6: 94
+e4d2: 962
+f3f4: 1382
+h3h4: 1365
+b2b3: 1095
+b2b4: 1501
+e2e3: 1276
+c1d2: 1434
+c1e3: 1422
+c1f4: 1491
+c1g5: 1465
+d1e1: 1336
+d1d2: 1220
+d1c2: 1321
+d1b3: 1198
+d1a4: 222
+f1e1: 1289
+f1f2: 1293
+h1h2: 1288
+Nodes searched: 35204
+
+Time taken: 52 ms
+Sep 04, 2023 3:34:41 PM server.util.Util writeToLog
+INFO: Input: push f3f4
+Fen rn2k2r/2R1b3/7n/p1p1p1pp/b2pNP2/3P3P/qP2P1B1/2BQ1KNR b kq - 0 17
+Sep 04, 2023 3:35:21 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+Calculating...
+Sep 04, 2023 3:35:21 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+a8a7: 34
+a8a6: 34
+b8c6: 33
+b8d7: 33
+b8a6: 34
+e8f8: 34
+e8d8: 34
+e8f7: 34
+e8c8: 34
+h8g8: 34
+h8f8: 32
+h8h7: 34
+e7f6: 37
+e7d6: 37
+e7d8: 37
+e7f8: 37
+h6f7: 34
+h6f5: 33
+h6g8: 34
+h6g4: 34
+c5c4: 36
+e5f4: 32
+g5g4: 34
+g5f4: 32
+h5h4: 33
+a4b3: 31
+a4c2: 32
+a4d1: 29
+a4b5: 34
+a4c6: 33
+a4d7: 33
+a2b2: 33
+a2a1: 34
+a2a3: 35
+a2b1: 34
+a2b3: 31
+a2c4: 35
+a2d5: 34
+a2e6: 34
+a2f7: 32
+a2g8: 34
+Nodes searched: 1382
+
+Time taken: 2 ms
+Sep 04, 2023 3:36:34 PM server.util.Util writeToLog
+INFO: Input: stats
+Pinned pieces: 
+Checkers: 
+Pieces at squares:
+a8 r
+b8 n
+e8 k
+h8 r
+c7 R
+e7 b
+h6 n
+a5 p
+c5 p
+e5 p
+g5 p
+h5 p
+a4 b
+d4 p
+e4 N
+f4 P
+d3 P
+h3 P
+a2 q
+b2 P
+e2 P
+g2 B
+c1 B
+d1 Q
+f1 K
+g1 N
+h1 R
+White king position: f1 [5, 7]
+Black king position: e8 [4, 0]
+Turn: b
+
+    a   b   c   d   e   f   g   h
+  +---+---+---+---+---+---+---+---+
+8 | r | n |   |   | k |   |   | r | 8
+  +---+---+---+---+---+---+---+---+
+7 |   |   | R |   | b |   |   |   | 7
+  +---+---+---+---+---+---+---+---+
+6 |   |   |   |   |   |   |   | n | 6
+  +---+---+---+---+---+---+---+---+
+5 | p |   | p |   | p |   | p | p | 5
+  +---+---+---+---+---+---+---+---+
+4 | b |   |   | p | N | P |   |   | 4
+  +---+---+---+---+---+---+---+---+
+3 |   |   |   | P |   |   |   | P | 3
+  +---+---+---+---+---+---+---+---+
+2 | q | P |   |   | P |   | B |   | 2
+  +---+---+---+---+---+---+---+---+
+1 |   |   | B | Q |   | K | N | R | 1
+  +---+---+---+---+---+---+---+---+
+    a   b   c   d   e   f   g   h
+
+Fen: rn2k2r/2R1b3/7n/p1p1p1pp/b2pNP2/3P3P/qP2P1B1/2BQ1KNR b kq - 0 17
+Sep 04, 2023 3:54:29 PM server.util.Util initLogger
+INFO: Logger initialized!
+Sep 04, 2023 3:54:29 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+Calculating...
+Sep 04, 2023 3:54:29 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+a8a7: 34
+a8a6: 34
+b8c6: 33
+b8d7: 33
+b8a6: 34
+e8f8: 34
+e8d8: 34
+e8f7: 34
+e8c8: 34
+h8g8: 34
+h8f8: 32
+h8h7: 34
+e7f6: 37
+e7d6: 37
+e7d8: 37
+e7f8: 37
+h6f7: 34
+h6f5: 33
+h6g8: 34
+h6g4: 34
+c5c4: 36
+e5f4: 32
+g5g4: 34
+g5f4: 32
+h5h4: 33
+a4b3: 31
+a4c2: 32
+a4d1: 29
+a4b5: 34
+a4c6: 33
+a4d7: 33
+a2b2: 33
+a2a1: 34
+a2a3: 35
+a2b1: 34
+a2b3: 31
+a2c4: 35
+a2d5: 34
+a2e6: 34
+a2f7: 32
+a2g8: 34
+Nodes searched: 1382
+
+Time taken: 13 ms
+Sep 04, 2023 4:03:04 PM server.util.Util initLogger
+INFO: Logger initialized!
+Sep 04, 2023 4:03:04 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+Calculating...
+Sep 04, 2023 4:03:04 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+a8a7: 34
+a8a6: 34
+b8c6: 33
+b8d7: 33
+b8a6: 34
+e8f8: 34
+e8d8: 34
+e8f7: 34
+e8g8: 32
+h8g8: 34
+h8f8: 32
+h8h7: 34
+e7f6: 37
+e7d6: 37
+e7d8: 37
+e7f8: 37
+h6f7: 34
+h6f5: 33
+h6g8: 34
+h6g4: 34
+c5c4: 36
+e5f4: 32
+g5g4: 34
+g5f4: 32
+h5h4: 33
+a4b3: 31
+a4c2: 32
+a4d1: 29
+a4b5: 34
+a4c6: 33
+a4d7: 33
+a2b2: 33
+a2a1: 34
+a2a3: 35
+a2b1: 34
+a2b3: 31
+a2c4: 35
+a2d5: 34
+a2e6: 34
+a2f7: 32
+a2g8: 34
+Nodes searched: 1380
+
+Time taken: 12 ms
+Sep 04, 2023 4:05:20 PM server.util.Util writeToLog
+INFO: Input: go perft 5
+Calculating...
+Sep 04, 2023 4:06:16 PM server.util.Util writeToLog
+INFO: Input: go perft 5
+b7c7: 1104605
+b7d7: 1121074
+b7e7: 113090
+b7a7: 1056512
+b7b6: 1437791
+b7b5: 1067784
+b7b4: 1207899
+b7b3: 699000
+b7b8: 124864
+e4f2: 962385
+e4g3: 1099935
+e4g5: 1024091
+e4f6: 168261
+e4c5: 1281833
+e4c3: 1331585
+e4d6: 99040
+e4d2: 810265
+f3f4: 1525630
+h3h4: 1458893
+b2b3: 970061
+b2b4: 1548149
+e2e3: 1270904
+c1d2: 1560149
+c1e3: 1516049
+c1f4: 1655558
+c1g5: 1593242
+d1e1: 1403970
+d1d2: 1221577
+d1c2: 1342989
+d1b3: 1035170
+d1a4: 224252
+f1e1: 1279594
+f1f2: 1356158
+h1h2: 1300400
+Nodes searched: 36972759
+
+Time taken: 56010 ms
+Sep 04, 2023 4:07:25 PM server.util.Util writeToLog
+INFO: Input: go perft 4
+Calculating...
+Sep 04, 2023 4:07:25 PM server.util.Util writeToLog
+INFO: Input: go perft 4
+a2a3: 8457
+a2a4: 9329
+b2b3: 9345
+b2b4: 9332
+c2c3: 9272
+c2c4: 9744
+d2d3: 11959
+d2d4: 12435
+e2e3: 13134
+e2e4: 13160
+f2f3: 8457
+f2f4: 8929
+g2g3: 9345
+g2g4: 9328
+h2h3: 8457
+h2h4: 9329
+b1c3: 9755
+b1a3: 8885
+g1h3: 8881
+g1f3: 9748
+Nodes searched: 197281
+
+Time taken: 343 ms
+Sep 04, 2023 4:07:29 PM server.util.Util writeToLog
+INFO: Input: go perft 5
+Calculating...
+Sep 04, 2023 4:07:36 PM server.util.Util writeToLog
+INFO: Input: go perft 5
+a2a3: 181046
+a2a4: 217832
+b2b3: 215255
+b2b4: 216145
+c2c3: 222861
+c2c4: 240082
+d2d3: 328511
+d2d4: 361790
+e2e3: 402988
+e2e4: 405385
+f2f3: 178889
+f2f4: 198473
+g2g3: 217210
+g2g4: 214048
+h2h3: 181044
+h2h4: 218829
+b1c3: 234656
+b1a3: 198572
+g1h3: 198502
+g1f3: 233491
+Nodes searched: 4865609
+
+Time taken: 7226 ms
+Sep 04, 2023 4:08:07 PM server.util.Util writeToLog
+INFO: Input: push b7c7
+Fen rn2k1nr/2R1b3/8/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR b kq - 2 16
+Sep 04, 2023 4:08:10 PM server.util.Util writeToLog
+INFO: Input: go perft 4
+Calculating...
+Sep 04, 2023 4:08:11 PM server.util.Util writeToLog
+INFO: Input: go perft 4
+a8a7: 32499
+a8a6: 36101
+b8c6: 31724
+b8d7: 33276
+b8a6: 32596
+e8f8: 34408
+e8d8: 32323
+e8f7: 30261
+g8h6: 35202
+g8f6: 36599
+h8h7: 32715
+h8h6: 36226
+e7f6: 34065
+e7d6: 34851
+e7d8: 35036
+e7f8: 35085
+c5c4: 35044
+g5g4: 40906
+h5h4: 28825
+a4b3: 25224
+a4c2: 29004
+a4d1: 21806
+a4b5: 33883
+a4c6: 31217
+a4d7: 33598
+a2b2: 31557
+a2a1: 26850
+a2a3: 30498
+a2b1: 27528
+a2b3: 28376
+a2c4: 33849
+a2d5: 32684
+a2e6: 38195
+a2f7: 32594
+Nodes searched: 1104605
+
+Time taken: 1638 ms
+Sep 04, 2023 4:09:38 PM server.util.Util writeToLog
+INFO: Input: push b8c6
+Fen r3k1nr/2R1b3/2n5/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR w kq - 3 17
+Sep 04, 2023 4:09:56 PM server.util.Util writeToLog
+INFO: Input: go perft 3
+Calculating...
+Sep 04, 2023 4:09:56 PM server.util.Util writeToLog
+INFO: Input: go perft 3
+c7d7: 1179
+c7e7: 145
+c7b7: 1224
+c7a7: 1140
+c7c6: 1161
+c7c8: 152
+e4f2: 933
+e4g3: 1006
+e4g5: 976
+e4f6: 147
+e4c5: 1145
+e4c3: 1144
+e4d6: 91
+e4d2: 858
+f3f4: 1251
+h3h4: 1230
+b2b3: 1006
+b2b4: 1356
+e2e3: 1148
+c1d2: 1291
+c1e3: 1282
+c1f4: 1347
+c1g5: 1319
+d1e1: 1202
+d1d2: 1095
+d1c2: 1186
+d1b3: 1131
+d1a4: 1071
+f1e1: 1159
+f1f2: 1191
+h1h2: 1158
+Nodes searched: 31724
+
+Time taken: 47 ms
+Sep 04, 2023 4:10:23 PM server.util.Util writeToLog
+INFO: Input: push c7b7
+Fen r3k1nr/1R2b3/2n5/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR b kq - 4 17
+Sep 04, 2023 4:10:55 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+Calculating...
+Sep 04, 2023 4:10:55 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+a8b8: 34
+a8c8: 34
+a8d8: 34
+a8a7: 34
+a8a6: 34
+e8f8: 34
+e8d8: 34
+e8f7: 34
+g8h6: 34
+g8f6: 34
+h8h7: 34
+h8h6: 34
+e7f6: 37
+e7d6: 37
+e7d8: 37
+e7f8: 37
+c6d8: 34
+c6a7: 34
+c6b8: 34
+c6b4: 32
+c5c4: 35
+g5g4: 37
+h5h4: 33
+a4b3: 31
+a4c2: 32
+a4d1: 29
+a4b5: 32
+a2b2: 34
+a2a1: 34
+a2a3: 35
+a2b1: 34
+a2b3: 31
+a2c4: 35
+a2d5: 34
+a2e6: 34
+a2f7: 34
+Nodes searched: 1224
+
+Time taken: 2 ms
+Sep 04, 2023 4:11:41 PM server.util.Util writeToLog
+INFO: Input: stats
+Pinned pieces: 
+Checkers: 
+Pieces at squares:
+a8 r
+e8 k
+g8 n
+h8 r
+b7 R
+e7 b
+c6 n
+a5 p
+c5 p
+e5 p
+g5 p
+h5 p
+a4 b
+d4 p
+e4 N
+d3 P
+f3 P
+h3 P
+a2 q
+b2 P
+e2 P
+g2 B
+c1 B
+d1 Q
+f1 K
+g1 N
+h1 R
+White king position: f1 [5, 7]
+Black king position: e8 [4, 0]
+Turn: b
+
+    a   b   c   d   e   f   g   h
+  +---+---+---+---+---+---+---+---+
+8 | r |   |   |   | k |   | n | r | 8
+  +---+---+---+---+---+---+---+---+
+7 |   | R |   |   | b |   |   |   | 7
+  +---+---+---+---+---+---+---+---+
+6 |   |   | n |   |   |   |   |   | 6
+  +---+---+---+---+---+---+---+---+
+5 | p |   | p |   | p |   | p | p | 5
+  +---+---+---+---+---+---+---+---+
+4 | b |   |   | p | N |   |   |   | 4
+  +---+---+---+---+---+---+---+---+
+3 |   |   |   | P |   | P |   | P | 3
+  +---+---+---+---+---+---+---+---+
+2 | q | P |   |   | P |   | B |   | 2
+  +---+---+---+---+---+---+---+---+
+1 |   |   | B | Q |   | K | N | R | 1
+  +---+---+---+---+---+---+---+---+
+    a   b   c   d   e   f   g   h
+
+Fen: r3k1nr/1R2b3/2n5/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR b kq - 4 17
+Sep 04, 2023 4:15:21 PM server.util.Util initLogger
+INFO: Logger initialized!
+Sep 04, 2023 4:15:21 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+Calculating...
+Sep 04, 2023 4:15:21 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+a8b8: 34
+a8c8: 34
+a8d8: 34
+a8a7: 34
+a8a6: 34
+e8f8: 34
+e8d8: 34
+e8f7: 34
+e8c8: 34
+g8h6: 34
+g8f6: 34
+h8h7: 34
+h8h6: 34
+e7f6: 37
+e7d6: 37
+e7d8: 37
+e7f8: 37
+c6d8: 34
+c6a7: 34
+c6b8: 34
+c6b4: 32
+c5c4: 35
+g5g4: 37
+h5h4: 33
+a4b3: 31
+a4c2: 32
+a4d1: 29
+a4b5: 32
+a2b2: 34
+a2a1: 34
+a2a3: 35
+a2b1: 34
+a2b3: 31
+a2c4: 35
+a2d5: 34
+a2e6: 34
+a2f7: 34
+Nodes searched: 1258
+
+Time taken: 22 ms
+Sep 04, 2023 4:16:14 PM server.util.Util writeToLog
+INFO: Input: go perft 5
+Calculating...
+Sep 04, 2023 4:17:10 PM server.util.Util writeToLog
+INFO: Input: go perft 5
+b7c7: 1104706
+b7d7: 1121176
+b7e7: 113090
+b7a7: 1056734
+b7b6: 1440627
+b7b5: 1070424
+b7b4: 1210392
+b7b3: 701028
+b7b8: 124864
+e4f2: 964424
+e4g3: 1102286
+e4g5: 1026237
+e4f6: 168261
+e4c5: 1284526
+e4c3: 1334362
+e4d6: 99040
+e4d2: 811990
+f3f4: 1528802
+h3h4: 1462115
+b2b3: 972634
+b2b4: 1551039
+e2e3: 1273619
+c1d2: 1563615
+c1e3: 1519409
+c1f4: 1659129
+c1g5: 1596929
+d1e1: 1406887
+d1d2: 1224092
+d1c2: 1346167
+d1b3: 1038535
+d1a4: 226600
+f1e1: 1282469
+f1f2: 1359223
+h1h2: 1303316
+Nodes searched: 37048747
+
+Time taken: 56054 ms
+Sep 04, 2023 4:19:26 PM server.util.Util writeToLog
+INFO: Input: stats
+Pinned pieces: 
+Checkers: 
+Pieces at squares:
+a8 r
+b8 n
+e8 k
+g8 n
+h8 r
+b7 R
+e7 b
+a5 p
+c5 p
+e5 p
+g5 p
+h5 p
+a4 b
+d4 p
+e4 N
+d3 P
+f3 P
+h3 P
+a2 q
+b2 P
+e2 P
+g2 B
+c1 B
+d1 Q
+f1 K
+g1 N
+h1 R
+White king position: f1 [5, 7]
+Black king position: e8 [4, 0]
+Turn: w
+
+    a   b   c   d   e   f   g   h
+  +---+---+---+---+---+---+---+---+
+8 | r | n |   |   | k |   | n | r | 8
+  +---+---+---+---+---+---+---+---+
+7 |   | R |   |   | b |   |   |   | 7
+  +---+---+---+---+---+---+---+---+
+6 |   |   |   |   |   |   |   |   | 6
+  +---+---+---+---+---+---+---+---+
+5 | p |   | p |   | p |   | p | p | 5
+  +---+---+---+---+---+---+---+---+
+4 | b |   |   | p | N |   |   |   | 4
+  +---+---+---+---+---+---+---+---+
+3 |   |   |   | P |   | P |   | P | 3
+  +---+---+---+---+---+---+---+---+
+2 | q | P |   |   | P |   | B |   | 2
+  +---+---+---+---+---+---+---+---+
+1 |   |   | B | Q |   | K | N | R | 1
+  +---+---+---+---+---+---+---+---+
+    a   b   c   d   e   f   g   h
+
+Fen: rn2k1nr/1R2b3/8/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR w kq - 1 16
+Sep 04, 2023 4:19:29 PM server.util.Util writeToLog
+INFO: Input: go depth 6
+Calculating...
+Sep 04, 2023 4:19:58 PM server.util.Util writeToLog
+INFO: Input: go perft 6
+Calculating...
+Sep 04, 2023 4:53:22 PM server.util.Util writeToLog
+INFO: Input: go perft 6
+b7c7: 36605528
+b7d7: 37345591
+b7e7: 3665867
+b7a7: 35234009
+b7b6: 49359687
+b7b5: 36639215
+b7b4: 42649494
+b7b3: 23379847
+b7b8: 4089228
+e4f2: 33713892
+e4g3: 38611916
+e4g5: 34765884
+e4f6: 5665116
+e4c5: 44967488
+e4c3: 46882935
+e4d6: 3215068
+e4d2: 27674101
+f3f4: 52610945
+h3h4: 48788215
+b2b3: 31450574
+b2b4: 55329111
+e2e3: 43565587
+c1d2: 52727044
+c1e3: 52054607
+c1f4: 57298649
+c1g5: 52914494
+d1e1: 48005130
+d1d2: 40992125
+d1c2: 44126927
+d1b3: 30368095
+d1a4: 6391324
+f1e1: 42818769
+f1f2: 45423504
+h1h2: 43615773
+Nodes searched: 1252945739
+
+Time taken: 2003631 ms
+Sep 04, 2023 5:13:54 PM server.util.Util writeToLog
+INFO: Input: stats
+Pinned pieces: 
+Checkers: 
+Pieces at squares:
+a8 r
+b8 n
+e8 k
+g8 n
+h8 r
+b7 R
+e7 b
+a5 p
+c5 p
+e5 p
+g5 p
+h5 p
+a4 b
+d4 p
+e4 N
+d3 P
+f3 P
+h3 P
+a2 q
+b2 P
+e2 P
+g2 B
+c1 B
+d1 Q
+f1 K
+g1 N
+h1 R
+White king position: f1 [5, 7]
+Black king position: e8 [4, 0]
+Turn: w
+
+    a   b   c   d   e   f   g   h
+  +---+---+---+---+---+---+---+---+
+8 | r | n |   |   | k |   | n | r | 8
+  +---+---+---+---+---+---+---+---+
+7 |   | R |   |   | b |   |   |   | 7
+  +---+---+---+---+---+---+---+---+
+6 |   |   |   |   |   |   |   |   | 6
+  +---+---+---+---+---+---+---+---+
+5 | p |   | p |   | p |   | p | p | 5
+  +---+---+---+---+---+---+---+---+
+4 | b |   |   | p | N |   |   |   | 4
+  +---+---+---+---+---+---+---+---+
+3 |   |   |   | P |   | P |   | P | 3
+  +---+---+---+---+---+---+---+---+
+2 | q | P |   |   | P |   | B |   | 2
+  +---+---+---+---+---+---+---+---+
+1 |   |   | B | Q |   | K | N | R | 1
+  +---+---+---+---+---+---+---+---+
+    a   b   c   d   e   f   g   h
+
+Fen: rn2k1nr/1R2b3/8/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR w kq - 1 16
+Sep 04, 2023 5:14:08 PM server.util.Util writeToLog
+INFO: Input: push d1b3
+Fen rn2k1nr/1R2b3/8/p1p1p1pp/b2pN3/1Q1P1P1P/qP2P1B1/2B2KNR b kq - 2 16
+Sep 04, 2023 5:14:18 PM server.util.Util writeToLog
+INFO: Input: go perft 5
+Calculating...
+Sep 04, 2023 5:15:09 PM server.util.Util writeToLog
+INFO: Input: go perft 5
+a8a7: 1081205
+a8a6: 1334849
+b8c6: 1233173
+b8d7: 1291136
+b8a6: 1172218
+e8f8: 1212155
+e8d8: 1106279
+g8h6: 1224501
+g8f6: 1333243
+h8h7: 1150012
+h8h6: 1360158
+e7f6: 1023755
+e7d6: 1093537
+e7d8: 1123827
+e7f8: 1123733
+c5c4: 1178778
+g5g4: 1427038
+h5h4: 954537
+a4b3: 634113
+a4b5: 1099083
+a4c6: 1220805
+a4d7: 1318341
+a2b2: 1339805
+a2a1: 745014
+a2a3: 1022418
+a2b1: 793585
+a2b3: 770797
+Nodes searched: 30368095
+
+Time taken: 50456 ms
+Sep 04, 2023 5:17:38 PM server.util.Util writeToLog
+INFO: Input: stats
+Pinned pieces: 
+Checkers: 
+Pieces at squares:
+a8 r
+b8 n
+e8 k
+g8 n
+h8 r
+b7 R
+e7 b
+a5 p
+c5 p
+e5 p
+g5 p
+h5 p
+a4 b
+d4 p
+e4 N
+b3 Q
+d3 P
+f3 P
+h3 P
+a2 q
+b2 P
+e2 P
+g2 B
+c1 B
+f1 K
+g1 N
+h1 R
+White king position: f1 [5, 7]
+Black king position: e8 [4, 0]
+Turn: b
+
+    a   b   c   d   e   f   g   h
+  +---+---+---+---+---+---+---+---+
+8 | r | n |   |   | k |   | n | r | 8
+  +---+---+---+---+---+---+---+---+
+7 |   | R |   |   | b |   |   |   | 7
+  +---+---+---+---+---+---+---+---+
+6 |   |   |   |   |   |   |   |   | 6
+  +---+---+---+---+---+---+---+---+
+5 | p |   | p |   | p |   | p | p | 5
+  +---+---+---+---+---+---+---+---+
+4 | b |   |   | p | N |   |   |   | 4
+  +---+---+---+---+---+---+---+---+
+3 |   | Q |   | P |   | P |   | P | 3
+  +---+---+---+---+---+---+---+---+
+2 | q | P |   |   | P |   | B |   | 2
+  +---+---+---+---+---+---+---+---+
+1 |   |   | B |   |   | K | N | R | 1
+  +---+---+---+---+---+---+---+---+
+    a   b   c   d   e   f   g   h
+
+Fen: rn2k1nr/1R2b3/8/p1p1p1pp/b2pN3/1Q1P1P1P/qP2P1B1/2B2KNR b kq - 2 16
+Sep 04, 2023 5:17:47 PM server.util.Util writeToLog
+INFO: Input: push c5c4
+Fen rn2k1nr/1R2b3/8/p3p1pp/b1ppN3/1Q1P1P1P/qP2P1B1/2B2KNR w kq - 0 17
+Sep 04, 2023 5:18:11 PM server.util.Util writeToLog
+INFO: Input: go perft 4
+Calculating...
+Sep 04, 2023 5:18:13 PM server.util.Util writeToLog
+INFO: Input: go perft 4
+b7c7: 37156
+b7d7: 37525
+b7e7: 3755
+b7a7: 34844
+b7b6: 40144
+b7b5: 33984
+b7b4: 33896
+b7b8: 4041
+e4f2: 34485
+e4g3: 35646
+e4g5: 33497
+e4f6: 5256
+e4c5: 33906
+e4c3: 38878
+e4d6: 3005
+e4d2: 31037
+b3c3: 41834
+b3a3: 39491
+b3b4: 40641
+b3b5: 6307
+b3b6: 39502
+b3c2: 38069
+b3d1: 37990
+b3a2: 28425
+b3a4: 6196
+b3c4: 40650
+d3c4: 34287
+f3f4: 42560
+h3h4: 39495
+e2e3: 37154
+c1d2: 37627
+c1e3: 37329
+c1f4: 39981
+c1g5: 36599
+f1e1: 38596
+f1f2: 37593
+h1h2: 37397
+Nodes searched: 1178778
+
+Time taken: 1902 ms
+Sep 04, 2023 5:18:43 PM server.util.Util writeToLog
+INFO: Input: stats
+Pinned pieces: 
+Checkers: 
+Pieces at squares:
+a8 r
+b8 n
+e8 k
+g8 n
+h8 r
+b7 R
+e7 b
+a5 p
+e5 p
+g5 p
+h5 p
+a4 b
+c4 p
+d4 p
+e4 N
+b3 Q
+d3 P
+f3 P
+h3 P
+a2 q
+b2 P
+e2 P
+g2 B
+c1 B
+f1 K
+g1 N
+h1 R
+White king position: f1 [5, 7]
+Black king position: e8 [4, 0]
+Turn: w
+
+    a   b   c   d   e   f   g   h
+  +---+---+---+---+---+---+---+---+
+8 | r | n |   |   | k |   | n | r | 8
+  +---+---+---+---+---+---+---+---+
+7 |   | R |   |   | b |   |   |   | 7
+  +---+---+---+---+---+---+---+---+
+6 |   |   |   |   |   |   |   |   | 6
+  +---+---+---+---+---+---+---+---+
+5 | p |   |   |   | p |   | p | p | 5
+  +---+---+---+---+---+---+---+---+
+4 | b |   | p | p | N |   |   |   | 4
+  +---+---+---+---+---+---+---+---+
+3 |   | Q |   | P |   | P |   | P | 3
+  +---+---+---+---+---+---+---+---+
+2 | q | P |   |   | P |   | B |   | 2
+  +---+---+---+---+---+---+---+---+
+1 |   |   | B |   |   | K | N | R | 1
+  +---+---+---+---+---+---+---+---+
+    a   b   c   d   e   f   g   h
+
+Fen: rn2k1nr/1R2b3/8/p3p1pp/b1ppN3/1Q1P1P1P/qP2P1B1/2B2KNR w kq - 0 17
+Sep 04, 2023 5:18:54 PM server.util.Util writeToLog
+INFO: Input: push b3a2
+Fen rn2k1nr/1R2b3/8/p3p1pp/b1ppN3/3P1P1P/QP2P1B1/2B2KNR b kq - 0 17
+Sep 04, 2023 5:19:40 PM server.util.Util writeToLog
+INFO: Input: go perft 3
+Calculating...
+Sep 04, 2023 5:19:40 PM server.util.Util writeToLog
+INFO: Input: go perft 3
+a8a7: 964
+a8a6: 1106
+b8c6: 1039
+b8d7: 1085
+b8a6: 1045
+e8f8: 997
+e8d8: 946
+e8f7: 797
+g8h6: 1045
+g8f6: 1106
+h8h7: 987
+h8h6: 1112
+e7f6: 851
+e7d6: 981
+e7c5: 1009
+e7b4: 944
+e7a3: 987
+e7d8: 899
+e7f8: 977
+g5g4: 1134
+h5h4: 896
+a4b3: 839
+a4c2: 959
+a4d1: 927
+a4b5: 888
+a4c6: 985
+a4d7: 1028
+c4c3: 947
+c4d3: 945
+Nodes searched: 28425
+
+Time taken: 48 ms
+Sep 04, 2023 5:19:40 PM server.util.Util writeToLog
+INFO: Input: go perft 3
+Calculating...
+Sep 04, 2023 5:19:40 PM server.util.Util writeToLog
+INFO: Input: go perft 3
+a8a7: 964
+a8a6: 1106
+b8c6: 1039
+b8d7: 1085
+b8a6: 1045
+e8f8: 997
+e8d8: 946
+e8f7: 797
+g8h6: 1045
+g8f6: 1106
+h8h7: 987
+h8h6: 1112
+e7f6: 851
+e7d6: 981
+e7c5: 1009
+e7b4: 944
+e7a3: 987
+e7d8: 899
+e7f8: 977
+g5g4: 1134
+h5h4: 896
+a4b3: 839
+a4c2: 959
+a4d1: 927
+a4b5: 888
+a4c6: 985
+a4d7: 1028
+c4c3: 947
+c4d3: 945
+Nodes searched: 28425
+
+Time taken: 47 ms
+Sep 04, 2023 5:19:45 PM server.util.Util writeToLog
+INFO: Input: go perft 3
+Calculating...
+Sep 04, 2023 5:19:45 PM server.util.Util writeToLog
+INFO: Input: go perft 3
+a8a7: 964
+a8a6: 1106
+b8c6: 1039
+b8d7: 1085
+b8a6: 1045
+e8f8: 997
+e8d8: 946
+e8f7: 797
+g8h6: 1045
+g8f6: 1106
+h8h7: 987
+h8h6: 1112
+e7f6: 851
+e7d6: 981
+e7c5: 1009
+e7b4: 944
+e7a3: 987
+e7d8: 899
+e7f8: 977
+g5g4: 1134
+h5h4: 896
+a4b3: 839
+a4c2: 959
+a4d1: 927
+a4b5: 888
+a4c6: 985
+a4d7: 1028
+c4c3: 947
+c4d3: 945
+Nodes searched: 28425
+
+Time taken: 46 ms
+Sep 04, 2023 5:20:14 PM server.util.Util writeToLog
+INFO: Input: stats
+Pinned pieces: 
+Checkers: 
+Pieces at squares:
+a8 r
+b8 n
+e8 k
+g8 n
+h8 r
+b7 R
+e7 b
+a5 p
+e5 p
+g5 p
+h5 p
+a4 b
+c4 p
+d4 p
+e4 N
+d3 P
+f3 P
+h3 P
+a2 Q
+b2 P
+e2 P
+g2 B
+c1 B
+f1 K
+g1 N
+h1 R
+White king position: f1 [5, 7]
+Black king position: e8 [4, 0]
+Turn: b
+
+    a   b   c   d   e   f   g   h
+  +---+---+---+---+---+---+---+---+
+8 | r | n |   |   | k |   | n | r | 8
+  +---+---+---+---+---+---+---+---+
+7 |   | R |   |   | b |   |   |   | 7
+  +---+---+---+---+---+---+---+---+
+6 |   |   |   |   |   |   |   |   | 6
+  +---+---+---+---+---+---+---+---+
+5 | p |   |   |   | p |   | p | p | 5
+  +---+---+---+---+---+---+---+---+
+4 | b |   | p | p | N |   |   |   | 4
+  +---+---+---+---+---+---+---+---+
+3 |   |   |   | P |   | P |   | P | 3
+  +---+---+---+---+---+---+---+---+
+2 | Q | P |   |   | P |   | B |   | 2
+  +---+---+---+---+---+---+---+---+
+1 |   |   | B |   |   | K | N | R | 1
+  +---+---+---+---+---+---+---+---+
+    a   b   c   d   e   f   g   h
+
+Fen: rn2k1nr/1R2b3/8/p3p1pp/b1ppN3/3P1P1P/QP2P1B1/2B2KNR b kq - 0 17
+Sep 04, 2023 5:20:26 PM server.util.Util writeToLog
+INFO: Input: push e8f7
+Fen rn4nr/1R2bk2/8/p3p1pp/b1ppN3/3P1P1P/QP2P1B1/2B2KNR w - - 1 18
+Sep 04, 2023 5:20:34 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+Calculating...
+Sep 04, 2023 5:20:34 PM server.util.Util writeToLog
+INFO: Input: go perft 2
+b7c7: 23
+b7d7: 22
+b7e7: 4
+b7a7: 22
+b7b6: 28
+b7b5: 27
+b7b4: 30
+b7b3: 31
+b7b8: 26
+e4f2: 25
+e4g3: 25
+e4g5: 5
+e4f6: 24
+e4c5: 24
+e4c3: 26
+e4d6: 5
+e4d2: 25
+d3c4: 24
+f3f4: 25
+h3h4: 23
+a2a1: 25
+a2a3: 25
+a2a4: 17
+a2b1: 25
+a2b3: 22
+a2c4: 4
+b2b3: 24
+b2b4: 24
+e2e3: 24
+c1d2: 23
+c1e3: 24
+c1f4: 25
+c1g5: 22
+f1e1: 23
+f1f2: 23
+h1h2: 23
+Nodes searched: 797
+
+Time taken: 1 ms
+Sep 04, 2023 5:21:05 PM server.util.Util writeToLog
+INFO: Input: stats
+Pinned pieces: 
+Checkers: 
+Pieces at squares:
+a8 r
+b8 n
+g8 n
+h8 r
+b7 R
+e7 b
+f7 k
+a5 p
+e5 p
+g5 p
+h5 p
+a4 b
+c4 p
+d4 p
+e4 N
+d3 P
+f3 P
+h3 P
+a2 Q
+b2 P
+e2 P
+g2 B
+c1 B
+f1 K
+g1 N
+h1 R
+White king position: f1 [5, 7]
+Black king position: f7 [5, 1]
+Turn: w
+
+    a   b   c   d   e   f   g   h
+  +---+---+---+---+---+---+---+---+
+8 | r | n |   |   |   |   | n | r | 8
+  +---+---+---+---+---+---+---+---+
+7 |   | R |   |   | b | k |   |   | 7
+  +---+---+---+---+---+---+---+---+
+6 |   |   |   |   |   |   |   |   | 6
+  +---+---+---+---+---+---+---+---+
+5 | p |   |   |   | p |   | p | p | 5
+  +---+---+---+---+---+---+---+---+
+4 | b |   | p | p | N |   |   |   | 4
+  +---+---+---+---+---+---+---+---+
+3 |   |   |   | P |   | P |   | P | 3
+  +---+---+---+---+---+---+---+---+
+2 | Q | P |   |   | P |   | B |   | 2
+  +---+---+---+---+---+---+---+---+
+1 |   |   | B |   |   | K | N | R | 1
+  +---+---+---+---+---+---+---+---+
+    a   b   c   d   e   f   g   h
+
+Fen: rn4nr/1R2bk2/8/p3p1pp/b1ppN3/3P1P1P/QP2P1B1/2B2KNR w - - 1 18
+Sep 04, 2023 5:21:18 PM server.util.Util writeToLog
+INFO: Input: push b2b4
+Fen rn4nr/1R2bk2/8/p3p1pp/bPppN3/3P1P1P/Q3P1B1/2B2KNR b - b3 0 18
+Sep 04, 2023 5:21:26 PM server.util.Util writeToLog
+INFO: Input: go perft 1
+Calculating...
+Sep 04, 2023 5:21:26 PM server.util.Util writeToLog
+INFO: Input: go perft 1
+a8a7: 1
+a8a6: 1
+b8c6: 1
+b8d7: 1
+b8a6: 1
+g8h6: 1
+g8f6: 1
+h8h7: 1
+h8h6: 1
+f7g7: 1
+f7f8: 1
+f7g6: 1
+f7e6: 1
+f7e8: 1
+a5b4: 1
+g5g4: 1
+h5h4: 1
+a4b3: 1
+a4c2: 1
+a4d1: 1
+a4b5: 1
+a4c6: 1
+a4d7: 1
+a4e8: 1
+Nodes searched: 24
+
+Time taken: 0 ms
+Sep 04, 2023 5:22:13 PM server.util.Util writeToLog
+INFO: Input: stats
+Pinned pieces: 
+c4 p direction to pinner: [-1, 1]
+e7 b direction to pinner: [-1, 0]
+Checkers: 
+Pieces at squares:
+a8 r
+b8 n
+g8 n
+h8 r
+b7 R
+e7 b
+f7 k
+a5 p
+e5 p
+g5 p
+h5 p
+a4 b
+b4 P
+c4 p
+d4 p
+e4 N
+d3 P
+f3 P
+h3 P
+a2 Q
+e2 P
+g2 B
+c1 B
+f1 K
+g1 N
+h1 R
+White king position: f1 [5, 7]
+Black king position: f7 [5, 1]
+Turn: b
+
+    a   b   c   d   e   f   g   h
+  +---+---+---+---+---+---+---+---+
+8 | r | n |   |   |   |   | n | r | 8
+  +---+---+---+---+---+---+---+---+
+7 |   | R |   |   | b | k |   |   | 7
+  +---+---+---+---+---+---+---+---+
+6 |   |   |   |   |   |   |   |   | 6
+  +---+---+---+---+---+---+---+---+
+5 | p |   |   |   | p |   | p | p | 5
+  +---+---+---+---+---+---+---+---+
+4 | b | P | p | p | N |   |   |   | 4
+  +---+---+---+---+---+---+---+---+
+3 |   |   |   | P |   | P |   | P | 3
+  +---+---+---+---+---+---+---+---+
+2 | Q |   |   |   | P |   | B |   | 2
+  +---+---+---+---+---+---+---+---+
+1 |   |   | B |   |   | K | N | R | 1
+  +---+---+---+---+---+---+---+---+
+    a   b   c   d   e   f   g   h
+
+Fen: rn4nr/1R2bk2/8/p3p1pp/bPppN3/3P1P1P/Q3P1B1/2B2KNR b - b3 0 18
+Sep 04, 2023 5:22:53 PM server.util.Util writeToLog
+INFO: Input: state
+NORMAL
+Sep 04, 2023 5:33:04 PM server.util.Util initLogger
+INFO: Logger initialized!
+Sep 04, 2023 5:33:04 PM server.util.Util writeToLog
+INFO: Input: go perft 4
+Calculating...
+Sep 04, 2023 5:33:07 PM server.util.Util writeToLog
+INFO: Input: go perft 4
+b7c7: 37156
+b7d7: 37525
+b7e7: 3755
+b7a7: 34844
+b7b6: 40144
+b7b5: 33984
+b7b4: 33896
+b7b8: 4041
+e4f2: 34485
+e4g3: 35646
+e4g5: 33497
+e4f6: 5256
+e4c5: 33906
+e4c3: 38878
+e4d6: 3005
+e4d2: 31037
+b3c3: 41834
+b3a3: 39491
+b3b4: 40641
+b3b5: 6307
+b3b6: 39502
+b3c2: 38069
+b3d1: 37990
+b3a2: 28426
+b3a4: 6196
+b3c4: 40650
+d3c4: 34287
+f3f4: 42560
+h3h4: 39495
+e2e3: 37154
+c1d2: 37627
+c1e3: 37329
+c1f4: 39981
+c1g5: 36599
+f1e1: 38596
+f1f2: 37593
+h1h2: 37397
+Nodes searched: 1178779
+
+Time taken: 2496 ms
+Sep 04, 2023 5:34:34 PM server.util.Util writeToLog
+INFO: Input: go perft 6
+Calculating...
+Sep 04, 2023 6:08:33 PM server.util.Util writeToLog
+INFO: Input: go perft 6
+b7c7: 36605528
+b7d7: 37345591
+b7e7: 3665867
+b7a7: 35234009
+b7b6: 49359687
+b7b5: 36639215
+b7b4: 42649494
+b7b3: 23379847
+b7b8: 4089228
+e4f2: 33713892
+e4g3: 38611916
+e4g5: 34765884
+e4f6: 5665116
+e4c5: 44967488
+e4c3: 46882935
+e4d6: 3215068
+e4d2: 27674101
+f3f4: 52610945
+h3h4: 48788215
+b2b3: 31450574
+b2b4: 55329111
+e2e3: 43565587
+c1d2: 52727044
+c1e3: 52054607
+c1f4: 57298649
+c1g5: 52914494
+d1e1: 48005130
+d1d2: 40992125
+d1c2: 44126927
+d1b3: 30368096
+d1a4: 6391325
+f1e1: 42818769
+f1f2: 45423504
+h1h2: 43615773
+Nodes searched: 1252945741
+
+Time taken: 2038660 ms
+Sep 04, 2023 6:10:37 PM server.util.Util writeToLog
+INFO: Input: go depth 6
+Calculating...

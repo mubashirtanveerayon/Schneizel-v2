@@ -7,6 +7,8 @@ import server.util.FenUtils;
 import server.util.GameState;
 import server.util.Util;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -67,7 +69,23 @@ public class UCI {
                             int depth = Integer.parseInt(partsBySpace[2]);
                             long currentTime = System.nanoTime();
                             output = engine. mm.moveGenerationTest(depth, true);
+
+                            if(saveToLog){
+                                try{
+                                    FileWriter fw = new FileWriter("debug/output.txt");
+                                    BufferedWriter bw = new BufferedWriter(fw);
+                                    bw.write(output);
+                                    //fw.close();
+                                    bw.close();
+                                }catch(Exception e){
+                                    e.printStackTrace();
+                                }
+                            }
+
                             output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
+
+
+
                             print(output);
                         }else if(partsBySpace[1].equals("depth")){
                             int depth = Integer.parseInt(partsBySpace[2]);

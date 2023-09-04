@@ -86,13 +86,14 @@ public class Main {
         if(debugging) {
             //debug();
 
-            Engine2 engine = new Engine2("2q1k3/RP5P/6p1/5R2/8/8/6P1/3K4 w - - 0 1");
+            Engine2 engine = new Engine2("rn2k1nr/1R2b3/8/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR w kq - 1 16");
 
 
             System.out.println(engine.cb.stats());
 
             long currentTime = System.currentTimeMillis();
 
+            engine.setDepth(6);
             engine.beginSearch();
 
             while(engine.searching){
