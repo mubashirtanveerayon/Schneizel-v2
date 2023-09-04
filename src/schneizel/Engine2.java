@@ -56,6 +56,7 @@ public class Engine2 implements Runnable{
     public void run(){
         ArrayList<String> moves = mm.getAllMoves();
         float score,bestScore = Float.NEGATIVE_INFINITY;
+        orderMove(moves);
         for(String move:moves){
             if(searchCancelled){
                 break;
@@ -83,12 +84,8 @@ public class Engine2 implements Runnable{
 
 
     public void orderMove(ArrayList<String>moves){
-
-        HashMap<Float,String> movesWithScore = new HashMap<>();
-        ArrayList<Float> moveScore = new ArrayList<>();
-//        ArrayList<String> ordered = new ArrayList<>();
+        HashMap<String,Float> movesWithScore = new HashMap<>();
         float score;
-//        int d = 1;
         String[] moveParts;
         for(String move:moves){
             score = 0;
@@ -110,32 +107,18 @@ public class Engine2 implements Runnable{
             }
 
 
-//            if(score == 0){
-//                score -= d;
-//                d+=1;
-//            }
-//
-//            score = -score;
-//            if(movesWithScore.containsKey(score)){
-//                score += 1f;
-//            }
-
-
-
-            moveScore.add(score);
-
-            movesWithScore.put(score,move);
+            score = -score;
+            movesWithScore.put(move,score);
         }
 
-        System.out.println(moves.size() == movesWithScore.size());
+
+
+        movesWithScore = Util.sortHashMap(movesWithScore);
 
         moves.clear();
 
-        Collections.sort(moveScore);
+        moves.addAll(movesWithScore.keySet());
 
-        for(float key:moveScore){
-            moves.add(movesWithScore.get(key));
-        }
 
     }
 
@@ -166,6 +149,7 @@ public class Engine2 implements Runnable{
             return ev.evaluate();
         }
 
+        orderMove(moves);
         float score;
         for(String move : moves){
             mm.makeMove(move);
