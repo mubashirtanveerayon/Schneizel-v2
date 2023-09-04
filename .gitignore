@@ -4,6 +4,7 @@ out/
 !**/src/test/**/out/
 /data
 /test
+/debug/*.exe
 ### Eclipse ###
 .apt_generated
 .classpath
