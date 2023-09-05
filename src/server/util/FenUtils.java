@@ -156,9 +156,14 @@ public class FenUtils {
     }
 
 
-    public static String cat(String[] fenParts) {
+    public static String cat(String[] fenParts){
+        return cat(fenParts,false);
+    }
+
+    public static String cat(String[] fenParts,boolean positionOnly) {
         String fen="";
-        for(int i=0;i< fenParts.length;i++){
+        int lim = positionOnly?9:fenParts.length;
+        for(int i=0;i<lim;i++){
             if(i<7) {
                 fen += fenParts[i] + "/";
             }else{

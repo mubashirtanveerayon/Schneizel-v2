@@ -8,7 +8,7 @@ import server.util.Constants;
 import server.util.FenUtils;
 import server.util.GameState;
 import server.util.Util;
-
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,13 +31,22 @@ public class Engine2 implements Runnable{
 
     public boolean useBook = true;
 
+    public boolean useTranspositionTable = true;
+
 
     public static final int MAX_PLY_TO_USE_BOOK = 4;
     public static final int DEFAULT_SEARCH_DEPTH = 4;
 
+    public int bookMoveType = Constants.BOOK_RANDOM;
+
     long searchStartTime = 0;
 
     private int depth = 4;
+
+
+    public HashMap<String, Float> transpositionTable;
+
+    public static final int MAX_SIZE_TTABLE = 100000;
 
     public void setDepth(int value){
         if (value>0 && value<7){
@@ -54,22 +63,34 @@ public class Engine2 implements Runnable{
         cb = new ChessBoard(fen);
         mm = new MoveManager(cb);
         ev = new Evaluation2(cb);
-
+        transpositionTable = new HashMap<>();
     }
 
     public Engine2(){
         cb = new ChessBoard();
         mm = new MoveManager(cb);
         ev = new Evaluation2(cb);
-
+        transpositionTable = new HashMap<>();
     }
 
     public void loadBook(){
-        if(book != null){
+        if(book != null || !useBook){
             return;
         }
-        book = PGNParser.parseFile("data/lichess_elite_2022-03.pgn",150);
+        File directory = new File("data");
+        if(directory.isDirectory()) {
+            for (File file : directory.listFiles()) {
+                if (file.getName().endsWith(".pgn")) {
+                    book = PGNParser.parseFile(file.getPath(),150);
+                    System.out.println("Book loaded: "+file.getName());
+                    return;
+                }
+            }
+        }
+        System.out.println("Could not find any book");
+        useBook = false;
     }
+
 
     private String readBook(){
         if(book == null || !useBook){
@@ -104,35 +125,39 @@ public class Engine2 implements Runnable{
             return null;
         }
 
-        //return a random move from available moves
-        return availableMoves.get(new Random().nextInt(availableMoves.size()));
+        if(bookMoveType == Constants.BOOK_RANDOM) {
+            //return a random move from available moves
+            return availableMoves.get(new Random().nextInt(availableMoves.size()));
+        }
 
-        //return the move that has the most occurrence
-//        String mostOccurred=null;
-//        int mostOccurrence=0;
-//        for(String move:availableMoves){
-//            int frequency = Collections.frequency(availableMoves,move);
-//            if(frequency > mostOccurrence){
-//                mostOccurred = move;
-//                mostOccurrence = frequency;
-//            }
-//        }
-//        return mostOccurred;
+        if(bookMoveType == Constants.BOOK_MOSTLY_PLAYED) {
 
+            //return the move that has the most occurrence
+            String mostOccurred = null;
+            int mostOccurrence = 0;
+            for (String move : availableMoves) {
+                int frequency = Collections.frequency(availableMoves, move);
+                if (frequency > mostOccurrence) {
+                    mostOccurred = move;
+                    mostOccurrence = frequency;
+                }
+            }
+            return mostOccurred;
+        }
 
         //return the best move based on evaluation
-//        String bestMove=availableMoves.get(0);
-//        float score,bestScore = Float.NEGATIVE_INFINITY;
-//        for(String move:availableMoves){
-//            mm.makeMove(move);
-//            score = -ev.evaluate();
-//            mm.undoMove(move);
-//            if(score > bestScore){
-//                bestScore = score;
-//                bestMove = move;
-//            }
-//        }
-//        return bestMove;
+        String bestMove=availableMoves.get(0);
+        float score,bestScore = Float.NEGATIVE_INFINITY;
+        for(String move:availableMoves){
+            mm.makeMove(move);
+            score = -ev.evaluate();
+            mm.undoMove(move);
+            if(score > bestScore){
+                bestScore = score;
+                bestMove = move;
+            }
+        }
+        return bestMove;
 
 
 
@@ -149,6 +174,7 @@ public class Engine2 implements Runnable{
                 System.out.println("Time taken "+(System.currentTimeMillis() - searchStartTime)+" ms");
                 searching = false;
                 searchCancelled = false;
+                searchStartTime = 0;
                 return;
             }
         }
@@ -225,6 +251,17 @@ public class Engine2 implements Runnable{
 
     }
 
+    public void make(String move){
+        mm.makeMove(move);
+        if(!move.contains(Constants.KING_SIDE_CASTLING) ){
+            if(move.charAt(5) != Constants.EMPTY_SQUARE || move.contains(Constants.EN_PASSANT_NOTATION)){
+                transpositionTable.clear();
+            }
+        }
+        System.out.println( "positions stored "+transpositionTable.size());
+    }
+
+
 
     public Thread beginSearch(){
         if(searching){
@@ -250,7 +287,17 @@ public class Engine2 implements Runnable{
         }else if(Integer.parseInt(cb.fenParts[11]) == 100){
             return 0;
         }else if(depth == 0){
-            return ev.evaluate();
+            if(useTranspositionTable) {
+                String fen = FenUtils.cat(cb.fenParts, true);
+                if (transpositionTable.containsKey(fen)) {
+                    return transpositionTable.get(fen);
+                }
+                float eval = ev.evaluate();
+                savePosition(fen, eval);
+                return eval;
+            }else {
+                return ev.evaluate();
+            }
         }
 
         orderMove(moves);
@@ -265,6 +312,22 @@ public class Engine2 implements Runnable{
             alpha = Math.max(score,alpha);
         }
         return alpha;
+    }
+
+    private void savePosition(String fen, float eval) {
+
+
+        if(transpositionTable.size() < MAX_SIZE_TTABLE){
+            transpositionTable.put(fen,eval);
+        }else{
+            for(String key: transpositionTable.keySet()){
+                transpositionTable.remove(key);
+                break;
+            }
+            transpositionTable.put(fen,eval);
+        }
+
+
     }
 
 

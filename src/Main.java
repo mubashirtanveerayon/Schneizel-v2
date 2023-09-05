@@ -91,7 +91,7 @@ public class Main {
             FenUtils.cat(cb.fenParts);
             System.out.println("fen " +(System.nanoTime() - start));
             start = System.nanoTime();
-            cb.generateZobristKey();
+            cb.generateZobristKey(true);
             System.out.println("key " +(System.nanoTime() - start));
 
 

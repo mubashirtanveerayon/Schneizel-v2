@@ -89,11 +89,19 @@ public class Constants {
     //                                                                      index mustn't be modified
     public static final int[][] KNIGHT_DIRECTION= {{1, 2},{2,1},{2, -1}, {1, -2},  {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}};
 
+
+    public static final int BOOK_RANDOM = 1;
+
+    public static final int BOOK_BEST = 0;
+
+    public static final int BOOK_MOSTLY_PLAYED = -1;
+
     public static final  String STARTING_FEN="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 //                                              0       1       2 3 4 5     6       7     8  9  10 11 12
 
     public static long[][][] zobristArray;
     public static long zobristTurnToMove;
+
 
     static {
         if(zobristArray == null) {

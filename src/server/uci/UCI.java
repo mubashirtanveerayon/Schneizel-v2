@@ -25,11 +25,14 @@ public class UCI {
 
     String input="";
 
+    ArrayList<String> movesMade;
+
     public void toggle(){
         if (!running){
             sc = new Scanner(System.in);
             engine = new Engine2();
             running = true;
+            movesMade = new ArrayList<>();
         }
     }
 
@@ -119,49 +122,69 @@ public class UCI {
                 case "ucinewgame":
                     input = "position startpos";
                     partsBySpace = input.split(" ");
+                    movesMade.clear();
                 case "position":
                     switch(partsBySpace[1].toLowerCase()){
                         case "fen":
                             engine = new Engine2(input.split("fen ")[1]);
+                            movesMade.clear();
                             break;
                         case "startpos":
-                            engine = new Engine2();
                             if(partsBySpace.length<3){
+                                engine = new Engine2();
+                                movesMade.clear();
                                 break;
                             }
                         case "thispos":
-                            switch(partsBySpace[2].toLowerCase()){
-                                case "moves":
-                                    if(Character.isDigit(partsBySpace[3].charAt(0))||partsBySpace[3].contains(Constants.KING_SIDE_CASTLING)){
-                                        String[] moves = input.split("moves ")[1].split(",");
-                                        for(String move:moves){
-                                            engine.mm.makeMove(move);
-                                        }
-                                    }else{
-                                        for(int i=3;i<partsBySpace.length;i++){
-                                            engine.mm.makeMove(engine.mm.parse(partsBySpace[i]));
-                                        }
+                            if(partsBySpace[2].equalsIgnoreCase("moves")){
+                                if(partsBySpace[1].equalsIgnoreCase("thispos")){
+                                     for(int i=3;i<partsBySpace.length;i++){
+                                        engine.make(engine.mm.parse(partsBySpace[i]));
+                                        movesMade.add(partsBySpace[i]);
                                     }
-                                    break;
-                                case "undomove":
-                                    if(Character.isDigit(partsBySpace[3].charAt(0))||partsBySpace[3].contains(Constants.KING_SIDE_CASTLING)||partsBySpace[3].contains(Constants.QUEEN_SIDE_CASTLING)){
-                                        String move = input.split("undomove ")[1];
-                                        engine.mm.undoMove(move);
+                                }else{
+                                    boolean sameGame = true;
+//                                    for(int i=3;sameGame &&i<  partsBySpace.length-1;i++){
+//                                        sameGame = partsBySpace[i].equals(movesMade.get(i-3));
+//                                    }
+
+                                    for(int i=0;sameGame && i<movesMade.size();i++){
+                                        sameGame = movesMade.get(i).equals(partsBySpace[i+3]);
                                     }
-                                    break;
+
+                                    int startIndex = movesMade.size()+3;
+                                    if(!sameGame){
+                                        movesMade.clear();
+                                        engine = new Engine2();
+                                        startIndex = 3;
+                                    }
+                                    for(int i=startIndex;i<partsBySpace.length;i++){
+                                        engine.make(engine.mm.parse(partsBySpace[i]));
+                                        movesMade.add(partsBySpace[i]);
+                                    }
+                                }
                             }
-                            print("Fen " + FenUtils.cat(engine.cb.fenParts));
                             break;
+                            //bs uci, they could add another command for resuming the game with the final move
+
+//                           switch(partsBySpace[2].toLowerCase()){
+//                                case "moves":
+//                                    boolean sameGame = false;
+//                                    if()
+//                                    for(int i=3;i<partsBySpace.length-1;i++){
+//                                        if(!movesMade.get(i-3).equals(partsBySpace[i])){
+//                                            sameGame = true;
+//                                        }
+//                                    }
+//                                    for(int i=3;i<partsBySpace.length;i++){
+//                                        engine.mm.makeMove(engine.mm.parse(partsBySpace[i]));
+//                                    }
+//                                    break;
+//                            }
+//                            print("Fen " + FenUtils.cat(engine.cb.fenParts));
+//                            break;
                     }
 
-                    break;
-                case "moves":
-                    ArrayList<String> moves = engine.mm.getAllMoves();
-                    String std="";
-                    for(String move:moves){
-                        std+=engine.mm.cvt(move)+" ";
-                    }
-                    print(std.trim());
                     break;
                 case "d":
                     output = Util.getBoardVisualStd(engine.cb.board,flip);
@@ -191,7 +214,8 @@ public class UCI {
                             System.out.print("");
                         }
                         String move = engine.engineMove;
-                        engine.mm.makeMove(move);
+                        engine.make(move);
+                        movesMade.add(move);
                         output = "played "+engine.mm.cvt(move)+"\n";
                         output += "Time taken: "+timeTaken + " ms\n";
                         output += "Fen " + FenUtils.cat(engine.cb.fenParts);
@@ -199,7 +223,9 @@ public class UCI {
                         break;
                     }
                     try{
-                        engine.mm.makeMove(engine.mm.getAllMoves().get(Integer.parseInt(partsBySpace[1])-1));
+                        String move = engine.mm.getAllMoves().get(Integer.parseInt(partsBySpace[1])-1);
+                        engine.make(move);
+                        movesMade.add(move);
                         print("Fen " + FenUtils.cat(engine.cb.fenParts));
                     }catch(Exception e) {
                         engine.mm.makeMove(engine.mm.parse(partsBySpace[1]));
