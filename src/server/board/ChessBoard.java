@@ -197,7 +197,7 @@ public class ChessBoard {
     }
 
 
-    public long generateZobristKey(boolean onlyPosition){
+    public long generateZobristKey(boolean positionOnly){
         long key = 0;
         for(int pieceIndex:pieceLocations){
             switch(board[pieceIndex/8][pieceIndex%8]){
@@ -242,7 +242,7 @@ public class ChessBoard {
         if (turn == Constants.WHITE){
             key ^= Constants.zobristTurnToMove;
         }
-        if(onlyPosition){
+        if(positionOnly){
             return key;
         }
         if(!fenParts[9].equals("-")){

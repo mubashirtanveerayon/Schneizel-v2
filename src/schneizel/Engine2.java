@@ -31,7 +31,7 @@ public class Engine2 implements Runnable{
 
     public boolean useBook = true;
 
-    public boolean useTranspositionTable = true;
+    public boolean useTranspositionTable = false;
 
 
     public static final int MAX_PLY_TO_USE_BOOK = 4;
@@ -46,7 +46,7 @@ public class Engine2 implements Runnable{
 
     public HashMap<String, Float> transpositionTable;
 
-    public static final int MAX_SIZE_TTABLE = 100000;
+    public static final int MAX_TABLE_ENTRIES = 100000;
 
     public void setDepth(int value){
         if (value>0 && value<6){
@@ -176,6 +176,7 @@ public class Engine2 implements Runnable{
                 searching = false;
                 searchCancelled = false;
                 searchStartTime = 0;
+                setDepth(DEFAULT_SEARCH_DEPTH);
                 return;
             }
         }
@@ -254,6 +255,9 @@ public class Engine2 implements Runnable{
 
     public void make(String move){
         mm.makeMove(move);
+        if(!useTranspositionTable){
+            return;
+        }
         if(!move.contains(Constants.KING_SIDE_CASTLING) ){
             if(move.charAt(5) != Constants.EMPTY_SQUARE || move.contains(Constants.EN_PASSANT_NOTATION)){
                 transpositionTable.clear();
@@ -315,21 +319,38 @@ public class Engine2 implements Runnable{
         return alpha;
     }
 
-    private void savePosition(String fen, float eval) {
+//    private void savePosition(String fen, float eval) {
+//
+//
+//        if(transpositionTable.size() < MAX_SIZE_TTABLE){
+//            transpositionTable.put(fen,eval);
+//        }else{
+//            for(String key: transpositionTable.keySet()){
+//                transpositionTable.remove(key);
+//                break;
+//            }
+//            transpositionTable.put(fen,eval);
+//        }
+//
+//
+//    }
+
+    private void savePosition(String key, float eval) {
 
 
-        if(transpositionTable.size() < MAX_SIZE_TTABLE){
-            transpositionTable.put(fen,eval);
+        if(transpositionTable.size() < MAX_TABLE_ENTRIES){
+            transpositionTable.put(key,eval);
         }else{
-            for(String key: transpositionTable.keySet()){
-                transpositionTable.remove(key);
+            for(String k: transpositionTable.keySet()){
+                transpositionTable.remove(k);
                 break;
             }
-            transpositionTable.put(fen,eval);
+            transpositionTable.put(key,eval);
         }
 
 
     }
+
 
 
     float searchAllCaptures(float alpha,float beta){
