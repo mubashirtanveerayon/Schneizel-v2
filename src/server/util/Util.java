@@ -2,6 +2,7 @@ package server.util;
 
 import server.exception.InvalidCoordinateException;
 
+import java.security.SecureRandom;
 import java.util.*;
 
 import java.util.Map;
@@ -15,8 +16,6 @@ public class Util {
     public static boolean loggerInitialized(){
         return logger != null;
     }
-
-
 
 
     //code requested from chatgpt
@@ -228,6 +227,9 @@ public class Util {
                 
             case Constants.WHITE_QUEEN:
                 return Constants.QUEEN_VALUE;
+
+            case Constants.WHITE_KING:
+                return Constants.KING_VALUE;
                 
         }
         return 0;

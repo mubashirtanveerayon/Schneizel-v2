@@ -5,12 +5,14 @@ import server.evaluation.Evaluation2;
 import server.move.MoveManager;
 import server.pgn.PGNParser;
 import server.util.Constants;
+import server.util.FenUtils;
 import server.util.GameState;
 import server.util.Util;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Random;
 
 public class Engine2 implements Runnable{
 
@@ -27,10 +29,13 @@ public class Engine2 implements Runnable{
 
     private ArrayList<HashMap<String,String>> book;
 
-    private boolean useBook = false;
+    public boolean useBook = true;
 
+
+    public static final int MAX_PLY_TO_USE_BOOK = 4;
     public static final int DEFAULT_SEARCH_DEPTH = 4;
 
+    long searchStartTime = 0;
 
     private int depth = 4;
 
@@ -49,23 +54,106 @@ public class Engine2 implements Runnable{
         cb = new ChessBoard(fen);
         mm = new MoveManager(cb);
         ev = new Evaluation2(cb);
+
     }
 
     public Engine2(){
         cb = new ChessBoard();
         mm = new MoveManager(cb);
         ev = new Evaluation2(cb);
+
     }
 
-    private void loadBook(){
+    public void loadBook(){
         if(book != null){
             return;
         }
-        book = PGNParser.parseFile("data/lichess_elite_2022-03.pgn");
+        book = PGNParser.parseFile("data/lichess_elite_2022-03.pgn",150);
+    }
+
+    private String readBook(){
+        if(book == null || !useBook){
+            return null;
+        }
+        ArrayList<String> availableMoves = new ArrayList<>();
+        //long boardKey = cb.generateZobristKey();
+        String fen = FenUtils.cat(cb.fenParts);
+        System.out.println("Reading book...");
+        for(HashMap<String,String> game:book){
+            String moveText = game.get("Moves");
+            ChessBoard tcb = new ChessBoard();
+            MoveManager tmm = new MoveManager(tcb);
+            for(String seg:moveText.split(" ")) {
+                String move = PGNParser.parseSAN(seg,tmm);
+                if(move == null){
+                    continue;
+                }
+                if(FenUtils.cat(tcb.fenParts).equals(fen)){//FenUtils.cat(tcb.fenParts).equals(FenUtils.cat(cb.fenParts))//tcb.generateZobristKey() == boardKey
+                    availableMoves.add(move);
+                    break;
+                }else{
+                    tmm.makeMove(move);
+                }
+
+            }
+        }
+
+        System.out.println(availableMoves.size() + " available moves");
+
+        if(availableMoves.isEmpty()){
+            return null;
+        }
+
+        //return a random move from available moves
+        return availableMoves.get(new Random().nextInt(availableMoves.size()));
+
+        //return the move that has the most occurrence
+//        String mostOccurred=null;
+//        int mostOccurrence=0;
+//        for(String move:availableMoves){
+//            int frequency = Collections.frequency(availableMoves,move);
+//            if(frequency > mostOccurrence){
+//                mostOccurred = move;
+//                mostOccurrence = frequency;
+//            }
+//        }
+//        return mostOccurred;
+
+
+        //return the best move based on evaluation
+//        String bestMove=availableMoves.get(0);
+//        float score,bestScore = Float.NEGATIVE_INFINITY;
+//        for(String move:availableMoves){
+//            mm.makeMove(move);
+//            score = -ev.evaluate();
+//            mm.undoMove(move);
+//            if(score > bestScore){
+//                bestScore = score;
+//                bestMove = move;
+//            }
+//        }
+//        return bestMove;
+
+
+
     }
 
     @Override
     public void run(){
+        if(useBook && Integer.parseInt(cb.fenParts[12])< MAX_PLY_TO_USE_BOOK){
+            loadBook();
+            String move = readBook();
+            if(move != null){
+                engineMove = move;
+                System.out.println("bestmove "+mm.cvt(engineMove)+ " score book");
+                System.out.println("Time taken "+(System.currentTimeMillis() - searchStartTime)+" ms");
+                searching = false;
+                searchCancelled = false;
+                return;
+            }
+        }
+
+
         ArrayList<String> moves = mm.getAllMoves();
         float score,bestScore = Float.NEGATIVE_INFINITY;
         orderMove(moves);
@@ -89,8 +177,11 @@ public class Engine2 implements Runnable{
             System.out.println("Search was cancelled");
         }else{
             System.out.println("bestmove "+mm.cvt(engineMove)+ " score "+bestScore);
+            System.out.println("Time taken "+(System.currentTimeMillis() - searchStartTime)+" ms");
         }
+
         searchCancelled = false;
+        searchStartTime = 0;
 
     }
 
@@ -144,6 +235,7 @@ public class Engine2 implements Runnable{
         searching = true;
         searchCancelled = false;
         thread.start();
+        searchStartTime = System.currentTimeMillis();
         return thread;
     }
 

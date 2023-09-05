@@ -27,13 +27,15 @@ public class PGNParser {
         return null;
     }
 
-    public static ArrayList<HashMap<String,String>> parseFile(String path){
+    public static ArrayList<HashMap<String,String>> parseFile(String path,int numberOfGames){
         ArrayList<HashMap<String,String>> games = new ArrayList<>();
         boolean parsingGame = false;
         HashMap<String,String> gameInfo = new HashMap<>();
         Pattern coordPattern = Pattern.compile("[a-h][1-8]");
         String moveText = "";
-        for(String line:getContent(path)){
+        int n = 0;
+        ArrayList<String> lines = getContent(path);
+        for(String line:lines){
             String[] parts = line.split(" ");
             if(line.startsWith("[Event ")){
                 parsingGame = true;
@@ -44,6 +46,10 @@ public class PGNParser {
                 moveText += line;
                 gameInfo.put("Moves",moveText.trim());
                 games.add(gameInfo);
+                n += 1;
+                if(n == numberOfGames){
+                    break;
+                }
             }
             if (parsingGame){
                 if(line.startsWith("[")){
@@ -51,13 +57,13 @@ public class PGNParser {
                     String[] infoSegments = infoLine.split("\"");
                     String key = infoSegments[0].trim();
                     String value = infoSegments[1].trim();
-                    //System.out.println(key+": "+value);
                     gameInfo.put(key,value);
                 }else if(Character.isDigit(line.charAt(0)) || parts[0].contains(Constants.KING_SIDE_CASTLING) || coordPattern.matcher(parts[0]).find()){
                     moveText += line+" ";
                 }
             }
         }
+        lines = null;
         return games;
     }
 
@@ -77,7 +83,7 @@ public class PGNParser {
         return content;
     }
     public static String parseSAN(String san, MoveManager mm){
-        ArrayList<String> allMoves = mm.getAllMoves();
+
         if (san.toUpperCase().contains(Constants.QUEEN_SIDE_CASTLING)){
             return Util.constructCastlingMove(Constants.QUEEN_SIDE_CASTLING,mm.cb.fenParts);
         }else if (san.toUpperCase().contains(Constants.KING_SIDE_CASTLING)){
@@ -87,6 +93,7 @@ public class PGNParser {
 
             Matcher matcher = coordPattern.matcher(san);
             String from = "",to="";
+            boolean invalid = true;
             while(matcher.find()){
                 if(to.isEmpty()){
                     to = matcher.group();
@@ -94,7 +101,12 @@ public class PGNParser {
                     from = to;
                     to = matcher.group();
                 }
+                invalid = false;
             }
+            if(invalid){
+                return null;
+            }
+            ArrayList<String> allMoves = mm.getAllMoves();
             for(String move:allMoves){
                 if(move.contains(Constants.KING_SIDE_CASTLING)){
                     continue;

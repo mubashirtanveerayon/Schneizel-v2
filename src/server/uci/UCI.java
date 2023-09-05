@@ -89,7 +89,6 @@ public class UCI {
                             print(output);
                         }else if(partsBySpace[1].equals("depth")){
                             int depth = Integer.parseInt(partsBySpace[2]);
-//                            long currentTime = System.nanoTime();
                             engine.setDepth(depth);
                             engine.beginSearch();
                             //search.stop();
@@ -97,27 +96,22 @@ public class UCI {
 //                                System.out.print("");
 //                            }
 //                            output = "bestmove "+engine.mm.cvt(engine.engineMove);
-//                            output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
 //                            print(output);
 
                         }else{
-//                            long currentTime = System.nanoTime();
                             engine.beginSearch();
 //                            while(engine.searching){
 //                                System.out.print("");
 //                            }
 //                            output = "bestmove "+engine.mm.cvt(engine.engineMove);
-//                            output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
 //                            print(output);
                         }
                     }else{
-//                        long currentTime = System.nanoTime();
                         engine.beginSearch();
 //                        while(engine.searching){
 //                            System.out.print("");
 //                        }
 //                        output = "bestmove "+engine.mm.cvt(engine.engineMove);
-//                        output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
 //                        print(output);
                     }
 
@@ -156,14 +150,13 @@ public class UCI {
                                     }
                                     break;
                             }
-                            //print("Fen " + FenUtils.cat(engine.cb.fenParts));
+                            print("Fen " + FenUtils.cat(engine.cb.fenParts));
                             break;
                     }
 
                     break;
                 case "moves":
                     ArrayList<String> moves = engine.mm.getAllMoves();
-                    //Util.writeToLog(moves.toString());
                     String std="";
                     for(String move:moves){
                         std+=engine.mm.cvt(move)+" ";
@@ -192,9 +185,9 @@ public class UCI {
                 case "push":
                     if (partsBySpace.length == 1){
                         long currTime = System.nanoTime();
-                        Thread searchThread = engine.beginSearch();
+                        engine.beginSearch();
                         long timeTaken = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currTime);
-                        while(searchThread.isAlive()){
+                        while(engine.searching){
                             System.out.print("");
                         }
                         String move = engine.engineMove;

@@ -86,23 +86,33 @@ public class Main {
         if(debugging) {
             //debug();
 
-            Engine2 engine = new Engine2("rn2k1nr/1R2b3/8/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR w kq - 1 16");
+            ChessBoard cb = new ChessBoard();
+            long start = System.nanoTime();
+            FenUtils.cat(cb.fenParts);
+            System.out.println("fen " +(System.nanoTime() - start));
+            start = System.nanoTime();
+            cb.generateZobristKey();
+            System.out.println("key " +(System.nanoTime() - start));
 
 
-            System.out.println(engine.cb.stats());
 
-            long currentTime = System.currentTimeMillis();
-
-            engine.setDepth(6);
-            engine.beginSearch();
-
-            while(engine.searching){
-                System.out.print("");
-            }
-
-            long timeTaken = System.currentTimeMillis() - currentTime;
-
-            System.out.println("Time taken: "+timeTaken+" ms");
+//            Engine2 engine = new Engine2("rn2k1nr/1R2b3/8/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR w kq - 1 16");
+//
+//
+//            System.out.println(engine.cb.stats());
+//
+//            long currentTime = System.currentTimeMillis();
+//
+//            engine.setDepth(6);
+//            engine.beginSearch();
+//
+//            while(engine.searching){
+//                System.out.print("");
+//            }
+//
+//            long timeTaken = System.currentTimeMillis() - currentTime;
+//
+//            System.out.println("Time taken: "+timeTaken+" ms");
 
 
 //            ArrayList<String> moves = engine.mm.getAllMoves();

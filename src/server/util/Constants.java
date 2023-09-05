@@ -1,5 +1,8 @@
 package server.util;
 
+import java.security.SecureRandom;
+import java.util.HashMap;
+
 public class Constants {
 
     public static final float CAPTURE_SCORE = 2;
@@ -66,7 +69,7 @@ public class Constants {
 
     public static final float QUEEN_VALUE = 9f;
 
-    public static final float KING_VALUE = 0.0f;
+    public static final float KING_VALUE = 1f;
 
     public static final String FILES = "abcdefgh";
 
@@ -87,5 +90,26 @@ public class Constants {
     public static final int[][] KNIGHT_DIRECTION= {{1, 2},{2,1},{2, -1}, {1, -2},  {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}};
 
     public static final  String STARTING_FEN="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-//                                              0       1       2 3 4 5     6       7      8  9  10 11 12
+//                                              0       1       2 3 4 5     6       7     8  9  10 11 12
+
+    public static long[][][] zobristArray;
+    public static long zobristTurnToMove;
+
+    static {
+        if(zobristArray == null) {
+            SecureRandom rand = new SecureRandom();
+            zobristArray = new long[2][6][64];
+            for (int i=0;i<2;i++){
+                for(int j=0;j<6;j++){
+                    for(int k=0;k<64;k++){
+                        zobristArray[i][j][k] = rand.nextLong();
+                    }
+                }
+            }
+            zobristTurnToMove = rand.nextLong();
+        }
+    }
+
+
+
 }
