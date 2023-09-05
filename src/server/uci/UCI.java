@@ -65,7 +65,6 @@ public class UCI {
                     print(output);
                     break;
                 case "go":
-                    print("Calculating...");
                     if (partsBySpace.length > 1){
 
                         if(partsBySpace[1].equals("perft")){
@@ -186,6 +185,14 @@ public class UCI {
                     }
 
                     break;
+                case "usebook":
+                    engine.useBook = !engine.useBook;
+                    System.out.println(engine.useBook);
+                    break;
+                case "usett":
+                    engine.useTranspositionTable = !engine.useTranspositionTable;
+                    System.out.println(engine.useTranspositionTable);
+                    break;
                 case "d":
                     output = Util.getBoardVisualStd(engine.cb.board,flip);
                     //output+="\n"+Util.getBoardVisual(engine.cb.board);
@@ -207,9 +214,7 @@ public class UCI {
                     break;
                 case "push":
                     if (partsBySpace.length == 1){
-                        long currTime = System.nanoTime();
                         engine.beginSearch();
-                        long timeTaken = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currTime);
                         while(engine.searching){
                             System.out.print("");
                         }
@@ -217,7 +222,6 @@ public class UCI {
                         engine.make(move);
                         movesMade.add(move);
                         output = "played "+engine.mm.cvt(move)+"\n";
-                        output += "Time taken: "+timeTaken + " ms\n";
                         output += "Fen " + FenUtils.cat(engine.cb.fenParts);
                         print(output);
                         break;

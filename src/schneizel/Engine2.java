@@ -49,7 +49,7 @@ public class Engine2 implements Runnable{
     public static final int MAX_SIZE_TTABLE = 100000;
 
     public void setDepth(int value){
-        if (value>0 && value<7){
+        if (value>0 && value<6){
             depth = value;
         }
     }
@@ -165,6 +165,7 @@ public class Engine2 implements Runnable{
 
     @Override
     public void run(){
+        System.out.println("Calculating...");
         if(useBook && Integer.parseInt(cb.fenParts[12])< MAX_PLY_TO_USE_BOOK){
             loadBook();
             String move = readBook();
