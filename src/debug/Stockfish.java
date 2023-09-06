@@ -1,9 +1,6 @@
 package debug;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 
 
 //code from https://chess.stackexchange.com/questions/34687/unable-to-communicate-with-uci-through-java-program
@@ -11,11 +8,28 @@ public class Stockfish {
     private Process engineProcess;
     private BufferedReader processReader;
     private OutputStreamWriter processWriter;
-    private static final String Path = "fish/stockfish.exe";
+    private String path = "fish";
+
+    private boolean foundExecutable = false;
+    public Stockfish(){
+        File dir = new File(path);
+        if(dir.isDirectory()){
+            for(File file:dir.listFiles()){
+                if (file.getName().contains("stockfish")) {
+                    path = file.getPath();
+                    foundExecutable = true;
+                    break;
+                }
+            }
+        }
+    }
 
     public boolean startEngine() {
+        if(!foundExecutable){
+            System.out.println("Could not find executable");
+        }
         try {
-            engineProcess = Runtime.getRuntime().exec(Path);
+            engineProcess = Runtime.getRuntime().exec(path);
             processReader = new BufferedReader(new InputStreamReader(
                     engineProcess.getInputStream()));
             processWriter = new OutputStreamWriter(

@@ -34,7 +34,7 @@ public class Engine2 implements Runnable{
     public boolean useTranspositionTable = false;
 
 
-    public static final int MAX_PLY_TO_USE_BOOK = 4;
+    public static final int MAX_PLY_TO_USE_BOOK = 5;
     public static final int DEFAULT_SEARCH_DEPTH = 4;
 
     public int bookMoveType = Constants.BOOK_RANDOM;
@@ -181,7 +181,6 @@ public class Engine2 implements Runnable{
             }
         }
 
-
         ArrayList<String> moves = mm.getAllMoves();
         float score,bestScore = Float.NEGATIVE_INFINITY;
         orderMove(moves);
@@ -200,10 +199,14 @@ public class Engine2 implements Runnable{
         }
         searching = false;
         setDepth(DEFAULT_SEARCH_DEPTH);
+
         if(searchCancelled){
             engineMove = "";
             System.out.println("Search was cancelled");
         }else{
+            if(engineMove.isEmpty()){
+                engineMove = moves.get(0);
+            }
             System.out.println("bestmove "+mm.cvt(engineMove)+ " score "+bestScore);
             System.out.println("Time taken "+(System.currentTimeMillis() - searchStartTime)+" ms");
         }
@@ -255,6 +258,7 @@ public class Engine2 implements Runnable{
 
     public void make(String move){
         mm.makeMove(move);
+
         if(!useTranspositionTable){
             return;
         }
@@ -276,6 +280,7 @@ public class Engine2 implements Runnable{
         engineMove = "";
         searching = true;
         searchCancelled = false;
+        System.out.println("Commencing search at depth: "+depth);
         thread.start();
         searchStartTime = System.currentTimeMillis();
         return thread;
