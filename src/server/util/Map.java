@@ -22,15 +22,6 @@ public class Map {
     };
     public static final float[] PAWN = new float[]
 
-//            {0.5f*Constants.PAWN_VALUE,0.5f*Constants.PAWN_VALUE,0.5f*Constants.PAWN_VALUE,0.5f*Constants.PAWN_VALUE,0.5f*Constants.PAWN_VALUE,0.5f*Constants.PAWN_VALUE,0.5f*Constants.PAWN_VALUE,0.5f*Constants.PAWN_VALUE,
-//                    0.55f,0.55f,0.55f,0.55f,0.55f,0.55f,0.55f,0.55f,
-//                    0.46f,0.46f,0.5f,0.5f,0.5f,0.5f,0.46f,0.46f,
-//                    0.4f,0.4f,0.45f,0.45f,0.45f,0.45f,0.4f,0.4f,
-//                    0.5f,0.5f,0.5f,0.5f,0.5f,0.5f,0.5f,0.5f,
-//                    -0.5f,-0.5f,-0.5f,-0.5f,-0.5f,-0.5f,-0.5f,-0.5f,
-//                    0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,
-//                    0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,};
-
             {
                     5, 5, 5, 5, 5, 5, 5, 5,
                     2, 2, 3, 3.5f, 3.5f, 3, 2, 2,
@@ -83,14 +74,5 @@ public class Map {
 
             };
 
-
-    public static final float[] BLACK_PAWN_MAP = new float[]{
-            0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F,
-            0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -0.5F, -0.5F, -0.5F, -0.5F,
-            -0.5F, -0.5F, -0.5F, -0.5F, 0.5F, 0.5F, 0.5F, 0.5F, 0.5F, 0.5F,
-            0.5F, 0.5F, 0.4F, 0.4F, 0.45F, 0.45F, 0.45F, 0.45F, 0.4F, 0.4F,
-            0.46F, 0.46F, 0.5F, 0.5F, 0.5F, 0.5F, 0.46F, 0.46F, 0.55F, 0.55F,
-            0.55F, 0.55F, 0.55F, 0.55F, 0.55F, 0.55F, 0.75F, 0.75F, 0.75F, 0.75F,
-            0.75F, 0.75F, 0.75F, 0.75F};
 
 }

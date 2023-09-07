@@ -178,48 +178,189 @@ public class Engine2 implements Runnable{
                 searchStartTime = 0;
                 setDepth(DEFAULT_SEARCH_DEPTH);
                 return;
+            }else{
+                useBook = false;
             }
         }
-        System.out.println("Commencing search at depth: "+depth);
+
+        iterativeDeepening();
+//        System.out.println("Commencing search at depth: "+depth);
+//        ArrayList<String> moves = mm.getAllMoves();
+//        float score,bestScore = Float.NEGATIVE_INFINITY;
+//        orderMove(moves);
+//        for(String move:moves){
+//            if(searchCancelled){
+//                break;
+//            }
+//            mm.makeMove(move);
+//            score = -negamax(depth, Float.NEGATIVE_INFINITY,Float.POSITIVE_INFINITY);
+//            mm.undoMove(move);
+//            if(score>bestScore){
+//                bestScore = score;
+//                engineMove = move;
+//            }
+//            System.out.println(mm.cvt(move)+" score "+score);
+//        }
+//        searching = false;
+//        setDepth(DEFAULT_SEARCH_DEPTH);
+//
+//        if(searchCancelled){
+//            engineMove = "";
+//            System.out.println("Search was cancelled");
+//        }else{
+//            if(engineMove.isEmpty()){
+//                engineMove = moves.get(0);
+//            }
+//            System.out.println("bestmove "+mm.cvt(engineMove)+ " score "+bestScore);
+//            System.out.println("Time taken "+(System.currentTimeMillis() - searchStartTime)+" ms");
+//        }
+//
+//        searchCancelled = false;
+//        searchStartTime = 0;
+//        System.out.println("Cutoffs "+ cutOffs);
+//
+    }
+
+
+    private void iterativeDeepening(){
+        System.out.println("Commencing iterative deepening search at depth: "+depth);
+        float score;
         ArrayList<String> moves = mm.getAllMoves();
-        float score,bestScore = Float.NEGATIVE_INFINITY;
-        orderMove(moves);
+        HashMap<String,Float> movesWithScore = new HashMap<>();
         for(String move:moves){
-            if(searchCancelled){
-                break;
-            }
-            mm.makeMove(move);
-            score = -negamax(depth, Float.NEGATIVE_INFINITY,Float.POSITIVE_INFINITY);
-            mm.undoMove(move);
-            if(score>bestScore){
-                bestScore = score;
-                engineMove = move;
-            }
-            System.out.println(mm.cvt(move)+" score "+score);
+            movesWithScore.put(move,0f);
         }
-        searching = false;
+        for(int i=1;!searchCancelled && i<=depth;i++){
+            System.out.println("Iteration "+i);
+            for(String move:movesWithScore.keySet()){
+                if(searchCancelled){
+                    System.out.println("Search was cancelled");
+                    break;
+                }
+                mm.makeMove(move);
+                score = -negamax(i,Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+                mm.undoMove(move);
+                movesWithScore.put(move,-score);
+                System.out.println(mm.cvt(move)+" score "+score);
+//                movesWithScore.put(move,-score);
+            }
+            if(!searchCancelled) {
+                movesWithScore = Util.sortHashMap(movesWithScore);
+            }
+//            for(Float eval:movesWithScore.values()){
+//                if(String.valueOf(eval).equals("-Infinity")){
+//                    System.out.println("Found mate. Stopping iteration.");
+//                    foundMate = true;
+//                }
+//                break;
+//            }
+        }
+
+
+        System.out.println("Time taken "+(System.currentTimeMillis() - searchStartTime)+" ms");
+        for(String bestMove:movesWithScore.keySet()){
+            engineMove = bestMove;
+            break;
+        }
+        System.out.println("bestmove "+mm.cvt(engineMove)+" score "+-movesWithScore.get(engineMove));
         setDepth(DEFAULT_SEARCH_DEPTH);
-
-        if(searchCancelled){
-            engineMove = "";
-            System.out.println("Search was cancelled");
-        }else{
-            if(engineMove.isEmpty()){
-                engineMove = moves.get(0);
-            }
-            System.out.println("bestmove "+mm.cvt(engineMove)+ " score "+bestScore);
-            System.out.println("Time taken "+(System.currentTimeMillis() - searchStartTime)+" ms");
-        }
-
+        searching = false;
         searchCancelled = false;
-        searchStartTime = 0;
+
+
+//        ArrayList<String> moves = mm.getAllMoves();
+//        float score,bestScore = Float.NEGATIVE_INFINITY;
+//        orderMove(moves);
+//        for(String move:moves){
+//            if(searchCancelled){
+//                break;
+//            }
+//            mm.makeMove(move);
+//            score = -negamax(depth, Float.NEGATIVE_INFINITY,Float.POSITIVE_INFINITY);
+//            mm.undoMove(move);
+//            if(score>bestScore){
+//                bestScore = score;
+//                engineMove = move;
+//            }
+//            System.out.println(mm.cvt(move)+" score "+score);
+//        }
+
 
     }
 
 
+    private float negamax(int depth,float alpha,float beta){
+        ArrayList<String> moves = mm.getAllMoves();
+        if(moves.isEmpty()){
+            if(cb.gs == GameState.CHECK){
+                return Float.NEGATIVE_INFINITY;
+            }else{
+                return 0;
+            }
+        }else if(Integer.parseInt(cb.fenParts[11]) == 100){
+            return 0;
+        }else if(depth == 0){
+//            if(useTranspositionTable) {
+//                String fen = FenUtils.cat(cb.fenParts, true);
+//                if (transpositionTable.containsKey(fen)) {
+//                    return transpositionTable.get(fen);
+//                }
+//                float eval = ev.evaluate();
+//                savePosition(fen, eval);
+//                return eval;
+//            }else {
+//                return searchAllCaptures(alpha,beta);
+//            }
+            return ev.evaluate();
+        }
+
+        //orderMove(moves);
+        float score;
+        for(String move : moves){
+            mm.makeMove(move);
+            score = -negamax(depth-1,-beta,-alpha);
+            mm.undoMove(move);
+            if(score>=beta){
+                return beta;
+            }
+            alpha = Math.max(score,alpha);
+        }
+        return alpha;
+    }
+
+
+
+    public Thread beginSearch(){
+        if(searching){
+            return null;
+        }
+        Thread thread = new Thread(this);
+        engineMove = "";
+        searching = true;
+        searchCancelled = false;
+        thread.start();
+        searchStartTime = System.currentTimeMillis();
+        return thread;
+    }
+
+    public void make(String move){
+        mm.makeMove(move);
+
+//        if(!useTranspositionTable){
+//            return;
+//        }
+//        if(!move.contains(Constants.KING_SIDE_CASTLING) ){
+//            if(move.charAt(5) != Constants.EMPTY_SQUARE || move.contains(Constants.EN_PASSANT_NOTATION)){
+//                transpositionTable.clear();
+//            }
+//        }
+//        System.out.println( "positions stored "+transpositionTable.size());
+    }
+
     public void orderMove(ArrayList<String>moves){
         HashMap<String,Float> movesWithScore = new HashMap<>();
         float score;
+
         String[] moveParts;
         for(String move:moves){
             score = 0;
@@ -256,73 +397,6 @@ public class Engine2 implements Runnable{
 
     }
 
-    public void make(String move){
-        mm.makeMove(move);
-
-//        if(!useTranspositionTable){
-//            return;
-//        }
-//        if(!move.contains(Constants.KING_SIDE_CASTLING) ){
-//            if(move.charAt(5) != Constants.EMPTY_SQUARE || move.contains(Constants.EN_PASSANT_NOTATION)){
-//                transpositionTable.clear();
-//            }
-//        }
-//        System.out.println( "positions stored "+transpositionTable.size());
-    }
-
-
-
-    public Thread beginSearch(){
-        if(searching){
-            return null;
-        }
-        Thread thread = new Thread(this);
-        engineMove = "";
-        searching = true;
-        searchCancelled = false;
-        thread.start();
-        searchStartTime = System.currentTimeMillis();
-        return thread;
-    }
-
-    private float negamax(int depth,float alpha,float beta){
-        ArrayList<String> moves = mm.getAllMoves();
-        if(moves.isEmpty()){
-            if(cb.gs == GameState.CHECK){
-                return Float.NEGATIVE_INFINITY;
-            }else{
-                return 0;
-            }
-        }else if(Integer.parseInt(cb.fenParts[11]) == 100){
-            return 0;
-        }else if(depth == 0){
-//            if(useTranspositionTable) {
-//                String fen = FenUtils.cat(cb.fenParts, true);
-//                if (transpositionTable.containsKey(fen)) {
-//                    return transpositionTable.get(fen);
-//                }
-//                float eval = ev.evaluate();
-//                savePosition(fen, eval);
-//                return eval;
-//            }else {
-//                return searchAllCaptures(alpha,beta);
-//            }
-            return ev.evaluate();
-        }
-
-        orderMove(moves);
-        float score;
-        for(String move : moves){
-            mm.makeMove(move);
-            score = -negamax(depth-1,-beta,-alpha);
-            mm.undoMove(move);
-            if(score>=beta){
-                return beta;
-            }
-            alpha = Math.max(score,alpha);
-        }
-        return alpha;
-    }
 
 //    private void savePosition(String fen, float eval) {
 //

@@ -88,14 +88,26 @@ public class Main {
         if(debugging) {
             //debug();
 
-            ChessBoard cb = new ChessBoard();
-            long start = System.nanoTime();
-            FenUtils.cat(cb.fenParts);
-            System.out.println("fen " +(System.nanoTime() - start));
-            start = System.nanoTime();
+//            ChessBoard cb = new ChessBoard();
+//            long start = System.nanoTime();
+//            FenUtils.cat(cb.fenParts);
+//            System.out.println("fen " +(System.nanoTime() - start));
+//            start = System.nanoTime();
 //            cb.generateZobristKey(true);
-            System.out.println("key " +(System.nanoTime() - start));
+//            System.out.println("key " +(System.nanoTime() - start));
 
+
+            HashMap<String,Integer> map = new HashMap<>();
+            map.put("a",1);
+            map.put("b",2);
+
+            map.put("v",0);
+
+           for(String s:map.keySet()){
+               map.put(s,3);
+           }
+
+            System.out.println(String.valueOf(Float.NEGATIVE_INFINITY));
 
 
 //            Engine2 engine = new Engine2("rn2k1nr/1R2b3/8/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR w kq - 1 16");
