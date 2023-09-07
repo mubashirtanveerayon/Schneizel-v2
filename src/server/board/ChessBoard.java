@@ -197,64 +197,64 @@ public class ChessBoard {
     }
 
 
-    public long generateZobristKey(boolean positionOnly){
-        long key = 0;
-        for(int pieceIndex:pieceLocations){
-            switch(board[pieceIndex/8][pieceIndex%8]){
-                case Constants.WHITE_PAWN:
-                    key ^= Constants.zobristArray[1][0][pieceIndex];
-                    break;
-                case Constants.BLACK_PAWN:
-                    key ^= Constants.zobristArray[0][0][pieceIndex];
-                    break;
-                case Constants.WHITE_QUEEN:
-                    key ^= Constants.zobristArray[1][1][pieceIndex];
-                    break;
-                case Constants.BLACK_QUEEN:
-                    key ^= Constants.zobristArray[0][1][pieceIndex];
-                    break;
-                case Constants.WHITE_ROOK:
-                    key ^= Constants.zobristArray[1][2][pieceIndex];
-                    break;
-                case Constants.BLACK_ROOK:
-                    key ^= Constants.zobristArray[0][2][pieceIndex];
-                    break;
-                case Constants.WHITE_BISHOP:
-                    key ^= Constants.zobristArray[1][3][pieceIndex];
-                    break;
-                case Constants.BLACK_BISHOP:
-                    key ^= Constants.zobristArray[0][3][pieceIndex];
-                    break;
-                case Constants.WHITE_KNIGHT:
-                    key ^= Constants.zobristArray[1][4][pieceIndex];
-                    break;
-                case Constants.BLACK_KNIGHT:
-                    key ^= Constants.zobristArray[0][4][pieceIndex];
-                    break;
-                case Constants.WHITE_KING:
-                    key ^= Constants.zobristArray[1][5][pieceIndex];
-                    break;
-                case Constants.BLACK_KING:
-                    key ^= Constants.zobristArray[0][5][pieceIndex];
-                    break;
-            }
-        }
-        if (turn == Constants.WHITE){
-            key ^= Constants.zobristTurnToMove;
-        }
-        if(positionOnly){
-            return key;
-        }
-        if(!fenParts[9].equals("-")){
-            for(char c:fenParts[9].toCharArray()){
-                key ^= (long)Util.getPieceValue(c);
-            }
-        }
-        if(!fenParts[10].equals("-")){
-            key ^= Util.getSquareIndex(fenParts[10]);
-        }
-        return key;
-    }
+//    public long generateZobristKey(boolean positionOnly){
+//        long key = 0;
+//        for(int pieceIndex:pieceLocations){
+//            switch(board[pieceIndex/8][pieceIndex%8]){
+//                case Constants.WHITE_PAWN:
+//                    key ^= Constants.zobristArray[1][0][pieceIndex];
+//                    break;
+//                case Constants.BLACK_PAWN:
+//                    key ^= Constants.zobristArray[0][0][pieceIndex];
+//                    break;
+//                case Constants.WHITE_QUEEN:
+//                    key ^= Constants.zobristArray[1][1][pieceIndex];
+//                    break;
+//                case Constants.BLACK_QUEEN:
+//                    key ^= Constants.zobristArray[0][1][pieceIndex];
+//                    break;
+//                case Constants.WHITE_ROOK:
+//                    key ^= Constants.zobristArray[1][2][pieceIndex];
+//                    break;
+//                case Constants.BLACK_ROOK:
+//                    key ^= Constants.zobristArray[0][2][pieceIndex];
+//                    break;
+//                case Constants.WHITE_BISHOP:
+//                    key ^= Constants.zobristArray[1][3][pieceIndex];
+//                    break;
+//                case Constants.BLACK_BISHOP:
+//                    key ^= Constants.zobristArray[0][3][pieceIndex];
+//                    break;
+//                case Constants.WHITE_KNIGHT:
+//                    key ^= Constants.zobristArray[1][4][pieceIndex];
+//                    break;
+//                case Constants.BLACK_KNIGHT:
+//                    key ^= Constants.zobristArray[0][4][pieceIndex];
+//                    break;
+//                case Constants.WHITE_KING:
+//                    key ^= Constants.zobristArray[1][5][pieceIndex];
+//                    break;
+//                case Constants.BLACK_KING:
+//                    key ^= Constants.zobristArray[0][5][pieceIndex];
+//                    break;
+//            }
+//        }
+//        if (turn == Constants.WHITE){
+//            key ^= Constants.zobristTurnToMove;
+//        }
+//        if(positionOnly){
+//            return key;
+//        }
+//        if(!fenParts[9].equals("-")){
+//            for(char c:fenParts[9].toCharArray()){
+//                key ^= (long)Util.getPieceValue(c);
+//            }
+//        }
+//        if(!fenParts[10].equals("-")){
+//            key ^= Util.getSquareIndex(fenParts[10]);
+//        }
+//        return key;
+//    }
     
 
     public void checkBoard(){

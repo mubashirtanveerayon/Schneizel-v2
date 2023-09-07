@@ -82,6 +82,8 @@ public class Main {
 //        System.out.println(a.toString());
 
 
+        //position fen 5k2/n1Q4R/4p3/p3P2p/8/6K1/1P5P/2N5 w - - 2 42->wrong best move
+        //1rb1k2r/1p1p1p2/p1n1p1pp/2Q1P3/6n1/2N2N2/PP3PPP/2KR1B1R w - - 1 16->wrong best move
         boolean debugging = false;
         if(debugging) {
             //debug();
@@ -91,7 +93,7 @@ public class Main {
             FenUtils.cat(cb.fenParts);
             System.out.println("fen " +(System.nanoTime() - start));
             start = System.nanoTime();
-            cb.generateZobristKey(true);
+//            cb.generateZobristKey(true);
             System.out.println("key " +(System.nanoTime() - start));
 
 

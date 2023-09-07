@@ -78,6 +78,8 @@ public class PGNParser {
             }
         }catch(Exception e){
             e.printStackTrace();
+        }finally{
+
         }
         //System.out.println(content);
         return content;

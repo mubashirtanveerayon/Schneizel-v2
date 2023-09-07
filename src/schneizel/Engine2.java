@@ -44,7 +44,7 @@ public class Engine2 implements Runnable{
     private int depth = 4;
 
 
-    public HashMap<String, Float> transpositionTable;
+//    public HashMap<String, Float> transpositionTable;
 
     public static final int MAX_TABLE_ENTRIES = 100000;
 
@@ -63,14 +63,14 @@ public class Engine2 implements Runnable{
         cb = new ChessBoard(fen);
         mm = new MoveManager(cb);
         ev = new Evaluation2(cb);
-        transpositionTable = new HashMap<>();
+//        transpositionTable = new HashMap<>();
     }
 
     public Engine2(){
         cb = new ChessBoard();
         mm = new MoveManager(cb);
         ev = new Evaluation2(cb);
-        transpositionTable = new HashMap<>();
+//        transpositionTable = new HashMap<>();
     }
 
     public void loadBook(){
@@ -180,7 +180,7 @@ public class Engine2 implements Runnable{
                 return;
             }
         }
-
+        System.out.println("Commencing search at depth: "+depth);
         ArrayList<String> moves = mm.getAllMoves();
         float score,bestScore = Float.NEGATIVE_INFINITY;
         orderMove(moves);
@@ -259,15 +259,15 @@ public class Engine2 implements Runnable{
     public void make(String move){
         mm.makeMove(move);
 
-        if(!useTranspositionTable){
-            return;
-        }
-        if(!move.contains(Constants.KING_SIDE_CASTLING) ){
-            if(move.charAt(5) != Constants.EMPTY_SQUARE || move.contains(Constants.EN_PASSANT_NOTATION)){
-                transpositionTable.clear();
-            }
-        }
-        System.out.println( "positions stored "+transpositionTable.size());
+//        if(!useTranspositionTable){
+//            return;
+//        }
+//        if(!move.contains(Constants.KING_SIDE_CASTLING) ){
+//            if(move.charAt(5) != Constants.EMPTY_SQUARE || move.contains(Constants.EN_PASSANT_NOTATION)){
+//                transpositionTable.clear();
+//            }
+//        }
+//        System.out.println( "positions stored "+transpositionTable.size());
     }
 
 
@@ -280,7 +280,6 @@ public class Engine2 implements Runnable{
         engineMove = "";
         searching = true;
         searchCancelled = false;
-        System.out.println("Commencing search at depth: "+depth);
         thread.start();
         searchStartTime = System.currentTimeMillis();
         return thread;
@@ -297,17 +296,18 @@ public class Engine2 implements Runnable{
         }else if(Integer.parseInt(cb.fenParts[11]) == 100){
             return 0;
         }else if(depth == 0){
-            if(useTranspositionTable) {
-                String fen = FenUtils.cat(cb.fenParts, true);
-                if (transpositionTable.containsKey(fen)) {
-                    return transpositionTable.get(fen);
-                }
-                float eval = ev.evaluate();
-                savePosition(fen, eval);
-                return eval;
-            }else {
-                return ev.evaluate();
-            }
+//            if(useTranspositionTable) {
+//                String fen = FenUtils.cat(cb.fenParts, true);
+//                if (transpositionTable.containsKey(fen)) {
+//                    return transpositionTable.get(fen);
+//                }
+//                float eval = ev.evaluate();
+//                savePosition(fen, eval);
+//                return eval;
+//            }else {
+//                return searchAllCaptures(alpha,beta);
+//            }
+            return ev.evaluate();
         }
 
         orderMove(moves);
@@ -340,21 +340,21 @@ public class Engine2 implements Runnable{
 //
 //    }
 
-    private void savePosition(String key, float eval) {
+//    private void savePosition(String key, float eval) {
+//
+//
+//        if(transpositionTable.size() < MAX_TABLE_ENTRIES){
+//            transpositionTable.put(key,eval);
+//        }else{
+//            for(String k: transpositionTable.keySet()){
+//                transpositionTable.remove(k);
+//                break;
+//            }
+//            transpositionTable.put(key,eval);
+//        }
 
 
-        if(transpositionTable.size() < MAX_TABLE_ENTRIES){
-            transpositionTable.put(key,eval);
-        }else{
-            for(String k: transpositionTable.keySet()){
-                transpositionTable.remove(k);
-                break;
-            }
-            transpositionTable.put(key,eval);
-        }
-
-
-    }
+//    }
 
 
 
