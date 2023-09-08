@@ -78,17 +78,22 @@ public class Engine2 implements Runnable{
             return;
         }
         File directory = new File("data");
+        ArrayList<String> pgnPaths = new ArrayList<>();
         if(directory.isDirectory()) {
             for (File file : directory.listFiles()) {
                 if (file.getName().endsWith(".pgn")) {
-                    book = PGNParser.parseFile(file.getPath(),150);
-                    System.out.println("Book loaded: "+file.getName());
-                    return;
+                   pgnPaths.add(file.getPath());
                 }
             }
         }
-        System.out.println("Could not find any book");
-        useBook = false;
+        if(pgnPaths.isEmpty()) {
+            System.out.println("Could not find any book");
+            useBook = false;
+        }else{
+            File pgnFile = new File(pgnPaths.get(new Random().nextInt(pgnPaths.size())));
+            book = PGNParser.parseFile(pgnFile.getPath(),-1);
+            System.out.println("Book loaded: "+pgnFile.getName());
+        }
     }
 
 

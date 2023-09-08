@@ -41,8 +41,6 @@ public class Main {
 //        }
 
 
-
-
 //        String pgn = "ed6f7";
 //        Pattern pattern = Pattern.compile("[a-h][1-8]");
 //        Matcher matcher = pattern.matcher(pgn);
@@ -83,10 +81,16 @@ public class Main {
 
 
         //position fen 5k2/n1Q4R/4p3/p3P2p/8/6K1/1P5P/2N5 w - - 2 42->wrong best move
-        //1rb1k2r/1p1p1p2/p1n1p1pp/2Q1P3/6n1/2N2N2/PP3PPP/2KR1B1R w - - 1 16->wrong best move
+        //position fen 1rb1k2r/1p1p1p2/p1n1p1pp/2Q1P3/6n1/2N2N2/PP3PPP/2KR1B1R w - - 1 16->wrong best move
+        //position fen rnbqkbnr/pp2pppp/8/8/2ppP3/8/PP2PPPP/RNBQKBNR w KQkq - 0 1->wrong best move
+        //position fen r3kbnr/ppp1pppp/8/3P1b2/2q5/1P6/P3PPPP/RNBQKB1R b KQkq - 0 8->wrong best move
         boolean debugging = false;
-        if(debugging) {
+        if (debugging) {
             //debug();
+
+
+            float n = Float.POSITIVE_INFINITY * -0;
+            System.out.println(n);
 
 //            ChessBoard cb = new ChessBoard();
 //            long start = System.nanoTime();
@@ -97,18 +101,18 @@ public class Main {
 //            System.out.println("key " +(System.nanoTime() - start));
 
 
-            HashMap<String,Integer> map = new HashMap<>();
-            map.put("a",1);
-            map.put("b",2);
-
-            map.put("v",0);
-
-           for(String s:map.keySet()){
-               map.put(s,3);
-           }
-
-            System.out.println(String.valueOf(Float.NEGATIVE_INFINITY));
-
+//            HashMap<String,Integer> map = new HashMap<>();
+//            map.put("a",1);
+//            map.put("b",2);
+//
+//            map.put("v",0);
+//
+//           for(String s:map.keySet()){
+//               map.put(s,3);
+//           }
+//
+//            System.out.println(String.valueOf(Float.NEGATIVE_INFINITY));
+//
 
 //            Engine2 engine = new Engine2("rn2k1nr/1R2b3/8/p1p1p1pp/b2pN3/3P1P1P/qP2P1B1/2BQ1KNR w kq - 1 16");
 //
@@ -138,215 +142,10 @@ public class Main {
 //            String g=null;
 //            System.out.println("b "+g);
 
-        }else{
+        } else {
             UCI cli = new UCI();
             cli.toggle();
             cli.run();
         }
     }
-    
-    
-    public static void debug(){
-        Engine engine = new Engine();
-        boolean flip=false,running = true,saveToLog = false;
-        Scanner sc = new Scanner(System.in);
-        String input = "";
-        String output="";
-        while(running ){
-            input = sc.nextLine();
-            String[] partsBySpace = input.split(" ");
-            switch(partsBySpace[0].toLowerCase()){
-                case "uci":
-                    output = "id name Schneizel 2\nid author Ayon\nuciok";
-                    print(output,saveToLog);
-                    break;
-                case "isready":
-                    output = "readyok";
-                    print(output,saveToLog);
-                    break;
-                case "go":
-                    System.out.println("Thinking...");
-                    if (partsBySpace.length > 1){
-
-                        if(partsBySpace[1].equals("perft")){
-                            int depth = Integer.parseInt(partsBySpace[2]);
-                            long currentTime = System.nanoTime();
-                            output = engine. mm.moveGenerationTest(depth, true);
-                            output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
-                            print(output,saveToLog);
-                        }else if(partsBySpace[1].equals("depth")){
-                            int depth = Integer.parseInt(partsBySpace[2]);
-                            long currentTime = System.nanoTime();
-                            int prevdepth = engine.depth;
-                            engine.setDepth(depth);
-                            output = "bestmove "+engine.mm.cvt(engine.search());
-                            output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
-                            engine.setDepth(prevdepth);
-                            print(output,saveToLog);
-
-                        }else{
-                            long currentTime = System.nanoTime();
-                            output = "bestmove "+engine.mm.cvt(engine.search());
-                            output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
-                            print(output,saveToLog);
-                        }
-                    }else{
-                        long currentTime = System.nanoTime();
-                        output = "bestmove "+engine.mm.cvt(engine.search());
-                        output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
-                        print(output,saveToLog);
-                    }
-
-                    break;
-                case "ucinewgame":
-                    input = "position startpos";
-                    partsBySpace = input.split(" ");
-                case "position":
-                    switch(partsBySpace[1].toLowerCase()){
-                        case "fen":
-                            engine = new Engine(input.split("fen ")[1]);
-                            break;
-                        case "startpos":
-                            engine = new Engine();
-                            if(partsBySpace.length<3){
-                                break;
-                            }
-                        case "thispos":
-                            switch(partsBySpace[2].toLowerCase()){
-                                case "moves":
-                                    if(Character.isDigit(partsBySpace[3].charAt(0))||partsBySpace[3].contains(Constants.KING_SIDE_CASTLING)){
-                                        String[] moves = input.split("move ")[1].split(",");
-                                        for(String move:moves){
-                                            engine.makeMove(move);
-                                        }
-                                    }else{
-                                        for(int i=3;i<partsBySpace.length;i++){
-                                            engine.makeMove(engine.mm.parse(partsBySpace[i]));
-                                        }
-                                    }
-                                    break;
-                                case "undomove":
-                                    if(Character.isDigit(partsBySpace[3].charAt(0))||partsBySpace[3].contains(Constants.KING_SIDE_CASTLING)||partsBySpace[3].contains(Constants.QUEEN_SIDE_CASTLING)){
-                                        String move = input.split("undomove ")[1];
-                                        engine.undoMove(move);
-                                    }
-                                    break;
-                            }
-                            print("Fen " + FenUtils.cat(engine.cb.fenParts),saveToLog);
-                            break;
-                    }
-
-                    break;
-                case "moves":
-                    ArrayList<String> moves = engine.mm.getAllMoves();
-                    //Util.writeToLog(moves.toString());
-                    String std="";
-                    for(String move:moves){
-                        std+=engine.mm.cvt(move)+" ";
-                    }
-                    output = std;
-                    print(output,saveToLog);
-                    break;
-                case "d":
-                    output = Util.getBoardVisualStd(engine.cb.board,flip);
-                    output+="\n"+Util.getBoardVisual(engine.cb.board);
-                    output+="\n"+("Fen: "+ FenUtils.cat(engine.cb.fenParts));
-                    print(output,saveToLog);
-                    break;
-                case "quit":
-                    running = false;
-                    break;
-                case "fen":
-                    print("Fen: "+ FenUtils.cat(engine.cb.fenParts),saveToLog);
-                    break;
-                case "flip":
-                    flip = !flip;
-                    break;
-                case "save":
-                    saveToLog = !saveToLog;
-                    System.out.println(saveToLog);
-                    break;
-                case "push":
-                    if (partsBySpace.length == 1){
-                        long currTime = System.nanoTime();
-                        String move = engine.search();
-                        long timeTaken = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currTime);
-                        engine.makeMove(move);
-                        output = "played "+engine.mm.cvt(move)+"\n";
-                        output += "Time taken: "+timeTaken + " ms\n";
-                        output += "Fen " + FenUtils.cat(engine.cb.fenParts);
-                        print(output,saveToLog);
-                        break;
-                    }
-                    try{
-                        engine.makeMove(engine.mm.getAllMoves().get(Integer.parseInt(partsBySpace[1])-1));
-                        print("Fen " + FenUtils.cat(engine.cb.fenParts),saveToLog);
-                    }catch(Exception e) {
-                        engine.makeMove(engine.mm.parse(partsBySpace[1]));
-                        print("Fen " + FenUtils.cat(engine.cb.fenParts),saveToLog);
-                    }
-                    break;
-                case "state":
-                    print(engine.cb.gs.toString(),saveToLog);
-                    break;
-                case "checkers":
-                    if(engine.cb.gs == GameState.CHECK){
-                        for(Integer index:engine.cb.checkers.keySet()){
-                            print(Util.cvtCoord(index),saveToLog);
-                        }
-                    }else{
-                        print(output,saveToLog);
-                    }
-                    break;
-                case "pinned":
-                    for(Integer index:engine.cb.pinnedPieces.keySet()){
-                        print(Util.cvtCoord(index),saveToLog);
-                    }
-                    break;
-                case "stats":
-                    output = engine.cb.stats();
-                    print(output,saveToLog);
-                    break;
-                case "list":
-                    output = "";
-                    int i=1;
-                    for(String move : engine.mm.getAllMoves()){
-                        output += Integer.toString(i) + ". "+engine.mm.cvt(move) + " eval ";
-                        engine.makeMove(move);
-                        output += engine.ev.evaluate()+"\n";
-                        engine.undoMove(move);
-                        i+=1;
-                    }
-                    print(output,saveToLog);
-                    break;
-                case "eval":
-                    output = "eval ";
-                    float evaluation = engine.ev.evaluate();
-                    output += String.valueOf(evaluation);
-                    print(output,saveToLog);
-                    break;
-                case "pieces":
-                    output = "total: "+engine.cb.pieceLocations.size()+"\n";
-                    for(int index:engine.cb.pieceLocations){
-                        output += engine.cb.board[index/8][index%8]+"\n";
-                    }
-                    print(output,saveToLog);
-            }
-        }
-    }
-
-    public static void print(String o,boolean saveToLog){
-        if(saveToLog&&!Util.loggerInitialized()){
-            Util.initLogger();
-        }
-        if(saveToLog){
-            Util.writeToLog(o);
-        }else{
-            System.out.println(o);
-        }
-    }
-    
-
 }
-//position fen rnbqkbnr/pp2pppp/8/8/2ppP3/8/PP2PPPP/RNBQKBNR w KQkq - 0 1->wrong best move
-//position fen r3kbnr/ppp1pppp/8/3P1b2/2q5/1P6/P3PPPP/RNBQKB1R b KQkq - 0 8->wrong best move

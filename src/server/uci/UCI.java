@@ -189,10 +189,10 @@ public class UCI {
                     engine.useBook = !engine.useBook;
                     System.out.println(engine.useBook);
                     break;
-                case "usett":
-                    engine.useTranspositionTable = !engine.useTranspositionTable;
-                    System.out.println(engine.useTranspositionTable);
-                    break;
+//                case "usett":
+//                    engine.useTranspositionTable = !engine.useTranspositionTable;
+//                    System.out.println(engine.useTranspositionTable);
+//                    break;
                 case "d":
                     output = Util.getBoardVisualStd(engine.cb.board,flip);
                     //output+="\n"+Util.getBoardVisual(engine.cb.board);
@@ -232,7 +232,8 @@ public class UCI {
                         movesMade.add(move);
                         print("Fen " + FenUtils.cat(engine.cb.fenParts));
                     }catch(Exception e) {
-                        engine.mm.makeMove(engine.mm.parse(partsBySpace[1]));
+                        engine.make(engine.mm.parse(partsBySpace[1]));
+                        movesMade.add(partsBySpace[1]);
                         print("Fen " + FenUtils.cat(engine.cb.fenParts));
                     }
                     break;
