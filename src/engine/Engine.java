@@ -1,9 +1,9 @@
-package schneizel;
+package engine;
 
 import server.board.ChessBoard;
-import server.evaluation.Evaluation2;
+import server.evaluation.Evaluation;
 import server.move.MoveManager;
-import server.pgn.PGNParser;
+import server.pgn.PGNUtils;
 import server.util.Constants;
 import server.util.FenUtils;
 import server.util.GameState;
@@ -14,12 +14,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
 
-public class Engine2 implements Runnable{
+public class Engine implements Runnable{
 
     public ChessBoard cb;
     public MoveManager mm;
 
-    public Evaluation2 ev;
+    public Evaluation ev;
 
     public String engineMove="";
 
@@ -59,17 +59,17 @@ public class Engine2 implements Runnable{
     }
 
 
-    public Engine2(String fen){
+    public Engine(String fen){
         cb = new ChessBoard(fen);
         mm = new MoveManager(cb);
-        ev = new Evaluation2(cb);
+        ev = new Evaluation(cb);
 //        transpositionTable = new HashMap<>();
     }
 
-    public Engine2(){
+    public Engine(){
         cb = new ChessBoard();
         mm = new MoveManager(cb);
-        ev = new Evaluation2(cb);
+        ev = new Evaluation(cb);
 //        transpositionTable = new HashMap<>();
     }
 
@@ -91,7 +91,7 @@ public class Engine2 implements Runnable{
             useBook = false;
         }else{
             File pgnFile = new File(pgnPaths.get(new Random().nextInt(pgnPaths.size())));
-            book = PGNParser.parseFile(pgnFile.getPath(),-1);
+            book = PGNUtils.parseFile(pgnFile.getPath(),-1);
             System.out.println("Book loaded: "+pgnFile.getName());
         }
     }
@@ -110,7 +110,7 @@ public class Engine2 implements Runnable{
             ChessBoard tcb = new ChessBoard();
             MoveManager tmm = new MoveManager(tcb);
             for(String seg:moveText.split(" ")) {
-                String move = PGNParser.parseSAN(seg,tmm);
+                String move = PGNUtils.parse(seg,tmm);
                 if(move == null){
                     continue;
                 }
@@ -235,6 +235,7 @@ public class Engine2 implements Runnable{
         for(String move:moves){
             movesWithScore.put(move,0f);
         }
+        //boolean foundMate = false;
         for(int i=1;!searchCancelled && i<=depth;i++){
             System.out.println("Iteration "+i);
             for(String move:movesWithScore.keySet()){
@@ -247,14 +248,13 @@ public class Engine2 implements Runnable{
                 mm.undoMove(move);
                 movesWithScore.put(move,-score);
                 System.out.println(mm.cvt(move)+" score "+score);
-//                movesWithScore.put(move,-score);
             }
             if(!searchCancelled) {
                 movesWithScore = Util.sortHashMap(movesWithScore);
             }
 //            for(Float eval:movesWithScore.values()){
 //                if(String.valueOf(eval).equals("-Infinity")){
-//                    System.out.println("Found mate. Stopping iteration.");
+//                    System.out.println("Found mate in "+i);
 //                    foundMate = true;
 //                }
 //                break;
@@ -293,8 +293,87 @@ public class Engine2 implements Runnable{
 
     }
 
+    private void iterativeDeepening2(){//uses slightly different approach to order moves
+        System.out.println("Commencing iterative deepening search at depth: "+depth);
+        float score;
+        ArrayList<String> moves = mm.getAllMoves();
+
+        float[] scores = new float[moves.size()];
+        boolean foundMate = false;
+        for(int i=1;!foundMate && !searchCancelled && i<=depth;i++){
+            if(searchCancelled){
+                System.out.println("Search was cancelled");
+                break;
+            }
+            System.out.println("Iteration "+i);
+            for(int j=0;j<moves.size();j++){
+                String move = moves.get(j);
+                mm.makeMove(move);
+                score = -negamax(i,Float.NEGATIVE_INFINITY,Float.POSITIVE_INFINITY);
+                mm.undoMove(move);
+                System.out.println(mm.cvt(move)+" score "+score);
+                scores[j] = score;
+                for(int k=j-1;k>=0;k--){
+                    if(scores[k]<score){
+                        scores[j] = scores[k];
+                        scores[k] = score;
+                        moves.remove(move);
+                        moves.add(k,move);
+                    }
+                }
+                if(String.valueOf(score).equals("Infinity")){
+                    System.out.println("Found mate in "+i);
+                    foundMate = true;
+                    break;
+                }
+            }
+
+//            for(Float eval:movesWithScore.values()){
+//                if(String.valueOf(eval).equals("-Infinity")){
+//                    System.out.println("Found mate. Stopping iteration.");
+//                    foundMate = true;
+//                }
+//                break;
+//            }
+        }
+
+        if(!searchCancelled) {
+            System.out.println("Time taken " + (System.currentTimeMillis() - searchStartTime) + " ms");
+            engineMove = moves.get(0);
+            System.out.println("bestmove " + mm.cvt(engineMove) + " score " + scores[0]);
+        }
+        setDepth(DEFAULT_SEARCH_DEPTH);
+        searching = false;
+        searchCancelled = false;
+
+
+//        ArrayList<String> moves = mm.getAllMoves();
+//        float score,bestScore = Float.NEGATIVE_INFINITY;
+//        orderMove(moves);
+//        for(String move:moves){
+//            if(searchCancelled){
+//                break;
+//            }
+//            mm.makeMove(move);
+//            score = -negamax(depth, Float.NEGATIVE_INFINITY,Float.POSITIVE_INFINITY);
+//            mm.undoMove(move);
+//            if(score>bestScore){
+//                bestScore = score;
+//                engineMove = move;
+//            }
+//            System.out.println(mm.cvt(move)+" score "+score);
+//        }
+
+
+    }
+
+
+
 
     private float negamax(int depth,float alpha,float beta){
+        if(searchCancelled){
+            return alpha;
+        }
         ArrayList<String> moves = mm.getAllMoves();
         if(moves.isEmpty()){
             if(cb.gs == GameState.CHECK){

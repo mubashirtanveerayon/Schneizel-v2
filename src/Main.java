@@ -1,20 +1,13 @@
-import schneizel.Engine;
-import schneizel.Engine2;
 import server.board.ChessBoard;
 import server.move.MoveManager;
-import server.pgn.PGNParser;
+import server.pgn.PGNUtils;
 import server.uci.UCI;
 import server.util.Constants;
 import server.util.FenUtils;
-import server.util.GameState;
 import server.util.Util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Main {
 
@@ -84,13 +77,42 @@ public class Main {
         //position fen 1rb1k2r/1p1p1p2/p1n1p1pp/2Q1P3/6n1/2N2N2/PP3PPP/2KR1B1R w - - 1 16->wrong best move
         //position fen rnbqkbnr/pp2pppp/8/8/2ppP3/8/PP2PPPP/RNBQKBNR w KQkq - 0 1->wrong best move
         //position fen r3kbnr/ppp1pppp/8/3P1b2/2q5/1P6/P3PPPP/RNBQKB1R b KQkq - 0 8->wrong best move
+        //rn1q1rk1/p1p1bppp/b3pn2/3p4/P2P1B2/2P2NP1/4PPBP/RN1Q1RK1 w - - 3 10
         boolean debugging = false;
         if (debugging) {
+
+//            ChessBoard cb = new ChessBoard();
+//            MoveManager mm = new MoveManager(cb);
+//            ArrayList<HashMap<String,String>> game = PGNUtils.parseFile("data/test.pgn",1);
+//            String moveText = game.get(0).get("Moves");
+//            ArrayList<String> movesMade = new ArrayList<>();
+//            for(String seg:moveText.split(" ")){
+//                String m = PGNUtils.parse(seg,mm);
+//                if(m != null){
+//                    mm.makeMove(m);
+//                    movesMade.add(m);
+//                    System.out.println(Util.getBoardVisualStd(cb.board));
+//                    System.out.println(FenUtils.cat(cb.fenParts));
+//                }
+//            }
+//            System.out.println(movesMade);
+//
+//            for(int i=movesMade.size()-1;i>=0;i--){
+//                mm.undoMove(movesMade.get(i));
+//            }
+//            System.out.println(Util.getBoardVisualStd(cb.board));
+//            String pgn = PGNUtils.getMoveText(movesMade);
+//            System.out.println(pgn);
+
+//5536/ /-/-/3 Nd2 | 1736/ /-/-/3 Nd2
+//            System.out.println(PGNUtils.cvt("1736/ /-/-/3",mm));
+
+
             //debug();
-
-
-            float n = Float.POSITIVE_INFINITY * -0;
-            System.out.println(n);
+//
+//
+//            float n = Float.POSITIVE_INFINITY * -0;
+//            System.out.println(n);
 
 //            ChessBoard cb = new ChessBoard();
 //            long start = System.nanoTime();

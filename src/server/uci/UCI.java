@@ -1,8 +1,6 @@
 package server.uci;
 
-import schneizel.Engine;
-import schneizel.Engine2;
-import server.util.Constants;
+import engine.Engine;
 import server.util.FenUtils;
 import server.util.GameState;
 import server.util.Util;
@@ -21,7 +19,7 @@ public class UCI {
     Scanner sc;
 //    ChessBoard cb;
 //    MoveManager mm;
-    Engine2 engine;
+    Engine engine;
 
     String input="";
 
@@ -30,7 +28,7 @@ public class UCI {
     public void toggle(){
         if (!running){
             sc = new Scanner(System.in);
-            engine = new Engine2();
+            engine = new Engine();
             running = true;
             movesMade = new ArrayList<>();
         }
@@ -93,28 +91,11 @@ public class UCI {
                             int depth = Integer.parseInt(partsBySpace[2]);
                             engine.setDepth(depth);
                             engine.beginSearch();
-                            //search.stop();
-//                            while(engine.searching){
-//                                System.out.print("");
-//                            }
-//                            output = "bestmove "+engine.mm.cvt(engine.engineMove);
-//                            print(output);
-
                         }else{
                             engine.beginSearch();
-//                            while(engine.searching){
-//                                System.out.print("");
-//                            }
-//                            output = "bestmove "+engine.mm.cvt(engine.engineMove);
-//                            print(output);
                         }
                     }else{
                         engine.beginSearch();
-//                        while(engine.searching){
-//                            System.out.print("");
-//                        }
-//                        output = "bestmove "+engine.mm.cvt(engine.engineMove);
-//                        print(output);
                     }
 
                     break;
@@ -125,12 +106,12 @@ public class UCI {
                 case "position":
                     switch(partsBySpace[1].toLowerCase()){
                         case "fen":
-                            engine = new Engine2(input.split("fen ")[1]);
+                            engine = new Engine(input.split("fen ")[1]);
                             movesMade.clear();
                             break;
                         case "startpos":
                             if(partsBySpace.length<3){
-                                engine = new Engine2();
+                                engine = new Engine();
                                 movesMade.clear();
                                 break;
                             }
@@ -143,10 +124,6 @@ public class UCI {
                                     }
                                 }else{
                                     boolean sameGame = true;
-//                                    for(int i=3;sameGame &&i<  partsBySpace.length-1;i++){
-//                                        sameGame = partsBySpace[i].equals(movesMade.get(i-3));
-//                                    }
-
                                     for(int i=0;sameGame && i<movesMade.size();i++){
                                         sameGame = movesMade.get(i).equals(partsBySpace[i+3]);
                                     }
@@ -154,7 +131,7 @@ public class UCI {
                                     int startIndex = movesMade.size()+3;
                                     if(!sameGame){
                                         movesMade.clear();
-                                        engine = new Engine2();
+                                        engine = new Engine();
                                         startIndex = 3;
                                     }
                                     for(int i=startIndex;i<partsBySpace.length;i++){
@@ -165,23 +142,6 @@ public class UCI {
                             }
                             break;
                             //bs uci, they could add another command for resuming the game with the final move
-
-//                           switch(partsBySpace[2].toLowerCase()){
-//                                case "moves":
-//                                    boolean sameGame = false;
-//                                    if()
-//                                    for(int i=3;i<partsBySpace.length-1;i++){
-//                                        if(!movesMade.get(i-3).equals(partsBySpace[i])){
-//                                            sameGame = true;
-//                                        }
-//                                    }
-//                                    for(int i=3;i<partsBySpace.length;i++){
-//                                        engine.mm.makeMove(engine.mm.parse(partsBySpace[i]));
-//                                    }
-//                                    break;
-//                            }
-//                            print("Fen " + FenUtils.cat(engine.cb.fenParts));
-//                            break;
                     }
 
                     break;

@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import server.board.ChessBoard;
 import server.move.MoveManager;
 import server.util.Constants;
+import server.util.GameState;
 import server.util.Util;
 
 import java.util.ArrayList;
@@ -13,18 +15,92 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PGNParser {
+public class PGNUtils {
 
-    public static String cvtMove(String move,MoveManager mm){
+    public static String getMoveText(ArrayList<String> movesMade){
+        ChessBoard cb = new ChessBoard();
+        MoveManager mm = new MoveManager(cb);
+        String pgn = "";
+        int plyCount = 1;
+        for(String move:movesMade){
+            if(cb.turn == Constants.WHITE){
+                pgn += plyCount+". ";
+                plyCount+=1;
+            }
+            pgn += PGNUtils.cvt(move,mm)+" ";
+            mm.makeMove(move);
+        }
+        return pgn.trim();
+    }
+
+    public static String cvt(String move, MoveManager mm){//move to san
         if(move.contains(Constants.QUEEN_SIDE_CASTLING)){
             return Constants.QUEEN_SIDE_CASTLING;
         }else if(move.contains(Constants.KING_SIDE_CASTLING)){
             return Constants.KING_SIDE_CASTLING;
         }
 
+        ArrayList<String> moves = mm.getAllMoves();
+
+        int fromFile = Integer.parseInt(Character.toString(move.charAt(0)));
+        int fromRank = Integer.parseInt(Character.toString(move.charAt(1)));
+        int toFile = Integer.parseInt(Character.toString(move.charAt(2)));
+        int toRank = Integer.parseInt(Character.toString(move.charAt(3)));
 
 
-        return null;
+        ArrayList<String> similarMoves = new ArrayList<>();
+        char pieceToMove = mm.cb.board[fromRank][fromFile];
+        for(String m:moves){
+            if(!move.equals(m) && m.substring(2,4).equals(move.substring(2,4))){
+                if(pieceToMove == mm.cb.board[Integer.parseInt(Character.toString(m.charAt(1)))][Integer.parseInt(Character.toString(m.charAt(0)))]){
+                    similarMoves.add(m);
+                }
+            }
+        }
+
+        String san;
+        if(Character.toUpperCase(pieceToMove) == Constants.WHITE_PAWN){
+            san = "";
+            if(!similarMoves.isEmpty()|| move.contains(Constants.EN_PASSANT_NOTATION) || move.charAt(5) != Constants.EMPTY_SQUARE ){
+                san = Character.toString(Constants.FILES.charAt(fromFile));
+            }
+        }else{
+            san = Character.toString(Character.toUpperCase(pieceToMove));
+            boolean fileSame = false,rankSame = false;
+            for(String similar:similarMoves){
+                fileSame = fileSame || move.charAt(0) == similar.charAt(0);
+                rankSame = rankSame || move.charAt(1) == similar.charAt(1);
+            }
+
+            if(rankSame && fileSame){
+                san += Character.toString(Constants.FILES.charAt(fromFile)) + Character.toString(Constants.RANKS.charAt(fromRank));;
+            }else if(rankSame){
+                san += Character.toString(Constants.FILES.charAt(fromFile));
+            }else if(fileSame){
+                san += Character.toString(Constants.RANKS.charAt(fromRank));
+            }else if(!similarMoves.isEmpty()){
+                san += Character.toString(Constants.FILES.charAt(fromFile));
+            }
+
+        }
+        if(move.charAt(5) != Constants.EMPTY_SQUARE ||move.contains(Constants.EN_PASSANT_NOTATION)){
+            san += "x";
+        }
+
+        san += Character.toString(Constants.FILES.charAt(toFile)) + Character.toString(Constants.RANKS.charAt(toRank));
+
+        mm.makeMove(move);
+
+        if(mm.cb.gs == GameState.CHECK){
+            if(mm.getAllMoves().isEmpty()){
+                san += "#";
+            }else{
+                san += "+";
+            }
+        }
+        mm.undoMove(move);
+
+        return san;
     }
 
     public static ArrayList<HashMap<String,String>> parseFile(String path,int numberOfGames){
@@ -34,8 +110,7 @@ public class PGNParser {
         Pattern coordPattern = Pattern.compile("[a-h][1-8]");
         String moveText = "";
         int n = 0;
-        ArrayList<String> lines = getContent(path);
-        for(String line:lines){
+        for(String line:getContent(path)){
             String[] parts = line.split(" ");
             if(line.startsWith("[Event ")){
                 parsingGame = true;
@@ -63,7 +138,6 @@ public class PGNParser {
                 }
             }
         }
-        lines = null;
         return games;
     }
 
@@ -78,13 +152,11 @@ public class PGNParser {
             }
         }catch(Exception e){
             e.printStackTrace();
-        }finally{
-
         }
         //System.out.println(content);
         return content;
     }
-    public static String parseSAN(String san, MoveManager mm){
+    public static String parse(String san, MoveManager mm){//san to move
 
         if (san.toUpperCase().contains(Constants.QUEEN_SIDE_CASTLING)){
             return Util.constructCastlingMove(Constants.QUEEN_SIDE_CASTLING,mm.cb.fenParts);

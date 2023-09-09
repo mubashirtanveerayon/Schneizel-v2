@@ -1,10 +1,8 @@
 package debug;
 
-import schneizel.Engine;
 import server.board.ChessBoard;
 import server.move.MoveManager;
 
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Scanner;

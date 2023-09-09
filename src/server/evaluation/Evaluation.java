@@ -21,29 +21,22 @@ public class Evaluation {
         float eval = 0;
         eval += countMaterialAndPositionalScore();
         eval -= cb.pinnedPieces.size()/3.7f;
-        eval += evaluateOpponentKingPosition();
-        return cb.turn == Constants.WHITE?eval:-eval;
+        eval += opponentKingPosition();
+        return eval;
     }
 
 
-    private float evaluateOpponentKingPosition(){
+    private float opponentKingPosition(){
         float eval = 0;
         int[] opponentKing = cb.turn == Constants.WHITE? cb.blackKingPosition:cb.whiteKingPosition;
         int dstFromCenter = Math.abs(3 - opponentKing[0]) + Math.abs(3 - opponentKing[1]);
         int[] king = cb.kingPosition();
         int dstBetweenKing = Math.abs(king[0] - opponentKing[0]) + Math.abs(king[1] - opponentKing[1]);
         eval += (float)(dstFromCenter - dstBetweenKing) * Integer.parseInt(cb.fenParts[cb.fenParts.length-1])/ (cb.pieceLocations.size() * 12);
-        //eval *= cb.turn == Constants.WHITE? 1 : -1;
         return eval;
     }
 
-    private float evaluatePawnStructure() {
-        float eval=0;
-
-        return eval;
-    }
-
-    private float countMaterial(){//faulty
+    private float countMaterial(){//whiteMaterial - blackMaterial
         float eval = 0;
         for(int index:cb.pieceLocations){
             eval += Character.isUpperCase(cb.board[index / 8][index % 8])? Util.getPieceValue(cb.board[index / 8][index % 8]):-Util.getPieceValue(cb.board[index/8][index%8]);
@@ -51,10 +44,72 @@ public class Evaluation {
         return eval;
     }
 
-    private float countMaterialAndPositionalScore() {//whiteMaterial - blackMaterial
+    private float countMaterialAndPositionalScore2() {//whiteMaterial - blackMaterial
         float eval = 0;
         //float positionalAdvantage = (float) cb.countPieces(cb.turn == Constants.WHITE)/(Integer.parseInt(cb.fenParts[cb.fenParts.length-1]) * 10);
         float positionalAdvantage = (float) cb.pieceLocations.size()/(Integer.parseInt(cb.fenParts[cb.fenParts.length-1]) * 10);
+        for(int pieceIndex:cb.pieceLocations) {
+            int file = pieceIndex % 8,rank = pieceIndex / 8;
+            switch(Character.toUpperCase(cb.board[rank][file])){
+                case Constants.WHITE_PAWN:
+                    if(Character.isUpperCase(cb.board[rank][file])){
+                        eval += Constants.PAWN_VALUE;
+                        eval += Map.PAWN[pieceIndex] * positionalAdvantage;
+                    }else{
+                        eval -= Constants.PAWN_VALUE;
+                        eval -= Map.PAWN[Map.MIRRORED_MAP[pieceIndex]] * positionalAdvantage;
+                    }
+                    break;
+                case Constants.WHITE_ROOK:
+                    if(Character.isUpperCase(cb.board[rank][file])){
+                        eval += Constants.ROOK_VALUE;
+                        eval += Map.ROOK[pieceIndex] * positionalAdvantage;
+                    }else{
+                        eval -= Constants.ROOK_VALUE;
+                        eval -= Map.ROOK[Map.MIRRORED_MAP[pieceIndex]] * positionalAdvantage;
+                    }
+                    break;
+
+                case Constants.WHITE_KNIGHT:
+                    if(Character.isUpperCase(cb.board[rank][file])){
+                        eval += Constants.KNIGHT_VALUE;
+                        eval += Map.KNIGHT[pieceIndex] * positionalAdvantage;
+                    }else{
+                        eval -= Constants.KNIGHT_VALUE;
+                        eval -= Map.KNIGHT[Map.MIRRORED_MAP[pieceIndex]] * positionalAdvantage;
+                    }
+                    break;
+                case Constants.WHITE_BISHOP:
+                    if(Character.isUpperCase(cb.board[rank][file])){
+                        eval += Constants.BISHOP_VALUE;
+                        eval += Map.BISHOP[pieceIndex] * positionalAdvantage;
+                    }else{
+                        eval -= Constants.BISHOP_VALUE;
+                        eval -= Map.BISHOP[Map.MIRRORED_MAP[pieceIndex]] * positionalAdvantage;
+                    }
+                    break;
+
+                case Constants.WHITE_QUEEN:
+                    if(Character.isUpperCase(cb.board[rank][file]) ){
+                        eval += Constants.QUEEN_VALUE;
+                    }else{
+                        eval -= Constants.QUEEN_VALUE;
+                    }
+                    break;
+            }
+
+
+        }
+
+        return eval;
+    }
+
+
+
+    private float countMaterialAndPositionalScore() {//ally - enemy
+        float eval = 0;
+        //float positionalAdvantage = (float) cb.countPieces(cb.turn == Constants.WHITE)/(Integer.parseInt(cb.fenParts[cb.fenParts.length-1]) * 10);
+        float positionalAdvantage = (float) cb.pieceLocations.size()/(Integer.parseInt(cb.fenParts[cb.fenParts.length-1]) * 12.5f);
         for(int pieceIndex:cb.pieceLocations) {
             int file = pieceIndex % 8,rank = pieceIndex / 8;
             switch(Character.toUpperCase(cb.board[rank][file])){
