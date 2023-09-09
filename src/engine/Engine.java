@@ -24,7 +24,7 @@ public class Engine implements Runnable{
     public String engineMove="";
 
 
-    public boolean searchCancelled = false,searching = false;
+    public boolean searchCancelled = false,searching = false,stopped = false;
 
 
     private ArrayList<HashMap<String,String>> book;
@@ -188,7 +188,7 @@ public class Engine implements Runnable{
             }
         }
 
-        iterativeDeepening();
+        iterativeDeepening2();
 //        System.out.println("Commencing search at depth: "+depth);
 //        ArrayList<String> moves = mm.getAllMoves();
 //        float score,bestScore = Float.NEGATIVE_INFINITY;
@@ -262,15 +262,17 @@ public class Engine implements Runnable{
         }
 
 
+
         System.out.println("Time taken "+(System.currentTimeMillis() - searchStartTime)+" ms");
         for(String bestMove:movesWithScore.keySet()){
             engineMove = bestMove;
             break;
         }
-        System.out.println("bestmove "+mm.cvt(engineMove)+" score "+-movesWithScore.get(engineMove));
+        if(!stopped)System.out.println("bestmove "+mm.cvt(engineMove)+" score "+-movesWithScore.get(engineMove));
         setDepth(DEFAULT_SEARCH_DEPTH);
         searching = false;
         searchCancelled = false;
+        stopped = false;
 
 
 //        ArrayList<String> moves = mm.getAllMoves();
@@ -294,17 +296,13 @@ public class Engine implements Runnable{
     }
 
     private void iterativeDeepening2(){//uses slightly different approach to order moves
-        System.out.println("Commencing iterative deepening search at depth: "+depth);
+        System.out.println("Commencing iterative deepening2 search at depth: "+depth);
         float score;
         ArrayList<String> moves = mm.getAllMoves();
 
         float[] scores = new float[moves.size()];
         boolean foundMate = false;
         for(int i=1;!foundMate && !searchCancelled && i<=depth;i++){
-            if(searchCancelled){
-                System.out.println("Search was cancelled");
-                break;
-            }
             System.out.println("Iteration "+i);
             for(int j=0;j<moves.size();j++){
                 String move = moves.get(j);
@@ -312,6 +310,9 @@ public class Engine implements Runnable{
                 score = -negamax(i,Float.NEGATIVE_INFINITY,Float.POSITIVE_INFINITY);
                 mm.undoMove(move);
                 System.out.println(mm.cvt(move)+" score "+score);
+                if(searchCancelled){
+                    break;
+                }
                 scores[j] = score;
                 for(int k=j-1;k>=0;k--){
                     if(scores[k]<score){
@@ -328,23 +329,15 @@ public class Engine implements Runnable{
                 }
             }
 
-//            for(Float eval:movesWithScore.values()){
-//                if(String.valueOf(eval).equals("-Infinity")){
-//                    System.out.println("Found mate. Stopping iteration.");
-//                    foundMate = true;
-//                }
-//                break;
-//            }
         }
 
-        if(!searchCancelled) {
-            System.out.println("Time taken " + (System.currentTimeMillis() - searchStartTime) + " ms");
-            engineMove = moves.get(0);
-            System.out.println("bestmove " + mm.cvt(engineMove) + " score " + scores[0]);
-        }
+        System.out.println("Time taken " + (System.currentTimeMillis() - searchStartTime) + " ms");
+        engineMove = moves.get(0);
+        if(!stopped)System.out.println("bestmove " + mm.cvt(engineMove) + " score " + scores[0]);
         setDepth(DEFAULT_SEARCH_DEPTH);
         searching = false;
         searchCancelled = false;
+        stopped = false;
 
 
 //        ArrayList<String> moves = mm.getAllMoves();
@@ -413,6 +406,30 @@ public class Engine implements Runnable{
     }
 
 
+    public void beginSearch(int movetime){
+        if(searching){
+            return;
+        }
+        Thread engineThread = new Thread(this);
+        engineMove = "";
+        searching = true;
+        searchCancelled = false;
+        stopped = false;
+        engineThread.start();
+        searchStartTime = System.currentTimeMillis();
+        Thread timeThread = new Thread(){
+            @Override
+            public void run(){
+                try {
+                    Thread.sleep(movetime);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                searchCancelled = true;
+            }
+        };
+        timeThread.start();
+    }
 
     public Thread beginSearch(){
         if(searching){
@@ -421,6 +438,7 @@ public class Engine implements Runnable{
         Thread thread = new Thread(this);
         engineMove = "";
         searching = true;
+        stopped = false;
         searchCancelled = false;
         thread.start();
         searchStartTime = System.currentTimeMillis();

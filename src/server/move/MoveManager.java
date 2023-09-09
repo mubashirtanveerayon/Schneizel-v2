@@ -568,7 +568,11 @@ public class MoveManager {
                         break;
                 }
                 if(Character.toUpperCase(cb.board[locRank][locFile]) == Constants.WHITE_PAWN){
-                    cb.board[locRank][locFile] = move.split(Constants.MOVE_SEPARATOR)[Constants.PROMOTION_MOVE_LENGTH-1].charAt(0);
+                    try {
+                        cb.board[locRank][locFile] = move.split(Constants.MOVE_SEPARATOR)[Constants.PROMOTION_MOVE_LENGTH - 1].charAt(0);
+                    }catch(Exception e){
+                        System.out.println(move);
+                    }
                 }
             }
 
@@ -983,7 +987,24 @@ public class MoveManager {
                     if((Util.isUpperCase(cb.board[rank][file]) && pinDirection[1] == -1) || (!Util.isUpperCase(cb.board[rank][file]) && pinDirection[1] == 1)){
                         int df = file + pinDirection[0],dr = rank + pinDirection[1];
                         if(cb.board[dr][df] != Constants.EMPTY_SQUARE){
-                            moves.add(Util.cvtMove(file,rank,df,dr,cb.board,cb.fenParts));
+                            if(dr == 0 || dr == 7) {
+                                switch (cb.turn) {
+                                    case Constants.WHITE:
+                                        moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.WHITE_QUEEN);
+                                        moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.WHITE_KNIGHT);
+                                        moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.WHITE_ROOK);
+                                        moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.WHITE_BISHOP);
+                                        break;
+                                    case Constants.BLACK:
+                                        moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.BLACK_QUEEN);
+                                        moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.BLACK_KNIGHT);
+                                        moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.BLACK_ROOK);
+                                        moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.BLACK_BISHOP);
+                                        break;
+                                }
+                            }else {
+                                moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts));
+                            }
                         }
                     }
 
@@ -1000,7 +1021,7 @@ public class MoveManager {
                     }
 
                 }
-
+//                System.out.println("here");
                 return moves;
             }else{
                 // generate pushes, which is done below
@@ -1185,6 +1206,7 @@ public class MoveManager {
 
 
 
+
         // generating pushes
         int f=file,r=rank;
         int startIndex = Util.isUpperCase(cb.board[rank][file])?3:2;
@@ -1240,6 +1262,7 @@ public class MoveManager {
         for(int i=startIndex;i<=endIndex;i++){
             f = file + Constants.ALL_DIRECTIONS[i][0];
             r = rank + Constants.ALL_DIRECTIONS[i][1];
+
             if(Util.isValid(f,r)){
                 if(cb.board[r][f] != Constants.EMPTY_SQUARE && Util.isEnemyPiece(cb.turn,cb.board[r][f])){
 
@@ -1258,7 +1281,6 @@ public class MoveManager {
                                 moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
                                 break;
                         }
-
                     }else {
                         moves.add(Util.cvtMove(file,rank,f,r,cb.board,cb.fenParts));
                     }

@@ -52,6 +52,7 @@ public class UCI {
             String[] partsBySpace = input.split(" ");
             switch(partsBySpace[0].toLowerCase()){
                 case "stop":
+                    engine.stopped = true;
                     engine.searchCancelled = true;
                     break;
                 case "uci":
@@ -91,6 +92,8 @@ public class UCI {
                             int depth = Integer.parseInt(partsBySpace[2]);
                             engine.setDepth(depth);
                             engine.beginSearch();
+                        }else if(partsBySpace[1].equals("movetime")){
+                            engine.beginSearch(Integer.parseInt(partsBySpace[2]));
                         }else{
                             engine.beginSearch();
                         }

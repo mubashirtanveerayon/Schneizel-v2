@@ -78,6 +78,7 @@ public class Main {
         //position fen rnbqkbnr/pp2pppp/8/8/2ppP3/8/PP2PPPP/RNBQKBNR w KQkq - 0 1->wrong best move
         //position fen r3kbnr/ppp1pppp/8/3P1b2/2q5/1P6/P3PPPP/RNBQKB1R b KQkq - 0 8->wrong best move
         //rn1q1rk1/p1p1bppp/b3pn2/3p4/P2P1B2/2P2NP1/4PPBP/RN1Q1RK1 w - - 3 10
+        //position startpos moves d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 e2e3 b8c6 g1f3 d7d6 f1d3 h7h5 h1f1 c8d7 a2a3 b4c3 b2c3 a8c8 c1b2 a7a5 f3g5 e6e5 d4e5 c6e5 g5f7 e8f7 d3e2 d7f5 f2f4 e5g6 e2h5 h8h5 h2h4 h5h4 e1f2 d8e8 f2f3 f5g4 f3f2 f6e4 f2e1 g4d1 e1d1 h4h2 f4f5 g6e5 f1f4 h2h1 d1e2 e4g3 e2d2 e5c4 f4c4 g3e4 c4e4 h1a1 e4e8 f7e8 b2a1 b7b5 c3c4 b5c4 a1g7 e8d7 d2c3 c8g8 g7d4 d6d5 d4e5 g8g2 c3d4 c7c6 a3a4 g2a2 f5f6 a2a4 e3e4 d7e6 e5c7 e6f6 e4d5 c4c3 d4c3 c6d5 c3b3 a4b4 b3a3 b4e4 c7a5 e4e3 a3b4 f6e5 a5c7 e5e6 b4c5 e3c3 c5b6 c3b3 b6a5 d5d4 c7h2 b3b1 h2g3 e6d5 g3h4 d5c4 h4e7 b1b5 a5a6 d4d3 e7g5
         boolean debugging = false;
         if (debugging) {
 

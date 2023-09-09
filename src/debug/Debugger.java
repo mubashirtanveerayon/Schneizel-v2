@@ -54,6 +54,8 @@ public class Debugger {
                     }
                 }
                 comparePerftOutput(enginePerftTest,sfPerftTest);
+            }else if(input.equals("stats")){
+                System.out.println(cb.stats());
             }
         }
 
