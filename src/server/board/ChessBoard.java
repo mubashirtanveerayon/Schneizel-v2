@@ -17,7 +17,6 @@ public class ChessBoard {
     public GameState gs;
 
     public Set<Integer> pieceLocations /*, attackedSquares*/;// holds 1D index of piece locations in a 2D array
-                                        // used a set to avoid duplicate elements
 
     public ChessBoard(){
         fenParts = FenUtils.split(Constants.STARTING_FEN);
@@ -197,8 +196,70 @@ public class ChessBoard {
         return stats.toString();
     }
 
+
+//    public long generateZobristKey(boolean positionOnly){
+//        long key = 0;
+//        for(int pieceIndex:pieceLocations){
+//            switch(board[pieceIndex/8][pieceIndex%8]){
+//                case Constants.WHITE_PAWN:
+//                    key ^= Constants.zobristArray[1][0][pieceIndex];
+//                    break;
+//                case Constants.BLACK_PAWN:
+//                    key ^= Constants.zobristArray[0][0][pieceIndex];
+//                    break;
+//                case Constants.WHITE_QUEEN:
+//                    key ^= Constants.zobristArray[1][1][pieceIndex];
+//                    break;
+//                case Constants.BLACK_QUEEN:
+//                    key ^= Constants.zobristArray[0][1][pieceIndex];
+//                    break;
+//                case Constants.WHITE_ROOK:
+//                    key ^= Constants.zobristArray[1][2][pieceIndex];
+//                    break;
+//                case Constants.BLACK_ROOK:
+//                    key ^= Constants.zobristArray[0][2][pieceIndex];
+//                    break;
+//                case Constants.WHITE_BISHOP:
+//                    key ^= Constants.zobristArray[1][3][pieceIndex];
+//                    break;
+//                case Constants.BLACK_BISHOP:
+//                    key ^= Constants.zobristArray[0][3][pieceIndex];
+//                    break;
+//                case Constants.WHITE_KNIGHT:
+//                    key ^= Constants.zobristArray[1][4][pieceIndex];
+//                    break;
+//                case Constants.BLACK_KNIGHT:
+//                    key ^= Constants.zobristArray[0][4][pieceIndex];
+//                    break;
+//                case Constants.WHITE_KING:
+//                    key ^= Constants.zobristArray[1][5][pieceIndex];
+//                    break;
+//                case Constants.BLACK_KING:
+//                    key ^= Constants.zobristArray[0][5][pieceIndex];
+//                    break;
+//            }
+//        }
+//        if (turn == Constants.WHITE){
+//            key ^= Constants.zobristTurnToMove;
+//        }
+//        if(positionOnly){
+//            return key;
+//        }
+//        if(!fenParts[9].equals("-")){
+//            for(char c:fenParts[9].toCharArray()){
+//                key ^= (long)Util.getPieceValue(c);
+//            }
+//        }
+//        if(!fenParts[10].equals("-")){
+//            key ^= Util.getSquareIndex(fenParts[10]);
+//        }
+//        return key;
+//    }
+    
+
     public void checkBoard(){
         resetStats();
+        
         int[] kingPos = kingPosition();
         int file,rank ,pinnedPieceIndex=0;
         boolean foundAlly,foundEnemyPiece;
@@ -519,6 +580,18 @@ public boolean _isSquareSafe(int file,int rank){
 
     public int[] kingPosition(){
         return turn == Constants.WHITE?whiteKingPosition:blackKingPosition;
+    }
+
+
+    public int countPieces(boolean white) {
+
+        int pieces = 0;
+        for(int index:pieceLocations){
+            if((white && Character.isUpperCase(board[index/8][index%8])) || (!white && !Character.isUpperCase(board[index/8][index%8]))){
+                pieces += 1;
+            }
+        }
+        return pieces;
     }
 
 }

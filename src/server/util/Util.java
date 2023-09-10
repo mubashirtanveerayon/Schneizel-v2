@@ -1,16 +1,50 @@
 package server.util;
 
-import exception.InvalidCoordinateException;
+import server.exception.InvalidCoordinateException;
 
-import java.util.Arrays;
+import java.security.SecureRandom;
+import java.util.*;
 
+import java.util.Map;
 import java.util.logging.*;
 
 public class Util {
 
-    private static Logger logger = Logger.getLogger("Engine Log");
+    private static Logger logger = null;
 
-    static{
+
+    public static boolean loggerInitialized(){
+        return logger != null;
+    }
+
+
+    //code requested from chatgpt
+    public static LinkedHashMap<String,Float> sortHashMap(HashMap<String,Float> hashMap){
+
+        // Convert the HashMap to a List of Map.Entry objects
+        List<Map.Entry<String, Float>> entryList = new ArrayList<>(hashMap.entrySet());
+
+        // Sort the list based on the values using a custom comparator
+        Collections.sort(entryList, new Comparator<Map.Entry<String, Float>>() {
+            @Override
+            public int compare(Map.Entry<String, Float> entry1, Map.Entry<String, Float> entry2) {
+                // Compare the values in ascending order
+                return Float.compare(entry1.getValue(), entry2.getValue());
+            }
+        });
+
+        // Create a new LinkedHashMap to store the sorted entries
+        LinkedHashMap<String, Float> sortedMap = new LinkedHashMap<>();
+        for (Map.Entry<String, Float> entry : entryList) {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+
+        // Print the sorted map
+        return sortedMap;
+    }
+
+    public static void initLogger(){
+        logger = Logger.getLogger("Engine Log");
         FileHandler handler;
         try{
             handler = new FileHandler("Log",true);
@@ -24,10 +58,16 @@ public class Util {
     }
 
     public static void writeToLog(String msg){
+        if(logger == null){
+            return;
+        }
         logger.info(msg);
     }
 
     public static void writeToLog(String msg,Exception e){
+        if(logger == null){
+            return;
+        }
         logger.log(Level.WARNING,msg,e);
     }
 
@@ -187,6 +227,9 @@ public class Util {
                 
             case Constants.WHITE_QUEEN:
                 return Constants.QUEEN_VALUE;
+
+            case Constants.WHITE_KING:
+                return Constants.KING_VALUE;
                 
         }
         return 0;
