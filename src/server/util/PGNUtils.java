@@ -1,4 +1,4 @@
-package server.pgn;
+package server.util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -6,9 +6,6 @@ import java.io.IOException;
 
 import server.board.ChessBoard;
 import server.move.MoveManager;
-import server.util.Constants;
-import server.util.GameState;
-import server.util.Util;
 
 import java.util.ArrayList;
 import java.util.HashMap;

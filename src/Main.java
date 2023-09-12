@@ -1,13 +1,4 @@
-import server.board.ChessBoard;
-import server.move.MoveManager;
-import server.pgn.PGNUtils;
 import server.uci.UCI;
-import server.util.Constants;
-import server.util.FenUtils;
-import server.util.Util;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Main {
 

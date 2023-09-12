@@ -53,15 +53,25 @@ public class Constants {
 
     public static final char EMPTY_SQUARE = ' ';
 
-    public static final float PAWN_VALUE = 1.7f;
+    public static final float PAWN_VALUE = 1.4f;//1.7f;
 
-    public static final float KNIGHT_VALUE = 3.2f;
+    public static final float KNIGHT_VALUE = 3.5f;//3.2f;
 
-    public static final float BISHOP_VALUE = 3.5f;
+    public static final float BISHOP_VALUE = 3.7f;//3.5f;
 
     public static final float ROOK_VALUE = 5.5f;
 
-    public static final float QUEEN_VALUE = 9f;
+    public static final float QUEEN_VALUE = 9.6f;//9f;
+
+//    public static final float PAWN_VALUE = 1.7f;
+//
+//    public static final float KNIGHT_VALUE = 3.2f;
+//
+//    public static final float BISHOP_VALUE = 3.5f;
+//
+//    public static final float ROOK_VALUE = 5.5f;
+//
+//    public static final float QUEEN_VALUE = 9f;
 
     public static final float KING_VALUE = 1f;
 
