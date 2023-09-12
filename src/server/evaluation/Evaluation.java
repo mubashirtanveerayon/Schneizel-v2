@@ -20,7 +20,7 @@ public class Evaluation {
     public float evaluate(){
         float eval = 0;
         eval += countMaterialAndPositionalScore();
-        eval -= cb.pinnedPieces.size()/3.7f;
+        eval -= cb.pinnedPieces.size()/3.5f;
         eval += opponentKingPosition();
         return eval;
     }

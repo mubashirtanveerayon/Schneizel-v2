@@ -160,7 +160,10 @@ public class UCI {
                     output = Util.getBoardVisualStd(engine.cb.board,flip);
                     //output+="\n"+Util.getBoardVisual(engine.cb.board);
                     output+="\n"+("Fen: "+ FenUtils.cat(engine.cb.fenParts));
-                    print(output);
+                    print(output);                    break;
+                case "depth":
+                    engine.setDepth(Integer.parseInt(partsBySpace[1]));
+                    System.out.println("Search depth set to: "+engine.getDepth());
                     break;
                 case "quit":
                     running = false;

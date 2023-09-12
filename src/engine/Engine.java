@@ -3,7 +3,7 @@ package engine;
 import server.board.ChessBoard;
 import server.evaluation.Evaluation;
 import server.move.MoveManager;
-import server.pgn.PGNUtils;
+import server.util.PGNUtils;
 import server.util.Constants;
 import server.util.FenUtils;
 import server.util.GameState;
@@ -296,7 +296,7 @@ public class Engine implements Runnable{
     }
 
     private void iterativeDeepening2(){//uses slightly different approach to order moves
-        System.out.println("Commencing iterative deepening2 search at depth: "+depth);
+        System.out.println("Commencing iterative deepening2 with new eval search at depth: "+depth);
         float score;
         ArrayList<String> moves = mm.getAllMoves();
 
