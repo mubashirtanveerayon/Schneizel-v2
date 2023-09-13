@@ -17,7 +17,7 @@ import java.util.Random;
 public class Engine implements Runnable{
 
     public ChessBoard cb;
-    private MoveManager mm;
+    public MoveManager mm;
 
     private Evaluation ev;
 
