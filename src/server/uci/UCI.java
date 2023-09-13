@@ -52,8 +52,7 @@ public class UCI {
             String[] partsBySpace = input.split(" ");
             switch(partsBySpace[0].toLowerCase()){
                 case "stop":
-                    engine.stopped = true;
-                    engine.searchCancelled = true;
+                    engine.stopSearch();
                     break;
                 case "uci":
                     output = "id name Schneizel 2\nid author Ayon\nuciok";
@@ -69,7 +68,7 @@ public class UCI {
                         if(partsBySpace[1].equals("perft")){
                             int depth = Integer.parseInt(partsBySpace[2]);
                             long currentTime = System.nanoTime();
-                            output = engine. mm.moveGenerationTest(depth, true);
+                            output = engine. moveGenerationTest(depth);
 
                             if(saveToLog){
                                 try{
@@ -122,7 +121,7 @@ public class UCI {
                             if(partsBySpace[2].equalsIgnoreCase("moves")){
                                 if(partsBySpace[1].equalsIgnoreCase("thispos")){
                                      for(int i=3;i<partsBySpace.length;i++){
-                                        engine.make(engine.mm.parse(partsBySpace[i]));
+                                        engine.makeMove(engine.cvtToMove(partsBySpace[i]));
                                         movesMade.add(partsBySpace[i]);
                                     }
                                 }else{
@@ -138,7 +137,7 @@ public class UCI {
                                         startIndex = 3;
                                     }
                                     for(int i=startIndex;i<partsBySpace.length;i++){
-                                        engine.make(engine.mm.parse(partsBySpace[i]));
+                                        engine.makeMove(engine.cvtToMove(partsBySpace[i]));
                                         movesMade.add(partsBySpace[i]);
                                     }
                                 }
@@ -149,8 +148,8 @@ public class UCI {
 
                     break;
                 case "usebook":
-                    engine.useBook = !engine.useBook;
-                    System.out.println(engine.useBook);
+                    engine.setUseBook(!engine.getUseBook());
+                    System.out.println(engine.getUseBook());
                     break;
 //                case "usett":
 //                    engine.useTranspositionTable = !engine.useTranspositionTable;
@@ -181,24 +180,24 @@ public class UCI {
                 case "push":
                     if (partsBySpace.length == 1){
                         engine.beginSearch();
-                        while(engine.searching){
+                        while(engine.isSearching()){
                             System.out.print("");
                         }
-                        String move = engine.engineMove;
-                        engine.make(move);
+                        String move = engine.getEngineMove();
+                        engine.makeMove(move);
                         movesMade.add(move);
-                        output = "played "+engine.mm.cvt(move)+"\n";
+                        output = "played "+engine.cvtToAlgebraic(move)+"\n";
                         output += "Fen " + FenUtils.cat(engine.cb.fenParts);
                         print(output);
                         break;
                     }
                     try{
-                        String move = engine.mm.getAllMoves().get(Integer.parseInt(partsBySpace[1])-1);
-                        engine.make(move);
+                        String move = engine.getLegalMoves().get(Integer.parseInt(partsBySpace[1])-1);
+                        engine.makeMove(move);
                         movesMade.add(move);
                         print("Fen " + FenUtils.cat(engine.cb.fenParts));
                     }catch(Exception e) {
-                        engine.make(engine.mm.parse(partsBySpace[1]));
+                        engine.makeMove(engine.cvtToMove(partsBySpace[1]));
                         movesMade.add(partsBySpace[1]);
                         print("Fen " + FenUtils.cat(engine.cb.fenParts));
                     }
@@ -226,15 +225,15 @@ public class UCI {
                 case "list":
                     output = "";
                     int i=1;
-                    for(String move : engine.mm.getAllMoves()){
-                        output += Integer.toString(i) + ". "+engine.mm.cvt(move) + "\n";
+                    for(String move : engine.getLegalMoves()){
+                        output += Integer.toString(i) + ". "+engine.cvtToAlgebraic(move) + "\n";
                         i+=1;
                     }
                     print(output);
                     break;
                 case "eval":
                     output = "eval ";
-                    float evaluation = engine.ev.evaluate();
+                    float evaluation = engine.evaluate();
                     output += String.valueOf(evaluation);
                     print(output);
             }

@@ -17,27 +17,27 @@ import java.util.Random;
 public class Engine implements Runnable{
 
     public ChessBoard cb;
-    public MoveManager mm;
+    private MoveManager mm;
 
-    public Evaluation ev;
+    private Evaluation ev;
 
-    public String engineMove="";
+    private String engineMove="";
 
 
-    public boolean searchCancelled = false,searching = false,stopped = false;
+    private boolean searchCancelled = false,searching = false,stopped = false;
 
 
     private ArrayList<HashMap<String,String>> book;
 
-    public boolean useBook = true;
+    private boolean useBook = true;
 
-    public boolean useTranspositionTable = false;
+    private boolean useTranspositionTable = false;
 
 
-    public static final int MAX_PLY_TO_USE_BOOK = 5;
-    public static final int DEFAULT_SEARCH_DEPTH = 4;
+    static final int MAX_PLY_TO_USE_BOOK = 5;
+    static final int DEFAULT_SEARCH_DEPTH = 4;
 
-    public int bookMoveType = Constants.BOOK_RANDOM;
+    int bookMoveType = Constants.BOOK_RANDOM;
 
     long searchStartTime = 0;
 
@@ -48,6 +48,39 @@ public class Engine implements Runnable{
 
     public static final int MAX_TABLE_ENTRIES = 100000;
 
+
+    public boolean isSearching(){
+        return searching;
+    }
+
+    public void cancelSearch(){
+        searchCancelled = true;
+    }
+
+    public void stopSearch(){
+        stopped = true;
+        searchCancelled = true;
+    }
+
+    public String cvtToMove(String algebraic){
+        return mm.parse(algebraic);
+    }
+
+    public String cvtToAlgebraic(String move){
+        return mm.cvt(move);
+    }
+
+    public String moveGenerationTest(int depth){
+        return mm.moveGenerationTest(depth,true);
+    }
+
+    public String getEngineMove(){
+        return engineMove;
+    }
+
+    public float evaluate(){
+        return ev.evaluate();
+    }
     public void setDepth(int value){
         if (value>0 && value<6){
             depth = value;
@@ -58,6 +91,18 @@ public class Engine implements Runnable{
         return depth;
     }
 
+
+    public boolean getUseBook(){
+        return useBook;
+    }
+
+    public void setUseBook(boolean b){
+        useBook = b;
+    }
+
+    public ArrayList<String> getLegalMoves(){
+        return mm.getAllMoves();
+    }
 
     public Engine(String fen){
         cb = new ChessBoard(fen);
@@ -445,7 +490,11 @@ public class Engine implements Runnable{
         return thread;
     }
 
-    public void make(String move){
+    public void undoMove(String move){
+        mm.undoMove(move);
+    }
+
+    public void makeMove(String move){
         mm.makeMove(move);
 
 //        if(!useTranspositionTable){
