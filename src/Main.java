@@ -1,6 +1,8 @@
 import server.board.ChessBoard;
 import server.evaluation.Evaluation;
+import server.move.MoveManager;
 import server.uci.UCI;
+import server.util.PGNUtils;
 
 public class Main {
 
@@ -158,17 +160,12 @@ public class Main {
 //            String g=null;
 //            System.out.println("b "+g);
 
-            ChessBoard cb = new ChessBoard("rn1q1rk1/p1p1bppp/b3pn2/3p4/P2P1B2/2P2NP1/4PPBP/RN1Q1RK1 w - - 3 10");
-            Evaluation ev  = new Evaluation(cb);
-
-            System.out.println("s");
-            long start = System.nanoTime();
-            System.out.println(ev.evaluate2());
-            System.out.println("ev2 Time: "+(System.nanoTime() - start));
-            start = System.nanoTime();
-            System.out.println(ev.evaluate());
-            System.out.println("ev1 Time: "+(System.nanoTime() - start));
-
+            System.out.println("".isEmpty());
+//            ChessBoard cb = new ChessBoard("1q2k3/P1P3Q1/8/8/8/8/8/4K3 w - - 0 1");
+//            MoveManager mm = new MoveManager(cb);
+//            System.out.println(mm.getAllMoves());
+            //1110/ /-/-/0/Q, 1110/ /-/-/0/N, 1110/ /-/-/0/R, 1110/ /-/-/0/B
+//            System.out.println(PGNUtils.cvt("0110/q/-/-/0/Q",mm));
         } else {
             UCI cli = new UCI();
             cli.toggle();

@@ -136,7 +136,7 @@ public class Engine implements Runnable{
             useBook = false;
         }else{
             File pgnFile = new File(pgnPaths.get(new Random().nextInt(pgnPaths.size())));
-            book = PGNUtils.parseFile(pgnFile.getPath(),-1);
+            book = PGNUtils.parsePGNFile(pgnFile.getPath(),PGNUtils.ALL_GAMES);
             System.out.println("Book loaded: "+pgnFile.getName());
         }
     }
