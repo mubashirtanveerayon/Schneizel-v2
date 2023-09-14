@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 public class PGNUtils {
 
-    public static String getMoveText(ArrayList<String> movesMade){
+    public static String generateSANMoveText(ArrayList<String> movesMade){
         ChessBoard cb = new ChessBoard();
         MoveManager mm = new MoveManager(cb);
         String pgn = "";
@@ -227,28 +227,22 @@ public class PGNUtils {
         return null;
     }
 
-    
-    public static ArrayList<String> getMoveText(String filePath){
-        ArrayList<String> moves = new ArrayList<>();
-        Pattern coordPattern = Pattern.compile("[a-h][1-8]");
-        try{
-            BufferedReader br = new BufferedReader(new FileReader(filePath));
-            String line;
-            while((line = br.readLine())!=null){
-                if(!line.isEmpty() && !line.startsWith("[") ){
-                    for(String seg:line.split(" ")){
-                        Matcher match = coordPattern.matcher(seg);
-                        if(match.find() || seg.toUpperCase().contains(Constants.KING_SIDE_CASTLING)){
-                            moves.add(seg);
-                        }
-                    }
+    public ArrayList<String> getMoves(String moveText){
+        ChessBoard cb=new ChessBoard();
+        MoveManager mm=new MoveManager(cb);
+        ArrayList<String> movesMade = new ArrayList<>();
+        for(String seg:moveText.split(" ")){
+            if(!Character.isDigit(seg.charAt(0))){
+                String move = parse(seg,mm);
+                if(move!=null){
+                    movesMade.add(move);
+                    mm.makeMove(move);
                 }
             }
-        }catch(IOException e){
-            e.printStackTrace();
         }
-        return moves;
+        return movesMade;
     }
 
+    
 
 }

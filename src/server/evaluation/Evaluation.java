@@ -3,6 +3,7 @@ package server.evaluation;
 import server.board.ChessBoard;
 import server.util.Constants;
 import server.util.Map;
+import server.util.PGNUtils;
 import server.util.Util;
 
 public class Evaluation {
@@ -25,6 +26,15 @@ public class Evaluation {
         return eval;
     }
 
+    public float evaluate2(){
+        float eval = 0;
+        eval += countMaterialAndPositionalScore();
+        eval -= cb.pinnedPieces.size()/3.5f;
+        eval += opponentKingPosition();
+        eval -= countAttackedSquares();
+        return eval;
+    }
+
 
     private float opponentKingPosition(){
         float eval = 0;
@@ -34,6 +44,20 @@ public class Evaluation {
         int dstBetweenKing = Math.abs(king[0] - opponentKing[0]) + Math.abs(king[1] - opponentKing[1]);
         eval += (float)(dstFromCenter - dstBetweenKing) * Integer.parseInt(cb.fenParts[cb.fenParts.length-1])/ (cb.pieceLocations.size() * 12);
         return eval;
+    }
+
+    public int countAttackedSquares(){
+        int count = 0;
+        for(int i=0;i<8;i++){
+            for(int j=0;j<8;j++){
+                if(cb.board[j][i] == Constants.EMPTY_SQUARE || !Util.isEnemyPiece(cb.turn,cb.board[j][i])){
+                    if(cb.squareUnderAttack(i,j)){
+                        count ++;
+                    }
+                }
+            }
+        }
+        return count;
     }
 
     private float countMaterial(){//whiteMaterial - blackMaterial

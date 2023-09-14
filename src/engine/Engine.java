@@ -34,7 +34,7 @@ public class Engine implements Runnable{
     private boolean useTranspositionTable = false;
 
 
-    static final int MAX_PLY_TO_USE_BOOK = 5;
+    static final int MAX_PLY_TO_USE_BOOK = 8;
     static final int DEFAULT_SEARCH_DEPTH = 4;
 
     int bookMoveType = Constants.BOOK_RANDOM;
@@ -105,7 +105,7 @@ public class Engine implements Runnable{
     }
 
     public Engine(String fen){
-        cb = new ChessBoard(fen);
+        cb = new ChessBoard(fen,true);
         mm = new MoveManager(cb);
         ev = new Evaluation(cb);
 //        transpositionTable = new HashMap<>();
