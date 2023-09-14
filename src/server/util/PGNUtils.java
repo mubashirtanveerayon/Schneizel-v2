@@ -14,7 +14,9 @@ import java.util.regex.Pattern;
 
 public class PGNUtils {
 
-    public static String getMoveText(ArrayList<String> movesMade){
+    public static final int ALL_GAMES = -1;
+
+    public static String generateSANMoveText(ArrayList<String> movesMade){
         ChessBoard cb = new ChessBoard();
         MoveManager mm = new MoveManager(cb);
         String pgn = "";
@@ -48,7 +50,7 @@ public class PGNUtils {
         ArrayList<String> similarMoves = new ArrayList<>();
         char pieceToMove = mm.cb.board[fromRank][fromFile];
         for(String m:moves){
-            if(!move.equals(m) && m.substring(2,4).equals(move.substring(2,4))){
+            if(!move.equals(m) && !m.substring(0,2).equals(move.substring(0,2)) && m.substring(2,4).equals(move.substring(2,4))){
                 if(pieceToMove == mm.cb.board[Integer.parseInt(Character.toString(m.charAt(1)))][Integer.parseInt(Character.toString(m.charAt(0)))]){
                     similarMoves.add(m);
                 }
@@ -86,6 +88,11 @@ public class PGNUtils {
 
         san += Character.toString(Constants.FILES.charAt(toFile)) + Character.toString(Constants.RANKS.charAt(toRank));
 
+
+        if(Character.toUpperCase(pieceToMove) == Constants.WHITE_PAWN &&( toRank == 0 || toRank == 7)){
+            san += "="+ move.split(Constants.MOVE_SEPARATOR)[Constants.PROMOTION_MOVE_LENGTH-1];
+        }
+
         mm.makeMove(move);
 
         if(mm.cb.gs == GameState.CHECK){
@@ -100,20 +107,24 @@ public class PGNUtils {
         return san;
     }
 
-    public static ArrayList<HashMap<String,String>> parseFile(String path,int numberOfGames){
+    public static ArrayList<HashMap<String,String>> parsePGNFile(String path,int numberOfGames){
+        return parsePGNText(getContent(path),numberOfGames);
+    }
+
+    public static ArrayList<HashMap<String,String>> parsePGNText(ArrayList<String> lines,int numberOfGames){
         ArrayList<HashMap<String,String>> games = new ArrayList<>();
         boolean parsingGame = false;
         HashMap<String,String> gameInfo = new HashMap<>();
         Pattern coordPattern = Pattern.compile("[a-h][1-8]");
         String moveText = "";
         int n = 0;
-        for(String line:getContent(path)){
+        for(String line:lines){
             String[] parts = line.split(" ");
             if(line.startsWith("[Event ")){
                 parsingGame = true;
                 gameInfo=new HashMap<>();
                 moveText = "";
-            }else if(!line.contains("\"") && parts[parts.length-1].contains("-")){
+            }else if(!line.contains("\"") && (parts[parts.length-1].contains("-") || parts[parts.length-1].contains("*"))) {
                 parsingGame = false;
                 moveText += line;
                 gameInfo.put("Moves",moveText.trim());
@@ -227,28 +238,20 @@ public class PGNUtils {
         return null;
     }
 
-    
-    public static ArrayList<String> getMoveText(String filePath){
-        ArrayList<String> moves = new ArrayList<>();
-        Pattern coordPattern = Pattern.compile("[a-h][1-8]");
-        try{
-            BufferedReader br = new BufferedReader(new FileReader(filePath));
-            String line;
-            while((line = br.readLine())!=null){
-                if(!line.isEmpty() && !line.startsWith("[") ){
-                    for(String seg:line.split(" ")){
-                        Matcher match = coordPattern.matcher(seg);
-                        if(match.find() || seg.toUpperCase().contains(Constants.KING_SIDE_CASTLING)){
-                            moves.add(seg);
-                        }
-                    }
+    public ArrayList<String> getMoves(String moveText){
+        ChessBoard cb=new ChessBoard();
+        MoveManager mm=new MoveManager(cb);
+        ArrayList<String> movesMade = new ArrayList<>();
+        for(String seg:moveText.split(" ")){
+            if(!Character.isDigit(seg.charAt(0))){
+                String move = parse(seg,mm);
+                if(move!=null){
+                    movesMade.add(move);
+                    mm.makeMove(move);
                 }
             }
-        }catch(IOException e){
-            e.printStackTrace();
         }
-        return moves;
+        return movesMade;
     }
-
 
 }

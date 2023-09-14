@@ -34,6 +34,7 @@ public class ChessBoard {
             try {
                 FenUtils.isValid(fen);
             } catch (Exception e) {
+                e.printStackTrace();
                 return;
             }
         }
