@@ -470,7 +470,9 @@ public class Engine implements Runnable{
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                searchCancelled = true;
+                if(engineThread.isAlive()) {
+                    searchCancelled = true;
+                }
             }
         };
         timeThread.start();
