@@ -5,6 +5,9 @@ import java.util.HashMap;
 
 public class Constants {
 
+
+    public static final float BEST_SCORE = 1000000.0f;
+
     public static final float CAPTURE_SCORE = 2;
 
     public static final float CHECK_SCORE = 1.3f;

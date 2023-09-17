@@ -22,7 +22,7 @@ public class PGNUtils {
         String pgn = "";
         int plyCount = 1;
         for(String move:movesMade){
-            if(cb.turn == Constants.WHITE){
+            if(cb.whiteToMove){
                 pgn += plyCount+". ";
                 plyCount+=1;
             }
@@ -238,7 +238,7 @@ public class PGNUtils {
         return null;
     }
 
-    public ArrayList<String> getMoves(String moveText){
+    public static ArrayList<String> getMoves(String moveText){
         ChessBoard cb=new ChessBoard();
         MoveManager mm=new MoveManager(cb);
         ArrayList<String> movesMade = new ArrayList<>();

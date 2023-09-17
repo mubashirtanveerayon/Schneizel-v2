@@ -7,7 +7,10 @@ import java.util.*;
 public class ChessBoard {
 
     public char[][] board;
-    public char turn;
+    //public char turn;
+    
+    public boolean whiteToMove;
+    
     public String[] fenParts;
     public int[] whiteKingPosition,blackKingPosition;
     public HashMap<Integer,Integer> pinnedPieces; // 1st element holds the 1D index of the pinned piece, 2nd element holds the index of Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS it is being pinned from
@@ -45,7 +48,7 @@ public class ChessBoard {
     private void initialize(){
         //initialization of variables
         board = FenUtils.parse(fenParts);
-        turn = fenParts[8].charAt(0);
+        whiteToMove = fenParts[8].charAt(0) == Constants.WHITE;
         pinnedPieces = new HashMap<>();
         pieceLocations = new HashSet<>();
         //attackedSquares = new HashSet<>();
@@ -94,7 +97,7 @@ public class ChessBoard {
                     rank += Constants.ALL_DIRECTIONS[i][1];
                     continue;
                 }
-                if(!Util.isEnemyPiece(turn,board[rank][file])){
+                if(!Util.isEnemyPiece(whiteToMove,board[rank][file])){
                     if(foundAlly){
                         break;
                     }else {
@@ -117,7 +120,7 @@ public class ChessBoard {
                 else if(Character.toUpperCase(board[rank][file]) != Constants.WHITE_KNIGHT){
                     // found opponent pawn
                     if(Math.abs(kingPosition[0] - file) == 1){
-                        if(turn == Constants.WHITE){
+                        if(whiteToMove){
                             if(kingPosition[1] > rank){
                                 gs = GameState.CHECK;
                                 checkers.put(file + rank * 8,i);
@@ -147,12 +150,12 @@ public class ChessBoard {
             if(Util.isValid(file,rank)){
                 switch(board[rank][file]){
                     case Constants.BLACK_KNIGHT:
-                        if(turn == Constants.WHITE){
+                        if(whiteToMove){
                             gs = GameState.CHECK;
                             checkers.put(file + rank * 8,i);
                         }
                     case Constants.WHITE_KNIGHT:
-                        if(turn == Constants.BLACK){
+                        if(whiteToMove){
                             gs = GameState.CHECK;
                             checkers.put(file + rank * 8,i);
                         }
@@ -187,7 +190,7 @@ public class ChessBoard {
         stats.append("White king position: ").append(Constants.FILES.charAt(whiteKingPosition[0])).append(8-whiteKingPosition[1]).append(" [").append(whiteKingPosition[0]).append(", ").append(whiteKingPosition[1]).append("]").append("\n");
         stats.append("Black king position: ").append(Constants.FILES.charAt(blackKingPosition[0])).append(8-blackKingPosition[1]).append(" [").append(blackKingPosition[0]).append(", ").append(blackKingPosition[1]).append("]").append("\n");
 
-        stats.append("Turn: ").append(turn).append("\n");
+        stats.append("Turn: ").append(whiteToMove?Constants.WHITE:Constants.BLACK).append("\n");
 
         stats.append(Util.getBoardVisualStd(board)).append("\n");
 
@@ -240,7 +243,7 @@ public class ChessBoard {
 //                    break;
 //            }
 //        }
-//        if (turn == Constants.WHITE){
+//        if (whiteToMove){
 //            key ^= Constants.zobristTurnToMove;
 //        }
 //        if(positionOnly){
@@ -273,7 +276,7 @@ public class ChessBoard {
             while(!foundEnemyPiece&&Util.isValid(file, rank)){
                 if(board[rank][file] != Constants.EMPTY_SQUARE){
 
-                    if(Util.isEnemyPiece(turn,board[rank][file])){
+                    if(Util.isEnemyPiece(whiteToMove,board[rank][file])){
 
                         foundEnemyPiece = true;
                         switch(Character.toUpperCase(board[rank][file])){
@@ -287,7 +290,7 @@ public class ChessBoard {
                                 if(foundAlly){
                                     pinnedPieces.remove(pinnedPieceIndex);
                                 }
-                                boolean inCheck = ((turn == Constants.WHITE && rank+1 == kingPos[1]) || (turn == Constants.BLACK && rank-1 == kingPos[1])) && Math.abs(kingPos[0]-file) == 1;
+                                boolean inCheck = ((whiteToMove && rank+1 == kingPos[1]) || (!whiteToMove && rank-1 == kingPos[1])) && Math.abs(kingPos[0]-file) == 1;
                                 if (inCheck){
                                     gs = GameState.CHECK;
                                     checkers.put(file + rank * 8,i);
@@ -359,13 +362,13 @@ public class ChessBoard {
             if(Util.isValid(file,rank)){
                 switch(board[rank][file]){
                     case Constants.BLACK_KNIGHT:
-                        if(turn == Constants.WHITE){
+                        if(whiteToMove){
                             gs = GameState.CHECK;
                             checkers.put(file + rank * 8,i);
                         }
                         break;
                     case Constants.WHITE_KNIGHT:
-                        if(turn == Constants.BLACK){
+                        if(!whiteToMove){
                             gs = GameState.CHECK;
                             checkers.put(file + rank * 8,i);
 
@@ -388,7 +391,7 @@ public class ChessBoard {
 //        for(Integer coord:pieceLocations){
 //            int file = coord%8;
 //            int rank = coord/8;
-//            if(!Util.isEnemyPiece(turn,board[rank][file])){
+//            if(!Util.isEnemyPiece(whiteToMove,board[rank][file])){
 //                continue;
 //            }
 //            switch(Character.toUpperCase(board[rank][file])){
@@ -466,7 +469,7 @@ public class ChessBoard {
             for(int i=0;Util.isValid(f+=dir[0],r+=dir[1]);i++){
                 if(board[r][f] == Constants.EMPTY_SQUARE){
                     continue;
-                }else if(Util.isEnemyPiece(turn,board[r][f])){
+                }else if(Util.isEnemyPiece(whiteToMove,board[r][f])){
                     switch(Util.toUpper(board[r][f])){
                         case Constants.WHITE_QUEEN:{
                             return true;
@@ -492,7 +495,7 @@ public class ChessBoard {
                         }
                         case Constants.WHITE_PAWN:{
                             if(i==0 && dir[0] != 0 && dir[1] != 0){
-                                if((turn == Constants.BLACK && rank<r) || (turn == Constants.WHITE && rank>r)){
+                                if((!whiteToMove && rank<r) || (whiteToMove && rank>r)){
                                     return true;
                                 }
                             }
@@ -507,7 +510,7 @@ public class ChessBoard {
 
         for(int[] dir:Constants.KNIGHT_DIRECTION){
             int f = file+dir[0],r = rank+dir[1];
-            if(Util.isValid(f,r) && board[r][f] != Constants.EMPTY_SQUARE && Util.isEnemyPiece(turn,board[r][f])){
+            if(Util.isValid(f,r) && board[r][f] != Constants.EMPTY_SQUARE && Util.isEnemyPiece(whiteToMove,board[r][f])){
                 if(Character.toUpperCase(board[r][f]) == Constants.WHITE_KNIGHT){
                     return true;
                 }
@@ -523,12 +526,12 @@ public boolean _isSquareSafe(int file,int rank){
             int f=file,r=rank;
             for(int i=0;Util.isValid(f+=dir[0],r+=dir[1]);i++){
                 if(board[r][f] != Constants.EMPTY_SQUARE){
-                    if(Util.isEnemyPiece(turn,board[r][f])){
+                    if(Util.isEnemyPiece(whiteToMove,board[r][f])){
                         char piece = Character.toUpperCase(board[r][f]);
                         switch(piece){
                             case Constants.WHITE_PAWN:{
                                 if(i==0){
-                                    if(turn == Constants.WHITE){
+                                    if(whiteToMove){
                                         if(Math.abs(file-f) == 1 && (rank-r) == 1){
                                             return false;
                                         }
@@ -570,7 +573,7 @@ public boolean _isSquareSafe(int file,int rank){
         }
         for(int[] dir:Constants.KNIGHT_DIRECTION){
             int f = file+dir[0],r = rank+dir[1];
-            if(Util.isValid(f,r) && board[r][f] != Constants.EMPTY_SQUARE && Util.isEnemyPiece(turn,board[r][f])){
+            if(Util.isValid(f,r) && board[r][f] != Constants.EMPTY_SQUARE && Util.isEnemyPiece(whiteToMove,board[r][f])){
                 if(Character.toUpperCase(board[r][f]) == Constants.WHITE_KNIGHT){
                     return false;
                 }
@@ -580,7 +583,7 @@ public boolean _isSquareSafe(int file,int rank){
     }
 
     public int[] kingPosition(){
-        return turn == Constants.WHITE?whiteKingPosition:blackKingPosition;
+        return whiteToMove?whiteKingPosition:blackKingPosition;
     }
 
 

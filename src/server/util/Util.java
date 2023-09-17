@@ -108,8 +108,8 @@ public class Util {
         return piece1 != Constants.EMPTY_SQUARE && piece2 != Constants.EMPTY_SQUARE && (isUpperCase(piece1) && isUpperCase(piece2))||(!isUpperCase(piece1) && !isUpperCase(piece2));
     }
 
-    public static boolean isEnemyPiece(char turn,char piece){
-        return (turn==Constants.WHITE&&!Character.isUpperCase(piece))||(turn==Constants.BLACK&&Character.isUpperCase(piece));
+    public static boolean isEnemyPiece(boolean whiteToMove,char piece){
+        return (whiteToMove&&!Character.isUpperCase(piece))||(!whiteToMove&&Character.isUpperCase(piece));
     }
 
     public static boolean isValid(int file,int rank){

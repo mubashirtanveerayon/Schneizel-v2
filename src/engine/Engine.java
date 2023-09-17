@@ -31,10 +31,10 @@ public class Engine implements Runnable{
 
     private boolean useBook = true;
 
-    private boolean useTranspositionTable = false;
+//    private boolean useTranspositionTable = false;
 
 
-    static final int MAX_PLY_TO_USE_BOOK = 8;
+//    static final int MAX_PLY_TO_USE_BOOK = 8;
     static final int DEFAULT_SEARCH_DEPTH = 4;
 
     int bookMoveType = Constants.BOOK_RANDOM;
@@ -46,7 +46,7 @@ public class Engine implements Runnable{
 
 //    public HashMap<String, Float> transpositionTable;
 
-    public static final int MAX_TABLE_ENTRIES = 100000;
+//    public static final int MAX_TABLE_ENTRIES = 100000;
 
 
     public boolean isSearching(){
@@ -197,7 +197,7 @@ public class Engine implements Runnable{
 
         //return the best move based on evaluation
         String bestMove=availableMoves.get(0);
-        float score,bestScore = Float.NEGATIVE_INFINITY;
+        float score,bestScore = -Constants.BEST_SCORE;
         for(String move:availableMoves){
             mm.makeMove(move);
             score = -ev.evaluate();
@@ -216,7 +216,7 @@ public class Engine implements Runnable{
     @Override
     public void run(){
         System.out.println("Calculating...");
-        if(useBook && Integer.parseInt(cb.fenParts[12])< MAX_PLY_TO_USE_BOOK){
+        if(useBook ){
             loadBook();
             String move = readBook();
             if(move != null){
@@ -236,14 +236,14 @@ public class Engine implements Runnable{
         iterativeDeepening2();
 //        System.out.println("Commencing search at depth: "+depth);
 //        ArrayList<String> moves = mm.getAllMoves();
-//        float score,bestScore = Float.NEGATIVE_INFINITY;
+//        float score,bestScore = -Constants.BEST_SCORE;
 //        orderMove(moves);
 //        for(String move:moves){
 //            if(searchCancelled){
 //                break;
 //            }
 //            mm.makeMove(move);
-//            score = -negamax(depth, Float.NEGATIVE_INFINITY,Float.POSITIVE_INFINITY);
+//            score = -negamax(depth, -Constants.BEST_SCORE,Constants.BEST_SCORE);
 //            mm.undoMove(move);
 //            if(score>bestScore){
 //                bestScore = score;
@@ -280,8 +280,8 @@ public class Engine implements Runnable{
         for(String move:moves){
             movesWithScore.put(move,0f);
         }
-        //boolean foundMate = false;
-        for(int i=1;!searchCancelled && i<=depth;i++){
+        boolean foundMate = false;
+        for(int i=1;!foundMate && !searchCancelled && i<=depth;i++){
             System.out.println("Iteration "+i);
             for(String move:movesWithScore.keySet()){
                 if(searchCancelled){
@@ -289,7 +289,7 @@ public class Engine implements Runnable{
                     break;
                 }
                 mm.makeMove(move);
-                score = -negamax(i,Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+                score = -negamax(i,-Constants.BEST_SCORE, Constants.BEST_SCORE);
                 mm.undoMove(move);
                 movesWithScore.put(move,-score);
                 System.out.println(mm.cvt(move)+" score "+score);
@@ -297,13 +297,13 @@ public class Engine implements Runnable{
             if(!searchCancelled) {
                 movesWithScore = Util.sortHashMap(movesWithScore);
             }
-//            for(Float eval:movesWithScore.values()){
-//                if(String.valueOf(eval).equals("-Infinity")){
-//                    System.out.println("Found mate in "+i);
-//                    foundMate = true;
-//                }
-//                break;
-//            }
+            for(Float eval:movesWithScore.values()){
+                if(eval == -Constants.BEST_SCORE){
+                    System.out.println("Found mate in "+i);
+                    foundMate = true;
+                }
+                break;
+            }
         }
 
 
@@ -320,24 +320,6 @@ public class Engine implements Runnable{
         stopped = false;
 
 
-//        ArrayList<String> moves = mm.getAllMoves();
-//        float score,bestScore = Float.NEGATIVE_INFINITY;
-//        orderMove(moves);
-//        for(String move:moves){
-//            if(searchCancelled){
-//                break;
-//            }
-//            mm.makeMove(move);
-//            score = -negamax(depth, Float.NEGATIVE_INFINITY,Float.POSITIVE_INFINITY);
-//            mm.undoMove(move);
-//            if(score>bestScore){
-//                bestScore = score;
-//                engineMove = move;
-//            }
-//            System.out.println(mm.cvt(move)+" score "+score);
-//        }
-
-
     }
 
     private void iterativeDeepening2(){//uses slightly different approach to order moves
@@ -347,15 +329,22 @@ public class Engine implements Runnable{
 
         float[] scores = new float[moves.size()];
         boolean foundMate = false;
+//        int searchLimit;
         for(int i=1;!foundMate && !searchCancelled && i<=depth;i++){
             System.out.println("Iteration "+i);
+//            searchLimit = i == depth?moves.size()/2:moves.size();
+//            if(searchLimit <= 1){
+//                System.out.println("Fewer moves! Aborting further search.");
+//                break;
+//            }
             for(int j=0;j<moves.size();j++){
                 String move = moves.get(j);
                 mm.makeMove(move);
-                score = -negamax(i,Float.NEGATIVE_INFINITY,Float.POSITIVE_INFINITY);
+                score = -negamax(i,-Constants.BEST_SCORE,Constants.BEST_SCORE);
                 mm.undoMove(move);
                 System.out.println(mm.cvt(move)+" score "+score);
                 if(searchCancelled){
+                    System.out.println("Stopping search");
                     break;
                 }
                 scores[j] = score;
@@ -367,7 +356,7 @@ public class Engine implements Runnable{
                         moves.add(k,move);
                     }
                 }
-                if(String.valueOf(score).equals("Infinity")){
+                if(score == Constants.BEST_SCORE){
                     System.out.println("Found mate in "+i);
                     foundMate = true;
                     break;
@@ -385,23 +374,83 @@ public class Engine implements Runnable{
         stopped = false;
 
 
-//        ArrayList<String> moves = mm.getAllMoves();
-//        float score,bestScore = Float.NEGATIVE_INFINITY;
-//        orderMove(moves);
-//        for(String move:moves){
-//            if(searchCancelled){
-//                break;
-//            }
-//            mm.makeMove(move);
-//            score = -negamax(depth, Float.NEGATIVE_INFINITY,Float.POSITIVE_INFINITY);
-//            mm.undoMove(move);
-//            if(score>bestScore){
-//                bestScore = score;
-//                engineMove = move;
-//            }
-//            System.out.println(mm.cvt(move)+" score "+score);
-//        }
+    }
 
+    public void orderMove(ArrayList<String>moves){
+        float[] scores = new float[moves.size()];
+        for(int i=0;i<moves.size();i++) {
+            float score = 0;
+            String move = moves.get(i);
+            String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
+            if (move.contains(Constants.KING_SIDE_CASTLING)) {
+                score += Constants.CASTLING_SCORE;
+            } else {
+                if (move.contains(Constants.EN_PASSANT_NOTATION)) {
+                    score += Constants.EN_PASSANT_SCORE;
+                } else {
+                    if (moveParts[1].charAt(0) != Constants.EMPTY_SQUARE) {
+                        float valueDiff = Util.getPieceValue(moveParts[1].charAt(0)) - Util.getPieceValue(cb.board[Integer.parseInt(Character.toString(move.charAt(1)))][Integer.parseInt(Character.toString(move.charAt(0)))]);
+                        score += Constants.CAPTURE_SCORE * valueDiff;
+                    }
+                    if (moveParts.length == Constants.PROMOTION_MOVE_LENGTH) {
+                        score += Constants.PROMOTION_SCORE + Util.getPieceValue(moveParts[moveParts.length - 1].charAt(0));
+                    }
+                }
+            }
+            scores[i] = score;
+            for(int j=i-1;j>=0;j--){
+                if(scores[j]<score){
+                    scores[i] = scores[j];
+                    scores[j] = score;
+                    moves.remove(move);
+                    moves.add(j,move);
+                }
+            }
+
+        }
+
+
+//
+//
+//
+//
+//
+//        HashMap<String,Float> movesWithScore = new HashMap<>();
+//        float score;
+//
+//        String[] moveParts;
+//        for(String move:moves){
+//            score = 0;
+//            moveParts = move.split(Constants.MOVE_SEPARATOR);
+//            if(move.contains(Constants.KING_SIDE_CASTLING)){
+//                score += Constants.CASTLING_SCORE;
+//            } else {
+//                if (move.contains(Constants.EN_PASSANT_NOTATION)) {
+//                    score += Constants.EN_PASSANT_SCORE;
+//                }else {
+//                    if (moveParts[1].charAt(0) != Constants.EMPTY_SQUARE) {
+//                        float valueDiff = Util.getPieceValue(moveParts[1].charAt(0)) - Util.getPieceValue(cb.board[Integer.parseInt(Character.toString(move.charAt(1)))][Integer.parseInt(Character.toString(move.charAt(0)))]);
+//                        score += Constants.CAPTURE_SCORE * valueDiff;
+//                    }
+//                    if (moveParts.length == Constants.PROMOTION_MOVE_LENGTH) {
+//                        score += Constants.PROMOTION_SCORE + Util.getPieceValue(moveParts[moveParts.length - 1].charAt(0));
+//                    }
+//                }
+//            }
+//
+//
+//            score = -score;
+//            movesWithScore.put(move,score);
+//        }
+//
+//
+//
+//        movesWithScore = Util.sortHashMap(movesWithScore);
+//
+//        moves.clear();
+//
+//        moves.addAll(movesWithScore.keySet());
+//
 
     }
 
@@ -415,7 +464,7 @@ public class Engine implements Runnable{
         ArrayList<String> moves = mm.getAllMoves();
         if(moves.isEmpty()){
             if(cb.gs == GameState.CHECK){
-                return Float.NEGATIVE_INFINITY;
+                return -Constants.BEST_SCORE;
             }else{
                 return 0;
             }
@@ -436,7 +485,7 @@ public class Engine implements Runnable{
             return ev.evaluate();
         }
 
-        //orderMove(moves);
+        orderMove(moves);
         float score;
         for(String move : moves){
             mm.makeMove(move);
@@ -449,6 +498,8 @@ public class Engine implements Runnable{
         }
         return alpha;
     }
+
+
 
 
     public void beginSearch(int movetime){
@@ -470,7 +521,9 @@ public class Engine implements Runnable{
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                searchCancelled = true;
+                if(engineThread.isAlive()) {
+                    searchCancelled = true;
+                }
             }
         };
         timeThread.start();
@@ -508,45 +561,6 @@ public class Engine implements Runnable{
 //        System.out.println( "positions stored "+transpositionTable.size());
     }
 
-    public void orderMove(ArrayList<String>moves){
-        HashMap<String,Float> movesWithScore = new HashMap<>();
-        float score;
-
-        String[] moveParts;
-        for(String move:moves){
-            score = 0;
-            moveParts = move.split(Constants.MOVE_SEPARATOR);
-            if(move.contains(Constants.KING_SIDE_CASTLING)){
-                score += Constants.CASTLING_SCORE;
-            } else {
-                if (move.contains(Constants.EN_PASSANT_NOTATION)) {
-                    score += Constants.EN_PASSANT_SCORE;
-                }else {
-                    if (moveParts[1].charAt(0) != Constants.EMPTY_SQUARE) {
-                        float valueDiff = Util.getPieceValue(moveParts[1].charAt(0)) - Util.getPieceValue(cb.board[Integer.parseInt(Character.toString(move.charAt(1)))][Integer.parseInt(Character.toString(move.charAt(0)))]);
-                        score += Constants.CAPTURE_SCORE * valueDiff;
-                    }
-                    if (moveParts.length == Constants.PROMOTION_MOVE_LENGTH) {
-                        score += Constants.PROMOTION_SCORE + Util.getPieceValue(moveParts[moveParts.length - 1].charAt(0));
-                    }
-                }
-            }
-
-
-            score = -score;
-            movesWithScore.put(move,score);
-        }
-
-
-
-        movesWithScore = Util.sortHashMap(movesWithScore);
-
-        moves.clear();
-
-        moves.addAll(movesWithScore.keySet());
-
-
-    }
 
 
 //    private void savePosition(String fen, float eval) {

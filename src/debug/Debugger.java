@@ -65,6 +65,8 @@ public class Debugger {
 
     private static void comparePerftOutput(HashMap<String,Integer> engine,HashMap<String,Integer> sf){
         System.out.println("comparing...");
+        System.out.println("SF Moves: "+sf.size());
+        System.out.println("Engine Moves: "+engine.size());
         for(String key:engine.keySet()){
             try{
                 if(!Objects.equals(sf.get(key), engine.get(key))){
