@@ -11,7 +11,7 @@ public class ChessBoard {
     
     public boolean whiteToMove;
     
-    public String[] fenParts;
+    //public String[] fenParts;
     public int[] whiteKingPosition,blackKingPosition;
     public HashMap<Integer,Integer> pinnedPieces; // 1st element holds the 1D index of the pinned piece, 2nd element holds the index of Constants.HORIZONTAL_AND_DIAGONAL_DIRECTIONS it is being pinned from
     public HashMap<Integer,Integer> checkers; // 1D index of the opponent piece(the piece attacking the king)
@@ -19,17 +19,19 @@ public class ChessBoard {
 
     public GameState gs;
 
+    public String castlingFEN,enPassantSquare;
+
+    public int halfMoveClock,fullMoveClock;
+
     public Set<Integer> pieceLocations /*, attackedSquares*/;// holds 1D index of piece locations in a 2D array
 
     public ChessBoard(){
-        fenParts = FenUtils.split(Constants.STARTING_FEN);
         gs =  GameState.NORMAL;
-        initialize();
+        initialize(Constants.STARTING_FEN);
     }
 
     public ChessBoard(String fen){
-        fenParts = FenUtils.split(fen);
-        initialize();
+        initialize(fen);
     }
 
     public ChessBoard(String fen,boolean checkFen) {
@@ -41,13 +43,13 @@ public class ChessBoard {
                 return;
             }
         }
-        fenParts = FenUtils.split(fen);
-        initialize();
+        initialize(fen);
     }
 
-    private void initialize(){
+    private void initialize(String fen){
         //initialization of variables
-        board = FenUtils.parse(fenParts);
+        String[] fenParts = FenUtils.split(fen);
+        board = FenUtils.getBoardFromFEN(fen);
         whiteToMove = fenParts[8].charAt(0) == Constants.WHITE;
         pinnedPieces = new HashMap<>();
         pieceLocations = new HashSet<>();
@@ -70,6 +72,10 @@ public class ChessBoard {
             }
         }
 
+        castlingFEN = fenParts[9];
+        enPassantSquare = fenParts[10];
+        halfMoveClock = Integer.parseInt(fenParts[11]);
+        fullMoveClock = Integer.parseInt(fenParts[12]);
         checkBoard();
 
     }
@@ -80,92 +86,6 @@ public class ChessBoard {
         checkers.clear();
         gs = GameState.NORMAL;
     }
-
-    public void _checksAndPinnedPieces(){
-        resetStats();
-        int[] kingPosition = kingPosition();
-        int file,rank,pinnedPieceIndex=0;
-        boolean foundAlly,foundOpponentPiece;
-        for(int i = 0; i<Constants.ALL_DIRECTIONS.length; i++){
-            file = kingPosition[0]+Constants.ALL_DIRECTIONS[i][0];
-            rank = kingPosition[1]+Constants.ALL_DIRECTIONS[i][1];
-            foundOpponentPiece = false;
-            foundAlly = false;
-            while(Util.isValid(file,rank)){
-                if(board[rank][file] == Constants.EMPTY_SQUARE){
-                    file += Constants.ALL_DIRECTIONS[i][0];
-                    rank += Constants.ALL_DIRECTIONS[i][1];
-                    continue;
-                }
-                if(!Util.isEnemyPiece(whiteToMove,board[rank][file])){
-                    if(foundAlly){
-                        break;
-                    }else {
-                        foundAlly = true;
-                        pinnedPieceIndex = file + rank * 8;
-                        pinnedPieces.put(pinnedPieceIndex,i);
-                    }
-                }
-
-
-                else if(Character.toUpperCase(board[rank][file]) != Constants.WHITE_PAWN && Character.toUpperCase(board[rank][file]) != Constants.WHITE_KNIGHT){
-                    foundOpponentPiece = true;
-                    if (!foundAlly) {
-                        gs = GameState.CHECK;
-                        checkers.put(file + rank * 8,i);
-                    }
-                    break;
-                }
-
-                else if(Character.toUpperCase(board[rank][file]) != Constants.WHITE_KNIGHT){
-                    // found opponent pawn
-                    if(Math.abs(kingPosition[0] - file) == 1){
-                        if(whiteToMove){
-                            if(kingPosition[1] > rank){
-                                gs = GameState.CHECK;
-                                checkers.put(file + rank * 8,i);
-                            }
-                        }else{
-                            if(kingPosition[1] < rank){
-                                gs = GameState.CHECK;
-                                checkers.put(file + rank * 8,i);
-                            }
-                        }
-                    }
-                    break;
-                }else{
-                    break;
-                }
-                file += Constants.ALL_DIRECTIONS[i][0];
-                rank += Constants.ALL_DIRECTIONS[i][1];
-            }
-            if(!foundOpponentPiece && foundAlly){
-                pinnedPieces.remove(pinnedPieceIndex);
-            }
-        }
-
-        for(int i =0;i<Constants.KNIGHT_DIRECTION.length;i++){
-            file = kingPosition[0]+Constants.KNIGHT_DIRECTION[i][0];
-            rank = kingPosition[1]+Constants.KNIGHT_DIRECTION[i][1];
-            if(Util.isValid(file,rank)){
-                switch(board[rank][file]){
-                    case Constants.BLACK_KNIGHT:
-                        if(whiteToMove){
-                            gs = GameState.CHECK;
-                            checkers.put(file + rank * 8,i);
-                        }
-                    case Constants.WHITE_KNIGHT:
-                        if(whiteToMove){
-                            gs = GameState.CHECK;
-                            checkers.put(file + rank * 8,i);
-                        }
-                }
-
-            }
-        }
-
-    }
-
 
     public String stats(){
         StringBuilder stats = new StringBuilder("Pinned pieces: \n");
@@ -194,71 +114,61 @@ public class ChessBoard {
 
         stats.append(Util.getBoardVisualStd(board)).append("\n");
 
-        stats.append("Fen: ").append(FenUtils.cat(fenParts));
+        stats.append("Fen: ").append(FenUtils.generate(this)).append("\n");
+        stats.append("Key: ").append(generateZobristKey());
 
 
         return stats.toString();
     }
 
 
-//    public long generateZobristKey(boolean positionOnly){
-//        long key = 0;
-//        for(int pieceIndex:pieceLocations){
-//            switch(board[pieceIndex/8][pieceIndex%8]){
-//                case Constants.WHITE_PAWN:
-//                    key ^= Constants.zobristArray[1][0][pieceIndex];
-//                    break;
-//                case Constants.BLACK_PAWN:
-//                    key ^= Constants.zobristArray[0][0][pieceIndex];
-//                    break;
-//                case Constants.WHITE_QUEEN:
-//                    key ^= Constants.zobristArray[1][1][pieceIndex];
-//                    break;
-//                case Constants.BLACK_QUEEN:
-//                    key ^= Constants.zobristArray[0][1][pieceIndex];
-//                    break;
-//                case Constants.WHITE_ROOK:
-//                    key ^= Constants.zobristArray[1][2][pieceIndex];
-//                    break;
-//                case Constants.BLACK_ROOK:
-//                    key ^= Constants.zobristArray[0][2][pieceIndex];
-//                    break;
-//                case Constants.WHITE_BISHOP:
-//                    key ^= Constants.zobristArray[1][3][pieceIndex];
-//                    break;
-//                case Constants.BLACK_BISHOP:
-//                    key ^= Constants.zobristArray[0][3][pieceIndex];
-//                    break;
-//                case Constants.WHITE_KNIGHT:
-//                    key ^= Constants.zobristArray[1][4][pieceIndex];
-//                    break;
-//                case Constants.BLACK_KNIGHT:
-//                    key ^= Constants.zobristArray[0][4][pieceIndex];
-//                    break;
-//                case Constants.WHITE_KING:
-//                    key ^= Constants.zobristArray[1][5][pieceIndex];
-//                    break;
-//                case Constants.BLACK_KING:
-//                    key ^= Constants.zobristArray[0][5][pieceIndex];
-//                    break;
-//            }
-//        }
-//        if (whiteToMove){
-//            key ^= Constants.zobristTurnToMove;
-//        }
-//        if(positionOnly){
-//            return key;
-//        }
-//        if(!fenParts[9].equals("-")){
-//            for(char c:fenParts[9].toCharArray()){
-//                key ^= (long)Util.getPieceValue(c);
-//            }
-//        }
-//        if(!fenParts[10].equals("-")){
-//            key ^= Util.getSquareIndex(fenParts[10]);
-//        }
-//        return key;
-//    }
+    public long generateZobristKey(){
+        long key = 0;
+        for(int pieceIndex:pieceLocations){
+            switch(board[pieceIndex/8][pieceIndex%8]){
+                case Constants.WHITE_PAWN:
+                    key ^= Constants.zobristArray[1][0][pieceIndex];
+                    break;
+                case Constants.BLACK_PAWN:
+                    key ^= Constants.zobristArray[0][0][pieceIndex];
+                    break;
+                case Constants.WHITE_QUEEN:
+                    key ^= Constants.zobristArray[1][1][pieceIndex];
+                    break;
+                case Constants.BLACK_QUEEN:
+                    key ^= Constants.zobristArray[0][1][pieceIndex];
+                    break;
+                case Constants.WHITE_ROOK:
+                    key ^= Constants.zobristArray[1][2][pieceIndex];
+                    break;
+                case Constants.BLACK_ROOK:
+                    key ^= Constants.zobristArray[0][2][pieceIndex];
+                    break;
+                case Constants.WHITE_BISHOP:
+                    key ^= Constants.zobristArray[1][3][pieceIndex];
+                    break;
+                case Constants.BLACK_BISHOP:
+                    key ^= Constants.zobristArray[0][3][pieceIndex];
+                    break;
+                case Constants.WHITE_KNIGHT:
+                    key ^= Constants.zobristArray[1][4][pieceIndex];
+                    break;
+                case Constants.BLACK_KNIGHT:
+                    key ^= Constants.zobristArray[0][4][pieceIndex];
+                    break;
+                case Constants.WHITE_KING:
+                    key ^= Constants.zobristArray[1][5][pieceIndex];
+                    break;
+                case Constants.BLACK_KING:
+                    key ^= Constants.zobristArray[0][5][pieceIndex];
+                    break;
+            }
+        }
+        if (whiteToMove){
+            key ^= Constants.zobristTurnToMove;
+        }
+        return key;
+    }
     
 
     public void checkBoard(){
@@ -520,67 +430,6 @@ public class ChessBoard {
         return false;
     }
 
-
-public boolean _isSquareSafe(int file,int rank){
-        for(int[] dir:Constants.ALL_DIRECTIONS){
-            int f=file,r=rank;
-            for(int i=0;Util.isValid(f+=dir[0],r+=dir[1]);i++){
-                if(board[r][f] != Constants.EMPTY_SQUARE){
-                    if(Util.isEnemyPiece(whiteToMove,board[r][f])){
-                        char piece = Character.toUpperCase(board[r][f]);
-                        switch(piece){
-                            case Constants.WHITE_PAWN:{
-                                if(i==0){
-                                    if(whiteToMove){
-                                        if(Math.abs(file-f) == 1 && (rank-r) == 1){
-                                            return false;
-                                        }
-                                    }else{
-                                        if(Math.abs(file-f) == 1 && (rank-r) == -1){
-                                            return false;
-                                        }
-                                    }
-                                }
-                                break;
-                            }
-                            case Constants.WHITE_KING:{
-                                if(i==0) {
-                                    return false;
-                                }
-                                break;
-                            }
-                            case Constants.WHITE_QUEEN:{
-                                return false;
-                            }
-                            case Constants.WHITE_ROOK:{
-                                if(dir[0] == 0 || dir[1] == 0){
-                                    return false;
-                                }
-                                break;
-                            }
-                            case Constants.WHITE_BISHOP:{
-                                if(!(dir[0] == 0 || dir[1] == 0)){
-                                    return false;
-                                }
-                                break;
-                            }
-                        }
-                    }
-
-                    break;
-                }
-            }
-        }
-        for(int[] dir:Constants.KNIGHT_DIRECTION){
-            int f = file+dir[0],r = rank+dir[1];
-            if(Util.isValid(f,r) && board[r][f] != Constants.EMPTY_SQUARE && Util.isEnemyPiece(whiteToMove,board[r][f])){
-                if(Character.toUpperCase(board[r][f]) == Constants.WHITE_KNIGHT){
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
 
     public int[] kingPosition(){
         return whiteToMove?whiteKingPosition:blackKingPosition;

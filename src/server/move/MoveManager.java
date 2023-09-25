@@ -1,14 +1,18 @@
 package server.move;
 
 import server.board.ChessBoard;
+import server.exception.InvalidMoveException;
+import server.util.Constants;
+import server.util.FenUtils;
+import server.util.GameState;
+import server.util.Util;
 
 import java.util.ArrayList;
-import server.util.*;
 
 public class MoveManager {
 
     public ChessBoard cb;
-    ArrayList<String> moves;
+    ArrayList<Move> moves;
 
 
     public MoveManager(ChessBoard cb){
@@ -17,105 +21,51 @@ public class MoveManager {
     }
 
 
-    public String cvt(String moveStr){//move to algebra
-        String stdMove;
-        String[] moveParts = moveStr.split(Constants.MOVE_SEPARATOR);
-        if(moveStr.contains(Constants.QUEEN_SIDE_CASTLING)){
-            int rank = cb.whiteToMove?7:0;
-            stdMove = Util.cvtMove(4,rank,2,rank);
-        }else if(moveStr.contains(Constants.KING_SIDE_CASTLING)){
-            int rank = cb.whiteToMove?7:0;
-            stdMove = Util.cvtMove(4,rank,6,rank);
-            //System.out.println(stdMove);
-        }else{
-            stdMove = Util.cvtMove(Integer.parseInt(Character.toString(moveStr.charAt(0))),Integer.parseInt(Character.toString(moveStr.charAt(1))),Integer.parseInt(Character.toString(moveStr.charAt(2))),Integer.parseInt(Character.toString(moveStr.charAt(3))));
-        }
-        if(moveParts.length == Constants.PROMOTION_MOVE_LENGTH && !moveStr.contains(Constants.EN_PASSANT_NOTATION)){
-            stdMove += moveParts[moveParts.length - 1];
-        }
-        return stdMove;
-    }
-
-    public String parse(String stdMove){//algebra to move
+    public Move parse(String stdMove){//algebra to move
         int lf = Constants.FILES.indexOf(stdMove.charAt(0));
         int lr = Constants.RANKS.indexOf(stdMove.charAt(1));
         int df = Constants.FILES.indexOf(stdMove.charAt(2));
         int dr = Constants.RANKS.indexOf(stdMove.charAt(3));
-        String move=Util.cvtMove(lf,lr,df,dr,cb.board,cb.fenParts)+Constants.MOVE_SEPARATOR;
+
+        Move move = new Move(lf,lr,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+
         switch(Character.toUpperCase(cb.board[lr][lf])){
             case Constants.WHITE_KING:
                 switch(lf-df) {
                     case 2:
-                        move = Constants.QUEEN_SIDE_CASTLING;
+                        move.isQueenSideCastling = true;
                         break;
                     case -2:
-                        move = Constants.KING_SIDE_CASTLING;
+                        move.isKingSideCastling = true;
                         break;
-                }
-                move+=Constants.MOVE_SEPARATOR+cb.fenParts[9]+Constants.MOVE_SEPARATOR+cb.fenParts[10];
-                break;
-            case Constants.WHITE_PAWN:
-                if(dr == 0){
-                    move+=Character.toUpperCase(stdMove.charAt(4));
-                }else if(dr == 7){
-                    move+=Character.toLowerCase(stdMove.charAt(4));
-                }else if(lf-df!=0&&cb.board[dr][df] == Constants.EMPTY_SQUARE){
-                    move+=Constants.EN_PASSANT_NOTATION;
                 }
 
                 break;
-            default:
-                move = move.substring(0,move.length()-1);
+            case Constants.WHITE_PAWN:
+                if(dr == 0){
+                    move.promotionPiece = Character.toUpperCase(stdMove.charAt(4));
+                }else if(dr == 7){
+                    move.promotionPiece = Character.toLowerCase(stdMove.charAt(4));
+                }else if(lf-df!=0&&cb.board[dr][df] == Constants.EMPTY_SQUARE){
+                    move.isEnPassant = true;
+                }
+
+                break;
+
         }
         return move;
     }
 
 
-
-    public String moveGenerationTestWOLog(int depth,boolean stdOutput) {//for debug purpose using stockfish
-        ArrayList<String> moves = getAllMoves() ;
-        StringBuilder output=new StringBuilder();
+    public String moveGenerationTest(int depth){
+        ArrayList<Move> moves = getAllMoves() ;
         int numPositions = 0;
-        String fen = FenUtils.cat(cb.fenParts);
-        for (String moveStr:moves) {
-            makeMove(moveStr);
-            int numMoves = recurseMoveGeneration(depth-1);
-            numPositions += numMoves;
-            undoMove(moveStr);
-            if(!fen.equals(FenUtils.cat(cb.fenParts))){
-                System.out.println("Original "+fen);
-                System.out.println("Current  "+FenUtils.cat(cb.fenParts));
-                System.out.println(cvt(moveStr));
-            }
-            if(stdOutput){
-                String stdMove;
-                if(moveStr.contains(Constants.KING_SIDE_CASTLING)){
-                    int rank = cb.whiteToMove?7:0;
-                    stdMove = Util.cvtMove(4,rank,5,rank);
-                }else if(moveStr.contains(Constants.QUEEN_SIDE_CASTLING)){
-                    int rank = cb.whiteToMove?7:0;
-                    stdMove = Util.cvtMove(4,rank,2,rank);
-                }else{
-                    stdMove = Util.cvtMove(Integer.parseInt(Character.toString(moveStr.charAt(0))),Integer.parseInt(Character.toString(moveStr.charAt(1))),Integer.parseInt(Character.toString(moveStr.charAt(2))),Integer.parseInt(Character.toString(moveStr.charAt(3))));
-                }
-                output.append(stdMove).append(": ").append(numMoves).append("\n");
-            }else {
-                output.append(moveStr).append(": ").append(numMoves).append("\n");
-            }
-        }
-        output.append("Nodes searched : ").append(numPositions).append( "\n");
-        return output.toString();
-    }
-
-    public String moveGenerationTest(int depth,boolean stdOutput){
-        ArrayList<String> moves = getAllMoves() ;
-        int numPositions = 0;
-        String fen = FenUtils.cat(cb.fenParts);
+//        String fen = FenUtils.generate(cb);
         StringBuilder output = new StringBuilder();
-        for (String moveStr:moves) {
+        for (Move move:moves) {
 
-                //System.out.println(FenUtils.cat(cb.fenParts));
-//                ChessBoard c = new ChessBoard(FenUtils.cat(cb.fenParts));
+                //System.out.println(FenUtils.generate(cb));
+//                ChessBoard c = new ChessBoard(FenUtils.generate(cb));
 //                System.out.println(c.gs);
 //                System.out.println(Util.getBoardVisual(cb.board));
 //                System.out.println(Util.getBoardVisual(c.board));
@@ -128,10 +78,10 @@ public class MoveManager {
 
 
             //debug code
-//            if(!fen.equals(FenUtils.cat(cb.fenParts))){
+//            if(!fen.equals(FenUtils.generate(cb))){
 //                System.out.println("Original: "+fen);
-//                System.out.println("Current: "+FenUtils.cat(cb.fenParts));
-//                System.out.println((cvt(moveStr)));
+//                System.out.println("Current: "+FenUtils.generate(cb));
+//                System.out.println(move);
 //                System.out.println("###");
 //                System.out.println(cb.stats());
 //            }
@@ -142,20 +92,16 @@ public class MoveManager {
 //                System.out.println("###");
 //            }
 
-            makeMove(moveStr);
+            makeMove(move);
             int numMoves = recurseMoveGeneration(depth-1);
             numPositions += numMoves;
-            undoMove(moveStr);
+            undoMove(move);
 //            if(cvt(moveStr).equals("c2c1") ){
 //                System.out.println(cb.stats());
 //                System.out.println("###");
 //            }
-            if(stdOutput){
-                String stdMove = cvt(moveStr);
-                output.append(stdMove + ": " + numMoves).append("\n");
-            }else {
-                output.append(moveStr + ": " + numMoves).append("\n");
-            }
+
+            output.append(move.toString() + ": " + numMoves).append("\n");
         }
         output.append("Nodes searched: "+numPositions).append("\n");
         return output.toString();
@@ -167,22 +113,22 @@ public class MoveManager {
         if (depth <= 0) {
             return 1;
         }
-        ArrayList<String> moves = getAllMoves() ;
+        ArrayList<Move> moves = getAllMoves() ;
         int numPositions = 0;
-        for (String moveStr:moves) {
+        for (Move move:moves) {
 
-            makeMove(moveStr);
+            makeMove(move);
 
             numPositions += recurseMoveGeneration(depth-1);
-            undoMove(moveStr);
+            undoMove(move);
 
         }
         return numPositions;
     }
 
 
-    public ArrayList<String> getAllMoves() {
-        ArrayList<String> allMoves = new ArrayList<>();
+    public ArrayList<Move> getAllMoves() {
+        ArrayList<Move> allMoves = new ArrayList<>();
         for(int i=0;i<8;i++){
             for(int j=0;j<8;j++){
                 if(cb.board[i][j] != Constants.EMPTY_SQUARE && !Util.isEnemyPiece(cb.whiteToMove,cb.board[i][j])){
@@ -193,10 +139,35 @@ public class MoveManager {
         return allMoves;
     }
 
-    // Here are all the functions from previous move class
-    public void makeMove(String move){
-        if(move.contains(Constants.QUEEN_SIDE_CASTLING)){
 
+    public ArrayList<Move> getAllCaptureMoves() {
+        ArrayList<Move> allMoves = new ArrayList<>();
+        for(int i=0;i<8;i++){
+            for(int j=0;j<8;j++){
+                if(cb.board[i][j] != Constants.EMPTY_SQUARE && !Util.isEnemyPiece(cb.whiteToMove,cb.board[i][j])){
+                    allMoves.addAll(generateCaptureMove(j,i));
+                }
+            }
+        }
+        return allMoves;
+    }
+
+
+    public void verify(Move move) throws InvalidMoveException{
+        for(Move m:getAllMoves()){
+            if(m.equals(move)){
+                return;
+            }
+        }
+        throw new InvalidMoveException(move);
+    }
+
+
+
+
+    // Here are all the functions from previous move class
+    public void makeMove(Move move){
+        if(move.isQueenSideCastling){
             int rank = cb.whiteToMove?7:0;
             cb.board[rank][2] = cb.board[rank][4];
             cb.board[rank][4] = Constants.EMPTY_SQUARE;
@@ -211,17 +182,15 @@ public class MoveManager {
             }else{
                 cb.blackKingPosition[0] = 2;
             }
-            cb.fenParts[rank] = FenUtils.getRank(cb.board[rank]);
             if(cb.whiteToMove){
-                cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_KING),"").replace(Character.toString(Constants.WHITE_QUEEN),"");
+                cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_KING),"").replace(Character.toString(Constants.WHITE_QUEEN),"");
             }else{
-                cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_KING),"").replace(Character.toString(Constants.BLACK_QUEEN),"");
+                cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_KING),"").replace(Character.toString(Constants.BLACK_QUEEN),"");
             }
             cb.whiteToMove = !cb.whiteToMove;
-            cb.fenParts[8] = Character.toString(cb.whiteToMove?Constants.WHITE:Constants.BLACK);
-            cb.fenParts[10] = "-";
-            cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])+1);
-        }else if(move.contains(Constants.KING_SIDE_CASTLING)){
+            cb.enPassantSquare = "-";
+            cb.halfMoveClock += 1;
+        }else if(move.isKingSideCastling){
 
             int rank = cb.whiteToMove?7:0;
             cb.board[rank][6] = cb.board[rank][4];
@@ -237,22 +206,19 @@ public class MoveManager {
             }else{
                 cb.blackKingPosition[0] = 6;
             }
-            cb.fenParts[rank] = FenUtils.getRank(cb.board[rank]);
             if(cb.whiteToMove){
-                cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_KING),"").replace(Character.toString(Constants.WHITE_QUEEN),"");
+                cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_KING),"").replace(Character.toString(Constants.WHITE_QUEEN),"");
             }else{
-                cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_KING),"").replace(Character.toString(Constants.BLACK_QUEEN),"");
+                cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_KING),"").replace(Character.toString(Constants.BLACK_QUEEN),"");
             }
             cb.whiteToMove = !cb.whiteToMove;
-            cb.fenParts[8] = Character.toString(cb.whiteToMove?Constants.WHITE:Constants.BLACK);
-            cb.fenParts[10] = "-";
-            cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])+1);
+            cb.enPassantSquare = "-";
+            cb.halfMoveClock += 1;
 
-
-        }else if(move.charAt(1) == move.charAt(3)){
-            int rank = Integer.parseInt(String.valueOf(move.charAt(1)));
-            int locFile = Integer.parseInt(String.valueOf(move.charAt(0)));
-            int destFile = Integer.parseInt(String.valueOf(move.charAt(2)));
+        }else if(move.locRank == move.destRank){
+            int rank = move.locRank;
+            int locFile = move.locFile;
+            int destFile = move.destFile;
             if(cb.board[rank][locFile] == Constants.WHITE_KING){
                 cb.whiteKingPosition[0] = destFile;
                 cb.whiteKingPosition[1] = rank;
@@ -261,35 +227,35 @@ public class MoveManager {
                 cb.blackKingPosition[1] = rank;
             }
             if(cb.board[rank][destFile]!=Constants.EMPTY_SQUARE){
-                cb.fenParts[11] = "0";
+                cb.halfMoveClock=0;
             }else{
-                cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])+1);
+                cb.halfMoveClock += 1;
             }
 
             if(rank == 0 || rank == 7){
                 switch(cb.board[rank][locFile]){
                     case Constants.WHITE_ROOK:
-                        if(locFile==0 && cb.fenParts[9].contains(String.valueOf(Constants.WHITE_QUEEN))){
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_QUEEN),"");
-                        }else if(locFile==7 && cb.fenParts[9].contains(String.valueOf(Constants.WHITE_KING))){
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_KING), "");
+                        if(locFile==0 && cb.castlingFEN.contains(String.valueOf(Constants.WHITE_QUEEN))){
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_QUEEN),"");
+                        }else if(locFile==7 && cb.castlingFEN.contains(String.valueOf(Constants.WHITE_KING))){
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_KING), "");
                         }
                         break;
                     case Constants.WHITE_KING:
-                        if(cb.fenParts[9].contains(String.valueOf(Constants.WHITE_QUEEN)) || cb.fenParts[9].contains(String.valueOf(Constants.WHITE_KING))) {
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_KING), "").replace(Character.toString(Constants.WHITE_QUEEN), "");
+                        if(cb.castlingFEN.contains(String.valueOf(Constants.WHITE_QUEEN)) || cb.castlingFEN.contains(String.valueOf(Constants.WHITE_KING))) {
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_KING), "").replace(Character.toString(Constants.WHITE_QUEEN), "");
                         }
                         break;
                     case Constants.BLACK_ROOK:
-                        if(locFile==0 && cb.fenParts[9].contains(String.valueOf(Constants.BLACK_QUEEN))){
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_QUEEN),"");
-                        }else if(locFile==7 && cb.fenParts[9].contains(String.valueOf(Constants.BLACK_KING))) {
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_KING), "");
+                        if(locFile==0 && cb.castlingFEN.contains(String.valueOf(Constants.BLACK_QUEEN))){
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_QUEEN),"");
+                        }else if(locFile==7 && cb.castlingFEN.contains(String.valueOf(Constants.BLACK_KING))) {
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_KING), "");
                         }
                         break;
                     case Constants.BLACK_KING:
-                        if(cb.fenParts[9].contains(String.valueOf(Constants.BLACK_QUEEN)) || cb.fenParts[9].contains(String.valueOf(Constants.BLACK_KING))) {
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_KING), "").replace(Character.toString(Constants.BLACK_QUEEN), "");
+                        if(cb.castlingFEN.contains(String.valueOf(Constants.BLACK_QUEEN)) || cb.castlingFEN.contains(String.valueOf(Constants.BLACK_KING))) {
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_KING), "").replace(Character.toString(Constants.BLACK_QUEEN), "");
                         }
                         break;
                 }
@@ -298,20 +264,20 @@ public class MoveManager {
                         if (rank!=7){
                             break;
                         }
-                        if(destFile==0 && cb.fenParts[9].contains(String.valueOf(Constants.WHITE_QUEEN))){
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_QUEEN),"");
-                        }else if(destFile==7 && cb.fenParts[9].contains(String.valueOf(Constants.WHITE_KING))){
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_KING), "");
+                        if(destFile==0 && cb.castlingFEN.contains(String.valueOf(Constants.WHITE_QUEEN))){
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_QUEEN),"");
+                        }else if(destFile==7 && cb.castlingFEN.contains(String.valueOf(Constants.WHITE_KING))){
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_KING), "");
                         }
                         break;
                     case Constants.BLACK_ROOK:
                         if (rank != 0){
                             break;
                         }
-                        if(destFile==0 && cb.fenParts[9].contains(String.valueOf(Constants.BLACK_QUEEN))){
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_QUEEN),"");
-                        }else if(destFile==7 && cb.fenParts[9].contains(String.valueOf(Constants.BLACK_KING))) {
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_KING), "");
+                        if(destFile==0 && cb.castlingFEN.contains(String.valueOf(Constants.BLACK_QUEEN))){
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_QUEEN),"");
+                        }else if(destFile==7 && cb.castlingFEN.contains(String.valueOf(Constants.BLACK_KING))) {
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_KING), "");
                         }
                         break;
                 }
@@ -322,15 +288,13 @@ public class MoveManager {
             cb.pieceLocations.add(destFile + rank * 8);
             cb.pieceLocations.remove((Object)(locFile + rank * 8));
 
-            cb.fenParts[rank] = FenUtils.getRank(cb.board[rank]);
-            cb.fenParts[10] = "-";
+            cb.enPassantSquare = "-";
             cb.whiteToMove = !cb.whiteToMove;
-            cb.fenParts[8] = Character.toString(cb.whiteToMove?Constants.WHITE:Constants.BLACK);
+        }else if(move.locFile == move.destFile){
+            int file = move.locFile;
+            int locRank = move.locRank;
+            int destRank = move.destRank;
 
-        }else if(move.charAt(0) == move.charAt(2)){
-            int file = Integer.parseInt(String.valueOf(move.charAt(0)));
-            int locRank = Integer.parseInt(String.valueOf(move.charAt(1)));
-            int destRank = Integer.parseInt(String.valueOf(move.charAt(3)));
             if(cb.board[locRank][file] == Constants.WHITE_KING){
                 cb.whiteKingPosition[1] = destRank;
             }else if(cb.board[locRank][file] == Constants.BLACK_KING){
@@ -338,69 +302,70 @@ public class MoveManager {
             }
 
             if(Character.toUpperCase(cb.board[locRank][file]) == Constants.WHITE_PAWN || cb.board[destRank][file]!=Constants.EMPTY_SQUARE){
-                cb.fenParts[11] = "0";
+                cb.halfMoveClock=0;
             }else{
-                cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])+1);
+                cb.halfMoveClock += 1;
             }
 
             if(locRank == 0 || locRank == 7){
                 switch(cb.board[locRank][file]){
                     case Constants.BLACK_ROOK:{
-                        if(file==0 && cb.fenParts[9].contains(String.valueOf(Constants.BLACK_QUEEN))){
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_QUEEN),"");
-                        }else if(file==7 && cb.fenParts[9].contains(String.valueOf(Constants.BLACK_KING))) {
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_KING), "");
+                        if(file==0 && cb.castlingFEN.contains(String.valueOf(Constants.BLACK_QUEEN))){
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_QUEEN),"");
+                        }else if(file==7 && cb.castlingFEN.contains(String.valueOf(Constants.BLACK_KING))) {
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_KING), "");
                         }
                         break;
                     }
                     case Constants.WHITE_ROOK:{
-                        if(file==0 && cb.fenParts[9].contains(String.valueOf(Constants.WHITE_QUEEN))){
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_QUEEN),"");
-                        }else if(file==7 && cb.fenParts[9].contains(String.valueOf(Constants.WHITE_KING))) {
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_KING), "");
+                        if(file==0 && cb.castlingFEN.contains(String.valueOf(Constants.WHITE_QUEEN))){
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_QUEEN),"");
+                        }else if(file==7 && cb.castlingFEN.contains(String.valueOf(Constants.WHITE_KING))) {
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_KING), "");
                         }
                         break;
                     }
                     case Constants.BLACK_KING:{
-                        if(cb.fenParts[9].contains(String.valueOf(Constants.BLACK_QUEEN)) || cb.fenParts[9].contains(String.valueOf(Constants.BLACK_KING))) {
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_KING), "").replace(Character.toString(Constants.BLACK_QUEEN), "");
+                        if(cb.castlingFEN.contains(String.valueOf(Constants.BLACK_QUEEN)) || cb.castlingFEN.contains(String.valueOf(Constants.BLACK_KING))) {
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_KING), "").replace(Character.toString(Constants.BLACK_QUEEN), "");
                         }
                         break;
                     }
                     case Constants.WHITE_KING:{
-                        if(cb.fenParts[9].contains(String.valueOf(Constants.WHITE_QUEEN)) || cb.fenParts[9].contains(String.valueOf(Constants.WHITE_KING))) {
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_KING), "").replace(Character.toString(Constants.WHITE_QUEEN), "");
+                        if(cb.castlingFEN.contains(String.valueOf(Constants.WHITE_QUEEN)) || cb.castlingFEN.contains(String.valueOf(Constants.WHITE_KING))) {
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_KING), "").replace(Character.toString(Constants.WHITE_QUEEN), "");
                         }
                         break;
                     }
                 }
             }
+
             if(destRank == 0 || destRank == 7){
                 switch(cb.board[destRank][file]){
                     case Constants.WHITE_ROOK:
                         if(destRank != 7){
                             break;
                         }
-                        if(file==0 && cb.fenParts[9].contains(String.valueOf(Constants.WHITE_QUEEN))){
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_QUEEN),"");
-                        }else if(file==7 && cb.fenParts[9].contains(String.valueOf(Constants.WHITE_KING))){
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_KING), "");
+                        if(file==0 && cb.castlingFEN.contains(String.valueOf(Constants.WHITE_QUEEN))){
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_QUEEN),"");
+                        }else if(file==7 && cb.castlingFEN.contains(String.valueOf(Constants.WHITE_KING))){
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_KING), "");
                         }
                         break;
                     case Constants.BLACK_ROOK:
                         if(destRank != 0){
                             break;
                         }
-                        if(file==0 && cb.fenParts[9].contains(String.valueOf(Constants.BLACK_QUEEN))){
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_QUEEN),"");
-                        }else if(file==7 && cb.fenParts[9].contains(String.valueOf(Constants.BLACK_KING))) {
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_KING), "");
+                        if(file==0 && cb.castlingFEN.contains(String.valueOf(Constants.BLACK_QUEEN))){
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_QUEEN),"");
+                        }else if(file==7 && cb.castlingFEN.contains(String.valueOf(Constants.BLACK_KING))) {
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_KING), "");
                         }
                         break;
                 }
 
-                if(Character.toUpperCase(cb.board[locRank][file]) == Constants.WHITE_PAWN){
-                    cb.board[locRank][file] = move.split(Constants.MOVE_SEPARATOR)[Constants.PROMOTION_MOVE_LENGTH-1].charAt(0);
+                if(move.promotionPiece != Constants.EMPTY_SQUARE){
+                    cb.board[locRank][file] = move.promotionPiece;
                 }
 
             }
@@ -408,14 +373,14 @@ public class MoveManager {
             if(Character.toUpperCase(cb.board[locRank][file]) == Constants.WHITE_PAWN) {
                 //double pawn push -> creates en-passant square
                 if (locRank == 1 && cb.board[locRank][file] == Constants.BLACK_PAWN && destRank == 3) {
-                    cb.fenParts[10] = Constants.FILES.charAt(file) + "6";
+                    cb.enPassantSquare = Constants.FILES.charAt(file) + "6";
                 } else if (locRank == 6 && cb.board[locRank][file] == Constants.WHITE_PAWN && destRank == 4) {
-                    cb.fenParts[10] = Constants.FILES.charAt(file) + "3";
+                    cb.enPassantSquare = Constants.FILES.charAt(file) + "3";
                 } else {
-                    cb.fenParts[10] = "-";
+                    cb.enPassantSquare = "-";
                 }
             }else{
-                cb.fenParts[10] = "-";
+                cb.enPassantSquare = "-";
             }
 
 
@@ -423,16 +388,15 @@ public class MoveManager {
             cb.board[locRank][file] = Constants.EMPTY_SQUARE;
             cb.pieceLocations.add(file + destRank * 8);
             cb.pieceLocations.remove((Object)(file+locRank*8));
-            cb.fenParts[locRank] = FenUtils.getRank(cb.board[locRank]);
-            cb.fenParts[destRank] = FenUtils.getRank(cb.board[destRank]);
             cb.whiteToMove = !cb.whiteToMove;
-            cb.fenParts[8] = Character.toString(cb.whiteToMove?Constants.WHITE:Constants.BLACK);
 
-        }else if(move.contains(Constants.EN_PASSANT_NOTATION)){
-            int locFile = Integer.parseInt(String.valueOf(move.charAt(0)));
-            int destFile = Integer.parseInt(String.valueOf(move.charAt(2)));
-            int locRank = Integer.parseInt(String.valueOf(move.charAt(1)));
-            int destRank = Integer.parseInt(String.valueOf(move.charAt(3)));
+        }else if(move.isEnPassant){
+
+
+            int locFile = move.locFile;
+            int destFile = move.destFile;
+            int locRank = move.locRank;
+            int destRank = move.destRank;
             switch(cb.board[locRank][locFile]){
                 case Constants.WHITE_PAWN:{
                     cb.board[locRank][destFile] = Constants.EMPTY_SQUARE;
@@ -448,19 +412,17 @@ public class MoveManager {
             cb.board[locRank][locFile] = Constants.EMPTY_SQUARE;
             cb.pieceLocations.add(destFile + destRank * 8);
             cb.pieceLocations.remove((Object)(locFile+locRank*8));
-            cb.fenParts[locRank] = FenUtils.getRank(cb.board[locRank]);
-            cb.fenParts[destRank] = FenUtils.getRank(cb.board[destRank]);
             cb.whiteToMove = !cb.whiteToMove;
-            cb.fenParts[8] = Character.toString(cb.whiteToMove?Constants.WHITE:Constants.BLACK);
-            cb.fenParts[10] = "-";
-            cb.fenParts[11] = "0";
+            cb.enPassantSquare = "-";
+            cb.halfMoveClock=0;
+
         }
 
         else{
-            int locFile = Integer.parseInt(String.valueOf(move.charAt(0)));
-            int destFile = Integer.parseInt(String.valueOf(move.charAt(2)));
-            int locRank = Integer.parseInt(String.valueOf(move.charAt(1)));
-            int destRank = Integer.parseInt(String.valueOf(move.charAt(3)));
+            int locFile = move.locFile;
+            int destFile = move.destFile;
+            int locRank = move.locRank;
+            int destRank = move.destRank;
             if(cb.board[locRank][locFile] == Constants.WHITE_KING){
                 cb.whiteKingPosition[0] = destFile;
                 cb.whiteKingPosition[1] = destRank;
@@ -469,9 +431,9 @@ public class MoveManager {
                 cb.blackKingPosition[1] = destRank;
             }
             if(Character.toUpperCase(cb.board[locRank][locFile]) == Constants.WHITE_PAWN || cb.board[destRank][destFile]!=Constants.EMPTY_SQUARE){
-                cb.fenParts[11] = "0";
+                cb.halfMoveClock=0;
             }else{
-                cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])+1);
+                cb.halfMoveClock += 1;
             }
 
 
@@ -479,14 +441,14 @@ public class MoveManager {
             if(locRank == 0 || locRank == 7){
                 switch(cb.board[locRank][locFile]){
                     case Constants.BLACK_KING:{
-                        if(cb.fenParts[9].contains(String.valueOf(Constants.BLACK_QUEEN)) || cb.fenParts[9].contains(String.valueOf(Constants.BLACK_KING))) {
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_KING), "").replace(Character.toString(Constants.BLACK_QUEEN), "");
+                        if(cb.castlingFEN.contains(String.valueOf(Constants.BLACK_QUEEN)) || cb.castlingFEN.contains(String.valueOf(Constants.BLACK_KING))) {
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_KING), "").replace(Character.toString(Constants.BLACK_QUEEN), "");
                         }
                         break;
                     }
                     case Constants.WHITE_KING:{
-                        if(cb.fenParts[9].contains(String.valueOf(Constants.WHITE_QUEEN)) || cb.fenParts[9].contains(String.valueOf(Constants.WHITE_KING))) {
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_KING), "").replace(Character.toString(Constants.WHITE_QUEEN), "");
+                        if(cb.castlingFEN.contains(String.valueOf(Constants.WHITE_QUEEN)) || cb.castlingFEN.contains(String.valueOf(Constants.WHITE_KING))) {
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_KING), "").replace(Character.toString(Constants.WHITE_QUEEN), "");
                         }
                         break;
                     }
@@ -498,29 +460,25 @@ public class MoveManager {
                         if(destRank != 7){
                             break;
                         }
-                        if(destFile==0 && cb.fenParts[9].contains(String.valueOf(Constants.WHITE_QUEEN))){
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_QUEEN),"");
-                        }else if(destFile==7 && cb.fenParts[9].contains(String.valueOf(Constants.WHITE_KING))){
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.WHITE_KING), "");
+                        if(destFile==0 && cb.castlingFEN.contains(String.valueOf(Constants.WHITE_QUEEN))){
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_QUEEN),"");
+                        }else if(destFile==7 && cb.castlingFEN.contains(String.valueOf(Constants.WHITE_KING))){
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.WHITE_KING), "");
                         }
                         break;
                     case Constants.BLACK_ROOK:
                         if(destRank != 0){
                             break;
                         }
-                        if(destFile==0 && cb.fenParts[9].contains(String.valueOf(Constants.BLACK_QUEEN))){
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_QUEEN),"");
-                        }else if(destFile==7 && cb.fenParts[9].contains(String.valueOf(Constants.BLACK_KING))) {
-                            cb.fenParts[9] = cb.fenParts[9].replace(Character.toString(Constants.BLACK_KING), "");
+                        if(destFile==0 && cb.castlingFEN.contains(String.valueOf(Constants.BLACK_QUEEN))){
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_QUEEN),"");
+                        }else if(destFile==7 && cb.castlingFEN.contains(String.valueOf(Constants.BLACK_KING))) {
+                            cb.castlingFEN = cb.castlingFEN.replace(Character.toString(Constants.BLACK_KING), "");
                         }
                         break;
                 }
                 if(Character.toUpperCase(cb.board[locRank][locFile]) == Constants.WHITE_PAWN){
-                    try {
-                        cb.board[locRank][locFile] = move.split(Constants.MOVE_SEPARATOR)[Constants.PROMOTION_MOVE_LENGTH - 1].charAt(0);
-                    }catch(Exception e){
-                        System.out.println(move);
-                    }
+                    cb.board[locRank][locFile] = move.promotionPiece;
                 }
             }
 
@@ -529,24 +487,21 @@ public class MoveManager {
             cb.board[locRank][locFile] = Constants.EMPTY_SQUARE;
             cb.pieceLocations.add(destFile + destRank * 8);
             cb.pieceLocations.remove((Object)(locFile+locRank*8));
-            cb.fenParts[locRank] = FenUtils.getRank(cb.board[locRank]);
-            cb.fenParts[destRank] = FenUtils.getRank(cb.board[destRank]);
             cb.whiteToMove = !cb.whiteToMove;
-            cb.fenParts[8] = Character.toString(cb.whiteToMove?Constants.WHITE:Constants.BLACK);
-            cb.fenParts[10] = "-";
+            cb.enPassantSquare = "-";
         }
-        if(cb.fenParts[9].equals(" ")||cb.fenParts[9].equals("")){
-            cb.fenParts[9] = "-";
+        if(cb.castlingFEN.equals(" ")||cb.castlingFEN.equals("")){
+            cb.castlingFEN = "-";
         }
         if(cb.whiteToMove) {
-            cb.fenParts[12] = Integer.toString(Integer.parseInt(cb.fenParts[12]) + 1);
+            cb.fullMoveClock += 1;
         }
 
         cb.checkBoard();
 
     }
-    public void undoMove(String move){
-        if(move.contains(Constants.QUEEN_SIDE_CASTLING)){
+    public void undoMove(Move move){
+        if(move.isQueenSideCastling){
             //System.out.println(cvt(move));
             cb.whiteToMove = !cb.whiteToMove;
             int rank = cb.whiteToMove?7:0;
@@ -563,13 +518,7 @@ public class MoveManager {
             }else{
                 cb.blackKingPosition[0] = 4;
             }
-            cb.fenParts[rank] = FenUtils.getRank(cb.board[rank]);
-            String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
-            cb.fenParts[9] = moveParts[1];
-            cb.fenParts[10] = moveParts[2];
-            cb.fenParts[8] = Character.toString(cb.whiteToMove?Constants.WHITE:Constants.BLACK);
-            cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.CASTLING_MOVE_LENGTH-1]));
-        }else if(move.contains(Constants.KING_SIDE_CASTLING)){
+        }else if(move.isKingSideCastling){
             cb.whiteToMove = !cb.whiteToMove;
             int rank = cb.whiteToMove?7:0;
             cb.board[rank][4] = cb.board[rank][6];
@@ -585,18 +534,10 @@ public class MoveManager {
             }else{
                 cb.blackKingPosition[0] = 4;
             }
-            cb.fenParts[rank] = FenUtils.getRank(cb.board[rank]);
-
-            String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
-
-            cb.fenParts[9] = moveParts[1];
-            cb.fenParts[10] = moveParts[2];
-            cb.fenParts[8] = Character.toString(cb.whiteToMove?Constants.WHITE:Constants.BLACK);
-            cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.CASTLING_MOVE_LENGTH-1]));
-        }else if(move.charAt(1) == move.charAt(3)){
-            int rank = Integer.parseInt(String.valueOf(move.charAt(1)));
-            int locFile = Integer.parseInt(String.valueOf(move.charAt(2)));
-            int destFile = Integer.parseInt(String.valueOf(move.charAt(0)));
+        }else if(move.locRank == move.destRank){
+            int rank = move.locRank;
+            int locFile = move.destFile;
+            int destFile = move.locFile;
 
             switch(cb.board[rank][locFile]){
                 case Constants.WHITE_KING :
@@ -610,10 +551,9 @@ public class MoveManager {
 
             }
 
-            String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
 
 
-            cb.fenParts[10] = moveParts[3];
+
 
             if(rank == 0 || rank == 7){
                 switch(cb.board[rank][locFile]){
@@ -624,27 +564,23 @@ public class MoveManager {
                     case Constants.BLACK_ROOK:
 
                     case Constants.BLACK_KING:
-                        cb.fenParts[9] = moveParts[2];
+                        cb.castlingFEN = move.castlingFEN;
                 }
 
             }
 
             cb.board[rank][destFile] = cb.board[rank][locFile];
-            cb.board[rank][locFile] = moveParts[1].charAt(0);
+            cb.board[rank][locFile] = move.capturedPiece;
             cb.pieceLocations.add(destFile + rank * 8);
-            if(moveParts[1].charAt(0) == Constants.EMPTY_SQUARE) {
+            if(move.capturedPiece == Constants.EMPTY_SQUARE) {
                 cb.pieceLocations.remove((Object)(locFile + rank * 8));
             }
-            cb.fenParts[11] = Integer.toString(Integer.parseInt(moveParts[Constants.NORMAL_MOVE_LENGTH-1]));
-            cb.fenParts[rank] = FenUtils.getRank(cb.board[rank]);
             cb.whiteToMove = !cb.whiteToMove;
-            cb.fenParts[8] = Character.toString(cb.whiteToMove?Constants.WHITE:Constants.BLACK);
 
-        }else if(move.charAt(0) == move.charAt(2)){
-            int file = Integer.parseInt(String.valueOf(move.charAt(0)));
-            int locRank = Integer.parseInt(String.valueOf(move.charAt(3)));
-            int destRank = Integer.parseInt(String.valueOf(move.charAt(1)));
-            String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
+        }else if(move.locFile == move.destFile){
+            int file = move.locFile;
+            int locRank = move.destRank;
+            int destRank = move.locRank;
             cb.whiteToMove = !cb.whiteToMove;
             switch(cb.board[locRank][file]){
                 case Constants.WHITE_KING :
@@ -658,10 +594,9 @@ public class MoveManager {
 
             }
 
-            cb.fenParts[10] = moveParts[3];
 
             if(locRank == 0 || locRank == 7){
-                if(moveParts.length==Constants.PROMOTION_MOVE_LENGTH){
+                if(move.promotionPiece != Constants.EMPTY_SQUARE){
                     if(cb.whiteToMove){
                         cb.board[locRank][file] = Constants.WHITE_PAWN;
                     }else{
@@ -672,29 +607,21 @@ public class MoveManager {
             }
             //position startpos move d2d3 e7e6 c1f4 f8b4 d1d2 b8c6 b1c3
             //go perft 2
-            if(moveParts.length==Constants.PROMOTION_MOVE_LENGTH){
-                cb.fenParts[11] = moveParts[Constants.PROMOTION_MOVE_LENGTH-2];
-            }else{
-                cb.fenParts[11] = moveParts[Constants.NORMAL_MOVE_LENGTH-1];
-            }
+            cb.halfMoveClock = move.halfMoveClock;
             cb.board[destRank][file] = cb.board[locRank][file];
-            cb.board[locRank][file] = moveParts[1].charAt(0);
+            cb.board[locRank][file] = move.capturedPiece;
             cb.pieceLocations.add(file + destRank * 8);
-            if(moveParts[1].charAt(0) == Constants.EMPTY_SQUARE) {
+            if(move.capturedPiece == Constants.EMPTY_SQUARE) {
                 cb.pieceLocations.remove((Object)(file+locRank*8));
             }
 
-            cb.fenParts[locRank] = FenUtils.getRank(cb.board[locRank]);
-            cb.fenParts[destRank] = FenUtils.getRank(cb.board[destRank]);
-            cb.fenParts[8] = Character.toString(cb.whiteToMove?Constants.WHITE:Constants.BLACK);
-            cb.fenParts[9] = moveParts[2];
 
         }
-        else if(move.contains(Constants.EN_PASSANT_NOTATION)){
-            int locFile = Integer.parseInt(String.valueOf(move.charAt(2)));
-            int destFile = Integer.parseInt(String.valueOf(move.charAt(0)));
-            int locRank = Integer.parseInt(String.valueOf(move.charAt(3)));
-            int destRank = Integer.parseInt(String.valueOf(move.charAt(1)));
+        else if(move.isEnPassant){
+            int locFile = move.destFile;
+            int destFile = move.locFile;
+            int locRank = move.destRank;
+            int destRank = move.locRank;
             switch(cb.board[locRank][locFile]){
                 case Constants.WHITE_PAWN:{
                     cb.board[destRank][locFile] = Constants.BLACK_PAWN;
@@ -709,18 +636,12 @@ public class MoveManager {
             cb.board[locRank][locFile] = Constants.EMPTY_SQUARE;
             cb.pieceLocations.add(destFile + destRank * 8);
             cb.pieceLocations.remove((Object)(locFile+locRank*8));
-            cb.fenParts[locRank] = FenUtils.getRank(cb.board[locRank]);
-            cb.fenParts[destRank] = FenUtils.getRank(cb.board[destRank]);
             cb.whiteToMove = !cb.whiteToMove;
-            cb.fenParts[10] = move.split(Constants.MOVE_SEPARATOR)[3];
-            cb.fenParts[11] = Integer.toString(Integer.parseInt(cb.fenParts[11])-1);
-            cb.fenParts[8] = Character.toString(cb.whiteToMove?Constants.WHITE:Constants.BLACK);
-            cb.fenParts[11] = Integer.toString(Integer.parseInt(move.split(Constants.MOVE_SEPARATOR)[Constants.EN_PASSANT_MOVE_LENGTH-2]));
         }else{
-            int locFile = Integer.parseInt(String.valueOf(move.charAt(2)));
-            int destFile = Integer.parseInt(String.valueOf(move.charAt(0)));
-            int locRank = Integer.parseInt(String.valueOf(move.charAt(3)));
-            int destRank = Integer.parseInt(String.valueOf(move.charAt(1)));
+            int locFile = move.destFile;
+            int destFile = move.locFile;
+            int locRank = move.destRank;
+            int destRank = move.locRank;
             cb.whiteToMove  = !cb.whiteToMove;
             switch(cb.board[locRank][locFile]){
                 case Constants.WHITE_KING :
@@ -734,12 +655,10 @@ public class MoveManager {
 
             }
 
-            String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
 
-            cb.fenParts[10] = moveParts[3];
 
             if(locRank == 0 || locRank == 7){
-                if(moveParts.length==Constants.PROMOTION_MOVE_LENGTH){
+                if(move.promotionPiece != Constants.EMPTY_SQUARE){
                     if(cb.whiteToMove){
                         cb.board[locRank][locFile] = Constants.WHITE_PAWN;
                     }else{
@@ -747,27 +666,23 @@ public class MoveManager {
                     }
                 }
             }
-            if(moveParts.length==Constants.PROMOTION_MOVE_LENGTH){
-                cb.fenParts[11] = moveParts[Constants.PROMOTION_MOVE_LENGTH-2];
-            }else{
-                cb.fenParts[11] = moveParts[Constants.NORMAL_MOVE_LENGTH-1];
-            }
+            cb.halfMoveClock = move.halfMoveClock;
+
             cb.board[destRank][destFile] = cb.board[locRank][locFile];
-            cb.board[locRank][locFile] = moveParts[1].charAt(0);
+            cb.board[locRank][locFile] = move.capturedPiece;
             cb.pieceLocations.add(destFile + destRank * 8);
-            if(moveParts[1].charAt(0) == Constants.EMPTY_SQUARE) {
+            if(move.capturedPiece == Constants.EMPTY_SQUARE) {
                 cb.pieceLocations.remove((Object) (locFile + locRank * 8));
             }
-            cb.fenParts[locRank] = FenUtils.getRank(cb.board[locRank]);
-            cb.fenParts[destRank] = FenUtils.getRank(cb.board[destRank]);
-            cb.fenParts[8] = Character.toString(cb.whiteToMove?Constants.WHITE:Constants.BLACK);
-            cb.fenParts[9] = moveParts[2];
+
 
         }
-
+        cb.castlingFEN = move.castlingFEN;
+        cb.enPassantSquare = move.enPassantSquare;
+        cb.halfMoveClock = move.halfMoveClock;
 
         if(!cb.whiteToMove) {
-            cb.fenParts[12] = Integer.toString(Integer.parseInt(cb.fenParts[12]) - 1);
+            cb.fullMoveClock -= 1;
         }
         cb.checkBoard();
     }
@@ -775,10 +690,31 @@ public class MoveManager {
     //ends here
 
 
+    public ArrayList<Move> generateCaptureMove(int file, int rank){
+        moves.clear();
+        switch(Character.toUpperCase(cb.board[rank][file])){
+            case Constants.WHITE_KING:
+                return kingCaptures(file,rank);
+            case Constants.WHITE_PAWN:
+                return pawnCaptures(file,rank);
+            case Constants.WHITE_ROOK:
+                return rookCaptures(file,rank);
+            case Constants.WHITE_BISHOP:
+                return bishopCaptures(file,rank);
+            case Constants.WHITE_KNIGHT:
+                return knightCaptures(file,rank);
+            case Constants.WHITE_QUEEN:
+                return queenCaptures(file,rank);
+            default:
+                return null;
+        }
+    }
 
 
 
-    public ArrayList<String> generateMove(int file, int rank){
+
+
+    public ArrayList<Move> generateMove(int file, int rank){
         moves.clear();
         switch(Character.toUpperCase(cb.board[rank][file])){
             case Constants.WHITE_KING:
@@ -799,7 +735,69 @@ public class MoveManager {
     }
 
 
-    public ArrayList<String> king(final int file,final int rank){
+
+    public ArrayList<Move> kingCaptures(final int file,final int rank){
+        if(cb.gs == GameState.CHECK){
+            ArrayList<int[]> checkDirections = new ArrayList<>();
+            for(Integer checkerIndex:cb.checkers.keySet()){
+                int checkerFile = checkerIndex%8;
+                int checkerRank = checkerIndex/8;
+
+                switch(Util.toUpper(cb.board[checkerRank][checkerFile])){
+                    case Constants.WHITE_KNIGHT:
+                        checkDirections.add(Constants.KNIGHT_DIRECTION[cb.checkers.get(checkerIndex)]);
+                        break;
+                    default:
+                        checkDirections.add(Constants.ALL_DIRECTIONS[cb.checkers.get(checkerIndex)]);
+                }
+            }
+            char king = cb.board[rank][file];
+            for(int[] direction:Constants.ALL_DIRECTIONS) {
+                int newFile = file + direction[0];
+                int newRank = rank + direction[1];
+                if (!Util.isValid(newFile, newRank)) {
+                    continue;
+                }
+
+                if (checkDirections.contains(direction) && !cb.checkers.containsKey(file + direction[0] + (rank + direction[1]) * 8)) {
+                    continue;
+                }
+
+                if (cb.board[newRank][newFile] != Constants.EMPTY_SQUARE && Util.isEnemyPiece(cb.whiteToMove, cb.board[newRank][newFile])) {
+                    cb.board[rank][file] = Constants.EMPTY_SQUARE;
+                    if (!cb.squareUnderAttack(newFile, newRank)) {
+                        moves.add(new Move(file, rank, newFile, newRank, cb.board, cb.castlingFEN, cb.enPassantSquare, cb.halfMoveClock));
+                    }
+                    cb.board[rank][file] = king;
+                }
+
+
+            }
+            return moves;
+        }
+
+
+
+
+        for(int[] direction:Constants.ALL_DIRECTIONS){
+            int newFile = file+direction[0];
+            int newRank = rank+direction[1];
+            if(!Util.isValid(newFile,newRank)){
+                continue;
+            }
+            if(cb.board[newRank][newFile] == Constants.EMPTY_SQUARE){
+                continue;
+            }
+
+
+            if(Util.isEnemyPiece(cb.whiteToMove,cb.board[newRank][newFile]) && !cb.squareUnderAttack(newFile,newRank)){
+                moves.add(new Move(file,rank,newFile,newRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+            }
+        }
+        return moves;
+    }
+
+    public ArrayList<Move> king(final int file,final int rank){
         if(cb.gs == GameState.CHECK){
             ArrayList<int[]> checkDirections = new ArrayList<>();
             for(Integer checkerIndex:cb.checkers.keySet()){
@@ -832,7 +830,7 @@ public class MoveManager {
                 }
 
 //                if(!cb.attackedSquares.contains(newFile+newRank*8)){
-//                    moves.add(Util.cvtMove(file,rank,newFile,newRank,cb.board,cb.fenParts));
+//                    moves.add(Util.cvtMove(file,rank,newFile,newRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
 //                }
 
 
@@ -840,7 +838,8 @@ public class MoveManager {
                 cb.board[rank][file] = Constants.EMPTY_SQUARE;
 
                 if(!cb.squareUnderAttack(newFile,newRank)){
-                    moves.add(Util.cvtMove(file,rank,newFile,newRank,cb.board,cb.fenParts));
+                    Move move = new Move(file,rank,newFile,newRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                    moves.add(move);
                 }
 
                 cb.board[rank][file] = king;
@@ -858,37 +857,253 @@ public class MoveManager {
                 continue;
             }
 //            if(!cb.attackedSquares.contains(newFile+newRank*8)){
-//                moves.add(Util.cvtMove(file,rank,newFile,newRank,cb.board,cb.fenParts));
+//                moves.add(Util.cvtMove(file,rank,newFile,newRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
 //            }
 
             if(!cb.squareUnderAttack(newFile,newRank)){
-                moves.add(Util.cvtMove(file,rank,newFile,newRank,cb.board,cb.fenParts));
+                Move move = new Move(file,rank,newFile,newRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                moves.add(move);
             }
         }
         // castling
         boolean kingSide,queenSide;
         if(cb.whiteToMove){
-            kingSide = cb.fenParts[9].contains(Character.toString(Constants.WHITE_KING));
-            queenSide = cb.fenParts[9].contains(Character.toString(Constants.WHITE_QUEEN));
+            kingSide = cb.castlingFEN.contains(Character.toString(Constants.WHITE_KING));
+            queenSide = cb.castlingFEN.contains(Character.toString(Constants.WHITE_QUEEN));
         }else{
-            kingSide = cb.fenParts[9].contains(Character.toString(Constants.BLACK_KING));
-            queenSide = cb.fenParts[9].contains(Character.toString(Constants.BLACK_QUEEN));
+            kingSide = cb.castlingFEN.contains(Character.toString(Constants.BLACK_KING));
+            queenSide = cb.castlingFEN.contains(Character.toString(Constants.BLACK_QUEEN));
         }
 
         kingSide = kingSide && cb.board[rank][5] == Constants.EMPTY_SQUARE && cb.board[rank][6] == Constants.EMPTY_SQUARE && !cb.squareUnderAttack(5,rank) && !cb.squareUnderAttack(6,rank);
         queenSide = queenSide && cb.board[rank][3] == Constants.EMPTY_SQUARE && cb.board[rank][2] == Constants.EMPTY_SQUARE && cb.board[rank][1] == Constants.EMPTY_SQUARE && !cb.squareUnderAttack(3,rank) && !cb.squareUnderAttack(2,rank) ;
         if(kingSide){
-            moves.add(Util.constructCastlingMove(Constants.KING_SIDE_CASTLING,cb.fenParts));
+            Move move = new Move(file,rank,6,rank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+            move.isKingSideCastling = true;
+            moves.add(move);
         }
         if(queenSide){
-            moves.add(Util.constructCastlingMove(Constants.QUEEN_SIDE_CASTLING,cb.fenParts));
+            Move move = new Move(file,rank,2,rank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+            move.isQueenSideCastling = true;
+            moves.add(move);
         }
         return moves;
     }
 
 
 
-    public ArrayList<String> pawn(int file,int rank){
+    public ArrayList<Move> pawnCaptures(final int file,final int rank){
+        int pinnedIndex = file + rank * 8;
+        boolean pinned = cb.pinnedPieces.containsKey(pinnedIndex);
+        if(pinned){
+            if(cb.gs == GameState.CHECK){
+                return moves;
+            }
+            int[] pinDirection = Constants.ALL_DIRECTIONS[cb.pinnedPieces.get(pinnedIndex)];
+            if(pinDirection[0] != 0 && pinDirection[1] != 0){
+                if((Util.isUpperCase(cb.board[rank][file]) && pinDirection[1] == -1) || (!Util.isUpperCase(cb.board[rank][file]) && pinDirection[1] == 1)){
+                    int df = file + pinDirection[0],dr = rank + pinDirection[1];
+                    if(cb.board[dr][df] != Constants.EMPTY_SQUARE){
+                        if(dr == 0 || dr == 7) {
+                            if(cb.whiteToMove){
+                                Move moveQ = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                moveQ.promotionPiece = Constants.WHITE_QUEEN;
+                                moves.add(moveQ);
+                                Move moveN = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                moveN.promotionPiece = Constants.WHITE_KNIGHT;
+                                moves.add(moveN);
+                                Move moveR = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                moveR.promotionPiece = Constants.WHITE_ROOK;
+                                moves.add(moveR);
+                                Move moveB = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                moveB.promotionPiece = Constants.WHITE_BISHOP;
+                                moves.add(moveB);
+                            }else{
+                                Move moveQ = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                moveQ.promotionPiece = Constants.BLACK_QUEEN;
+                                moves.add(moveQ);
+                                Move moveN = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                moveN.promotionPiece = Constants.BLACK_KNIGHT;
+                                moves.add(moveN);
+                                Move moveR = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                moveR.promotionPiece = Constants.BLACK_ROOK;
+                                moves.add(moveR);
+                                Move moveB = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                moveB.promotionPiece = Constants.BLACK_BISHOP;
+                                moves.add(moveB);
+                            }
+                        }else {
+                            moves.add(new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+                        }
+                    }
+                    if(cb.enPassantSquare.equals("-")){
+                        // do nothing
+                    }else{
+                        dr = cb.whiteToMove?2:5;
+                        if((file-Constants.FILES.indexOf(cb.enPassantSquare.charAt(0))) == -pinDirection[0]){
+                            if((!Util.isUpperCase(cb.board[rank][file]) && rank == 4)||(Util.isUpperCase(cb.board[rank][file]) && rank == 3)){
+                                Move move = new Move(file, rank, Constants.FILES.indexOf(cb.enPassantSquare.charAt(0)), dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                move.isEnPassant = true;
+                                moves.add(move);
+                            }
+                        }
+                    }
+                }
+            }
+            return moves;
+        }else if(cb.gs == GameState.CHECK){
+            if(cb.checkers.size()>1){
+                return moves; // a two-way check cannot be resolved without the king moving to a safe square
+            }
+            int checkerIndex=0;
+            for(Integer i:cb.checkers.keySet()){
+                checkerIndex = i;
+            }
+            int checkerFile = checkerIndex % 8;
+            int checkerRank = checkerIndex / 8;
+
+            //capture code
+            if(Math.abs(file-checkerFile) == 1) {
+                if ((cb.whiteToMove &&rank-checkerRank==1) || (!cb.whiteToMove &&rank-checkerRank==-1)){
+                    if(checkerRank == 0 || checkerRank == 7){
+                        if(cb.whiteToMove){
+                            Move moveQ = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveQ.promotionPiece = Constants.WHITE_QUEEN;
+                            moves.add(moveQ);
+                            Move moveN = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveN.promotionPiece = Constants.WHITE_KNIGHT;
+                            moves.add(moveN);
+                            Move moveR = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveR.promotionPiece = Constants.WHITE_ROOK;
+                            moves.add(moveR);
+                            Move moveB = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveB.promotionPiece = Constants.WHITE_BISHOP;
+                            moves.add(moveB);
+                        }else{
+                            Move moveQ = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveQ.promotionPiece = Constants.BLACK_QUEEN;
+                            moves.add(moveQ);
+                            Move moveN = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveN.promotionPiece = Constants.BLACK_KNIGHT;
+                            moves.add(moveN);
+                            Move moveR = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveR.promotionPiece = Constants.BLACK_ROOK;
+                            moves.add(moveR);
+                            Move moveB = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveB.promotionPiece = Constants.BLACK_BISHOP;
+                            moves.add(moveB);
+                        }
+                    }else {
+                        moves.add(new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+                    }
+                }
+            }
+
+
+
+            return moves;
+        }
+
+
+
+        int startIndex = Util.isUpperCase(cb.board[rank][file])?6:4;
+        int endIndex = Util.isUpperCase(cb.board[rank][file])?Constants.ALL_DIRECTIONS.length-1:5;
+        int f,r;
+        for(int i=startIndex;i<=endIndex;i++){
+            f = file + Constants.ALL_DIRECTIONS[i][0];
+            r = rank + Constants.ALL_DIRECTIONS[i][1];
+
+            if(Util.isValid(f,r)){
+                if(cb.board[r][f] != Constants.EMPTY_SQUARE && Util.isEnemyPiece(cb.whiteToMove,cb.board[r][f])){
+
+                    if(r == 0 || r == 7){
+                        if(cb.whiteToMove){
+                            Move moveQ = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveQ.promotionPiece = Constants.WHITE_QUEEN;
+                            moves.add(moveQ);
+                            Move moveN = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveN.promotionPiece = Constants.WHITE_KNIGHT;
+                            moves.add(moveN);
+                            Move moveR = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveR.promotionPiece = Constants.WHITE_ROOK;
+                            moves.add(moveR);
+                            Move moveB = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveB.promotionPiece = Constants.WHITE_BISHOP;
+                            moves.add(moveB);
+                        }else{
+                            Move moveQ = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveQ.promotionPiece = Constants.BLACK_QUEEN;
+                            moves.add(moveQ);
+                            Move moveN = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveN.promotionPiece = Constants.BLACK_KNIGHT;
+                            moves.add(moveN);
+                            Move moveR = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveR.promotionPiece = Constants.BLACK_ROOK;
+                            moves.add(moveR);
+                            Move moveB = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveB.promotionPiece = Constants.BLACK_BISHOP;
+                            moves.add(moveB);
+                        }
+                    }else {
+                        moves.add(new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+                    }
+                }
+            }
+        }
+
+        if(cb.enPassantSquare.equals("-")){
+            // do nothing
+        }else{
+            int dr = cb.whiteToMove?2:5;
+            if(Math.abs(file-Constants.FILES.indexOf(cb.enPassantSquare.charAt(0))) == 1){
+                int[] kingPosition = cb.kingPosition();
+                int enPassantPawn = Constants.FILES.indexOf(cb.enPassantSquare.charAt(0)),direction = Util.getSign(kingPosition[0],file);
+                boolean enPassant = true;
+                if((!Util.isUpperCase(cb.board[rank][file]) && rank == 4)||(Util.isUpperCase(cb.board[rank][file]) && rank == 3)){
+                    if(kingPosition[1] == rank){
+                        // possible occurrence https://lichess.org/editor/r2k3r/4p1pp/8/2K1Pp1q/8/8/PP1P1PP1/R7_w_k_-_0_1?color=white
+                        // en passant reveals a check
+                        // make en-passant move
+                        boolean foundAnotherPiece = false;
+                        for(int i=file+direction;i!=kingPosition[0];i+=direction){
+                            foundAnotherPiece = cb.board[rank][i]!=Constants.EMPTY_SQUARE&&Character.toUpperCase(cb.board[rank][i]) != Constants.WHITE_KING;
+                            if(foundAnotherPiece){
+                                break;
+                            }
+                        }
+                        if(!foundAnotherPiece){
+                            //loop to the other side and see if there is an opponent rook or queen
+                            for(int i=enPassantPawn-direction;i>0&&i<8;i-=direction){
+                                if(cb.board[rank][i] != Constants.EMPTY_SQUARE){
+                                    if(!Util.isAlly(cb.board[rank][file],cb.board[rank][i]) && (Character.toUpperCase(cb.board[rank][i]) == Constants.WHITE_ROOK || Character.toUpperCase(cb.board[rank][i]) == Constants.WHITE_QUEEN)){
+                                        //en-passant reveals check
+                                        enPassant = false;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        if(enPassant){
+                            Move move = new Move(file, rank, Constants.FILES.indexOf(cb.enPassantSquare.charAt(0)), dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            move.isEnPassant = true;
+                            moves.add(move);
+                        }
+                    }else {
+                        Move move = new Move(file, rank, Constants.FILES.indexOf(cb.enPassantSquare.charAt(0)), dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                        move.isEnPassant = true;
+                        moves.add(move);
+                    }
+                }
+            }
+        }
+
+
+
+        return moves;
+    }
+
+
+    public ArrayList<Move> pawn(int file,int rank){
         int pinnedIndex = file + rank * 8;
         boolean pinned = cb.pinnedPieces.containsKey(pinnedIndex);
         if(pinned){
@@ -904,30 +1119,48 @@ public class MoveManager {
                         if(cb.board[dr][df] != Constants.EMPTY_SQUARE){
                             if(dr == 0 || dr == 7) {
                                 if(cb.whiteToMove){
-                                    moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.WHITE_QUEEN);
-                                    moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.WHITE_KNIGHT);
-                                    moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.WHITE_ROOK);
-                                    moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.WHITE_BISHOP);
+                                    Move moveQ = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                    moveQ.promotionPiece = Constants.WHITE_QUEEN;
+                                    moves.add(moveQ);
+                                    Move moveN = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                    moveN.promotionPiece = Constants.WHITE_KNIGHT;
+                                    moves.add(moveN);
+                                    Move moveR = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                    moveR.promotionPiece = Constants.WHITE_ROOK;
+                                    moves.add(moveR);
+                                    Move moveB = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                    moveB.promotionPiece = Constants.WHITE_BISHOP;
+                                    moves.add(moveB);
                                 }else{
-                                    moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.BLACK_QUEEN);
-                                    moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.BLACK_KNIGHT);
-                                    moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.BLACK_ROOK);
-                                    moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts) + Constants.MOVE_SEPARATOR + Constants.BLACK_BISHOP);
+                                    Move moveQ = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                    moveQ.promotionPiece = Constants.BLACK_QUEEN;
+                                    moves.add(moveQ);
+                                    Move moveN = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                    moveN.promotionPiece = Constants.BLACK_KNIGHT;
+                                    moves.add(moveN);
+                                    Move moveR = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                    moveR.promotionPiece = Constants.BLACK_ROOK;
+                                    moves.add(moveR);
+                                    Move moveB = new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                    moveB.promotionPiece = Constants.BLACK_BISHOP;
+                                    moves.add(moveB);
                                 }
                             }else {
-                                moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts));
+                                moves.add(new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                             }
                         }
                     }
 
 
-                    if(cb.fenParts[10].equals("-")){
+                    if(cb.enPassantSquare.equals("-")){
                         // do nothing
                     }else{
                         int dr = cb.whiteToMove?2:5;
-                        if(Math.abs(file-Constants.FILES.indexOf(cb.fenParts[10].charAt(0))) == 1){
+                        if((file-Constants.FILES.indexOf(cb.enPassantSquare.charAt(0))) == -pinDirection[0]){
                             if((!Util.isUpperCase(cb.board[rank][file]) && rank == 4)||(Util.isUpperCase(cb.board[rank][file]) && rank == 3)){
-                                moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), dr,cb.board,cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.EN_PASSANT_NOTATION);
+                                Move move = new Move(file, rank, Constants.FILES.indexOf(cb.enPassantSquare.charAt(0)), dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                move.isEnPassant = true;
+                                moves.add(move);
                             }
                         }
                     }
@@ -953,18 +1186,34 @@ public class MoveManager {
                 if ((cb.whiteToMove &&rank-checkerRank==1) || (!cb.whiteToMove &&rank-checkerRank==-1)){
                     if(checkerRank == 0 || checkerRank == 7){
                         if(cb.whiteToMove){
-                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
-                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
-                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
-                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
+                            Move moveQ = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveQ.promotionPiece = Constants.WHITE_QUEEN;
+                            moves.add(moveQ);
+                            Move moveN = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveN.promotionPiece = Constants.WHITE_KNIGHT;
+                            moves.add(moveN);
+                            Move moveR = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveR.promotionPiece = Constants.WHITE_ROOK;
+                            moves.add(moveR);
+                            Move moveB = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveB.promotionPiece = Constants.WHITE_BISHOP;
+                            moves.add(moveB);
                         }else{
-                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
-                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
-                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
-                            moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
+                            Move moveQ = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveQ.promotionPiece = Constants.BLACK_QUEEN;
+                            moves.add(moveQ);
+                            Move moveN = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveN.promotionPiece = Constants.BLACK_KNIGHT;
+                            moves.add(moveN);
+                            Move moveR = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveR.promotionPiece = Constants.BLACK_ROOK;
+                            moves.add(moveR);
+                            Move moveB = new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveB.promotionPiece = Constants.BLACK_BISHOP;
+                            moves.add(moveB);
                         }
                     }else {
-                        moves.add(Util.cvtMove(file, rank, checkerFile, checkerRank, cb.board, cb.fenParts));
+                        moves.add(new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                     }
                 }
             }
@@ -989,12 +1238,20 @@ public class MoveManager {
                                             break;
                                         } else if(i==checkerRank){
                                             if(i==0){
-                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
-                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
-                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
-                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
+                                                Move moveQ = new Move(file,rank,file,i,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                                moveQ.promotionPiece = Constants.WHITE_QUEEN;
+                                                moves.add(moveQ);
+                                                Move moveN = new Move(file,rank,file,i,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                                moveN.promotionPiece = Constants.WHITE_KNIGHT;
+                                                moves.add(moveN);
+                                                Move moveR = new Move(file,rank,file,i,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                                moveR.promotionPiece = Constants.WHITE_ROOK;
+                                                moves.add(moveR);
+                                                Move moveB = new Move(file,rank,file,i,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                                moveB.promotionPiece = Constants.WHITE_BISHOP;
+                                                moves.add(moveB);
                                             }else {
-                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts));
+                                                moves.add(new Move(file, rank, file, i, cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                                             }
                                             break;
                                         }
@@ -1008,12 +1265,20 @@ public class MoveManager {
                                             break;
                                         } else if(i==checkerRank){
                                             if(i==7){
-                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
-                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
-                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
-                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
+                                                Move moveQ = new Move(file,rank,file,i,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                                moveQ.promotionPiece = Constants.BLACK_QUEEN;
+                                                moves.add(moveQ);
+                                                Move moveN = new Move(file,rank,file,i,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                                moveN.promotionPiece = Constants.BLACK_KNIGHT;
+                                                moves.add(moveN);
+                                                Move moveR = new Move(file,rank,file,i,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                                moveR.promotionPiece = Constants.BLACK_ROOK;
+                                                moves.add(moveR);
+                                                Move moveB = new Move(file,rank,file,i,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                                                moveB.promotionPiece = Constants.BLACK_BISHOP;
+                                                moves.add(moveB);
                                             }else {
-                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts));
+                                                moves.add(new Move(file, rank, file, i, cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                                             }
                                             break;
                                         }
@@ -1038,7 +1303,7 @@ public class MoveManager {
                                         if(cb.board[i][file] != Constants.EMPTY_SQUARE){
                                             break;
                                         } else if(i==dstRank){
-                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts));
+                                                moves.add(new Move(file, rank, file, i, cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                                             break;
                                         }
                                     }
@@ -1049,7 +1314,7 @@ public class MoveManager {
                                         if(cb.board[i][file] != Constants.EMPTY_SQUARE){
                                             break;
                                         } else if(i==dstRank){
-                                                moves.add(Util.cvtMove(file, rank, file, i, cb.board, cb.fenParts));
+                                                moves.add(new Move(file, rank, file, i, cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                                             break;
                                         }
                                     }
@@ -1059,55 +1324,6 @@ public class MoveManager {
                     }
 
 
-//                    if(Util.inBetween(checkerFile,kingPosition[0],file)){
-//                        int f=kingPosition[0];
-//                        int r=kingPosition[1];
-//                        while((f+=checkDirection[0])!=checkerFile&&(r+=checkDirection[1])!=checkerRank){
-//                            boolean hasPotential = (cb.whiteToMove&&rank>r&&((rank==6&&rank-r<=3)||(rank!=6&&rank-r<3)))||(cb.turn==Constants.BLACK&&rank<r&&((rank==1&&r-rank<=3)||(rank!=1&&r-rank<3)));
-//                            if(!hasPotential){
-//                                continue;
-//                            }
-//                            int limit;
-//                            if(cb.turn==Constants.BLACK){
-//                                limit = rank == 1?2:1;
-//                                for(int currentRank=rank+1;currentRank<=rank+limit;currentRank++){
-//                                    if(cb.board[currentRank][file]!=Constants.EMPTY_SQUARE){
-//                                        break;
-//                                    }
-//                                    if(f==file&&currentRank==r){
-//                                        if(r == 7){
-//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
-//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
-//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
-//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
-//                                        }else{
-//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts));
-//                                        }
-//                                        break;
-//                                    }
-//                                }
-//                            }else{
-//                                limit = rank == 6?2:1;
-//
-//                                for(int currentRank=rank-1;currentRank>=rank-limit;currentRank--){
-//                                    if(cb.board[currentRank][file]!=Constants.EMPTY_SQUARE){
-//                                        break;
-//                                    }
-//                                    if(f==file&&currentRank==r){
-//                                        if(r == 0){
-//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
-//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
-//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
-//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
-//                                        }else{
-//                                            moves.add(Util.cvtMove(file, rank, file, r, cb.board, cb.fenParts));
-//                                        }
-//                                        break;
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
 
                     break;
             }
@@ -1133,19 +1349,35 @@ public class MoveManager {
                 if(cb.board[r][f] == Constants.EMPTY_SQUARE){
                     if(r == 0 || r == 7){
                         if(cb.whiteToMove){
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
+                            Move moveQ = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveQ.promotionPiece = Constants.WHITE_QUEEN;
+                            moves.add(moveQ);
+                            Move moveN = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveN.promotionPiece = Constants.WHITE_KNIGHT;
+                            moves.add(moveN);
+                            Move moveR = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveR.promotionPiece = Constants.WHITE_ROOK;
+                            moves.add(moveR);
+                            Move moveB = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveB.promotionPiece = Constants.WHITE_BISHOP;
+                            moves.add(moveB);
                         }else{
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
+                            Move moveQ = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveQ.promotionPiece = Constants.BLACK_QUEEN;
+                            moves.add(moveQ);
+                            Move moveN = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveN.promotionPiece = Constants.BLACK_KNIGHT;
+                            moves.add(moveN);
+                            Move moveR = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveR.promotionPiece = Constants.BLACK_ROOK;
+                            moves.add(moveR);
+                            Move moveB = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveB.promotionPiece = Constants.BLACK_BISHOP;
+                            moves.add(moveB);
                         }
 
                     }else {
-                        moves.add(Util.cvtMove(file,rank,f,r,cb.board,cb.fenParts));
+                        moves.add(new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                     }
                 }else {
                     break;
@@ -1176,30 +1408,46 @@ public class MoveManager {
 
                     if(r == 0 || r == 7){
                         if(cb.whiteToMove){
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_QUEEN);
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_KNIGHT);
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_ROOK);
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.WHITE_BISHOP);
+                            Move moveQ = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveQ.promotionPiece = Constants.WHITE_QUEEN;
+                            moves.add(moveQ);
+                            Move moveN = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveN.promotionPiece = Constants.WHITE_KNIGHT;
+                            moves.add(moveN);
+                            Move moveR = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveR.promotionPiece = Constants.WHITE_ROOK;
+                            moves.add(moveR);
+                            Move moveB = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveB.promotionPiece = Constants.WHITE_BISHOP;
+                            moves.add(moveB);
                         }else{
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_QUEEN);
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_KNIGHT);
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_ROOK);
-                            moves.add(Util.cvtMove(file, rank, f, r, cb.board, cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.BLACK_BISHOP);
+                            Move moveQ = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveQ.promotionPiece = Constants.BLACK_QUEEN;
+                            moves.add(moveQ);
+                            Move moveN = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveN.promotionPiece = Constants.BLACK_KNIGHT;
+                            moves.add(moveN);
+                            Move moveR = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveR.promotionPiece = Constants.BLACK_ROOK;
+                            moves.add(moveR);
+                            Move moveB = new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            moveB.promotionPiece = Constants.BLACK_BISHOP;
+                            moves.add(moveB);
                         }
                     }else {
-                        moves.add(Util.cvtMove(file,rank,f,r,cb.board,cb.fenParts));
+                        moves.add(new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                     }
                 }
             }
         }
 
-        if(cb.fenParts[10].equals("-")){
+        if(cb.enPassantSquare.equals("-")){
             // do nothing
         }else{
             int dr = cb.whiteToMove?2:5;
-            if(Math.abs(file-Constants.FILES.indexOf(cb.fenParts[10].charAt(0))) == 1){
+            if(Math.abs(file-Constants.FILES.indexOf(cb.enPassantSquare.charAt(0))) == 1){
                 int[] kingPosition = cb.kingPosition();
-                int enPassantPawn = Constants.FILES.indexOf(cb.fenParts[10].charAt(0)),direction = Util.getSign(kingPosition[0],file);
+                int enPassantPawn = Constants.FILES.indexOf(cb.enPassantSquare.charAt(0)),direction = Util.getSign(kingPosition[0],file);
                 boolean enPassant = true;
                 if((!Util.isUpperCase(cb.board[rank][file]) && rank == 4)||(Util.isUpperCase(cb.board[rank][file]) && rank == 3)){
                     if(kingPosition[1] == rank){
@@ -1226,10 +1474,14 @@ public class MoveManager {
                             }
                         }
                         if(enPassant){
-                            moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), dr,cb.board,cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.EN_PASSANT_NOTATION);
+                            Move move = new Move(file, rank, Constants.FILES.indexOf(cb.enPassantSquare.charAt(0)), dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                            move.isEnPassant = true;
+                            moves.add(move);
                         }
                     }else {
-                        moves.add(Util.cvtMove(file, rank, Constants.FILES.indexOf(cb.fenParts[10].charAt(0)), dr,cb.board,cb.fenParts)+Constants.MOVE_SEPARATOR+Constants.EN_PASSANT_NOTATION);
+                        Move move = new Move(file, rank, Constants.FILES.indexOf(cb.enPassantSquare.charAt(0)), dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock);
+                        move.isEnPassant = true;
+                        moves.add(move);
                     }
                 }
             }
@@ -1238,7 +1490,64 @@ public class MoveManager {
         return moves;
     }
 
-    public ArrayList<String> queen(final int file,final int rank){//complete
+
+    public ArrayList<Move> queenCaptures(final int file,final int rank){
+        int pinnedIndex = file + rank * 8;
+        if(cb.pinnedPieces.containsKey(pinnedIndex)) {
+            if (cb.gs == GameState.CHECK) {
+                return moves; // a pinned piece cannot resolve check
+            }
+            int[] pinDirection = Constants.ALL_DIRECTIONS[cb.pinnedPieces.get(pinnedIndex)];
+            int tf = file+pinDirection[0],tr = rank+pinDirection[1];
+            while(cb.board[tr][tf] == Constants.EMPTY_SQUARE ){
+                tf += pinDirection[0];
+                tr += pinDirection[1];
+            }
+            moves.add(new Move(file,rank,tf,tr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+            return moves;
+        }else if(cb.gs == GameState.CHECK){
+            if(cb.checkers.size()>1){
+                return moves;// a two-way check cannot be resolved without the king moving to a safe square
+            }
+            int checkerIndex=0;
+            for(Integer i:cb.checkers.keySet()){
+                checkerIndex = i;
+            }
+            int checkerFile = checkerIndex % 8;
+            int checkerRank = checkerIndex / 8;
+
+            if(cb.canSlide(file,rank,checkerFile,checkerRank)){
+                moves.add(new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+            }
+
+
+            return moves;
+        }
+
+        int df,dr;
+        for(int[] direction:Constants.ALL_DIRECTIONS){
+            df = file + direction[0];
+            dr = rank + direction[1];
+            while(Util.isValid(df,dr)){
+                if(cb.board[dr][df] == Constants.EMPTY_SQUARE){
+
+                }else{
+                    if(Util.isAlly(cb.board[rank][file],cb.board[dr][df])){
+
+                    }else{
+                        moves.add(new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+                    }
+                    break;
+                }
+                df += direction[0];
+                dr += direction[1];
+            }
+        }
+        
+        return moves;
+    }
+
+    public ArrayList<Move> queen(final int file,final int rank){//complete
         int pinnedIndex = file + rank * 8;
         if(cb.pinnedPieces.containsKey(pinnedIndex)){
             if(cb.gs == GameState.CHECK){
@@ -1254,10 +1563,10 @@ public class MoveManager {
                     df += pinDirection[0];
                     dr += pinDirection[1];
                     if(cb.board[dr][df] == Constants.EMPTY_SQUARE) {
-                        moves.add(Util.cvtMove(file, rank, df, dr,cb.board,cb.fenParts));
+                        moves.add(new Move(file, rank, df, dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                     }else{
                         foundEnemyPiece = true;
-                        moves.add(Util.cvtMove(file, rank, df, dr,cb.board,cb.fenParts));
+                        moves.add(new Move(file, rank, df, dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                         df = file;
                         dr = rank;
                     }
@@ -1265,23 +1574,12 @@ public class MoveManager {
                     df -= pinDirection[0];
                     dr -= pinDirection[1];
                     if (cb.board[dr][df] == Constants.EMPTY_SQUARE) {
-                        moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts));
+                        moves.add(new Move(file, rank, df, dr, cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                     } else {
                         foundKing = true;
                     }
 
-//                    try {
-//                        if (cb.board[dr][df] == Constants.EMPTY_SQUARE) {
-//                            moves.add(Util.cvtMove(file, rank, df, dr, cb.board, cb.fenParts));
-//                        } else {
-//                            foundKing = true;
-//                        }
-//                    }catch (Exception e){
-//                        Util.writeToLog(file);
-//                        Util.writeToLog(rank);
-//                        Util.writeToLog(cb.board[rank][file]);
-//                    }
-                }//position startpos move d2d3 e7e6 c1f4 f8b4 d1d2 b8c6 b1c3 a8b8 e1c1 g8h6 c3e4
+                }
             }
             return moves;
         }else if(cb.gs == GameState.CHECK){
@@ -1296,7 +1594,7 @@ public class MoveManager {
             int checkerRank = checkerIndex / 8;
 
             if(cb.canSlide(file,rank,checkerFile,checkerRank)){
-                moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank,cb.board,cb.fenParts));
+                moves.add(new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
             }
 
             switch(Character.toUpperCase(cb.board[checkerRank][checkerFile])){
@@ -1311,14 +1609,14 @@ public class MoveManager {
                         int r = kingPosition[1];
                         while ((r += checkDirection[1]) != checkerRank) {
                             if(cb.canSlide(file,rank,checkerFile,r)){
-                                moves.add(Util.cvtMove(file,rank,checkerFile,r,cb.board,cb.fenParts));
+                                moves.add(new Move(file,rank,checkerFile,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                             }
                         }
                     }else if(checkDirection[1] == 0){
                         int f = kingPosition[0];
                         while ((f += checkDirection[0]) != checkerFile) {
                             if(cb.canSlide(file,rank,f,checkerRank)){
-                                moves.add(Util.cvtMove(file,rank,f,checkerRank,cb.board,cb.fenParts));
+                                moves.add(new Move(file,rank,f,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                             }
                         }
                     }
@@ -1326,7 +1624,7 @@ public class MoveManager {
                         int f = kingPosition[0], r = kingPosition[1];
                         while ((f += checkDirection[0]) != checkerFile && (r += checkDirection[1]) != checkerRank) {
                             if(cb.canSlide(file,rank,f,r)){
-                                moves.add(Util.cvtMove(file,rank,f,r,cb.board,cb.fenParts));
+                                moves.add(new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                             }
                         }
                     }
@@ -1341,12 +1639,12 @@ public class MoveManager {
             dr = rank + direction[1];
             while(Util.isValid(df,dr)){
                 if(cb.board[dr][df] == Constants.EMPTY_SQUARE){
-                    moves.add(Util.cvtMove(file,rank,df,dr,cb.board,cb.fenParts));
+                    moves.add(new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                 }else{
                     if(Util.isAlly(cb.board[rank][file],cb.board[dr][df])){
 
                     }else{
-                        moves.add(Util.cvtMove(file,rank,df,dr,cb.board,cb.fenParts));
+                        moves.add(new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                     }
                     break;
                 }
@@ -1357,7 +1655,73 @@ public class MoveManager {
         return moves;
     }
 
-    public ArrayList<String> rook(final int file,final int rank){//complete
+
+    public ArrayList<Move> rookCaptures(final int file,final int rank){
+        int pieceIndex = file + rank * 8;
+        if(cb.pinnedPieces.containsKey(pieceIndex)){
+            if(cb.gs == GameState.CHECK){
+                return moves;
+            }
+            int[] pinDirection = Constants.ALL_DIRECTIONS[cb.pinnedPieces.get(pieceIndex)];
+            if(pinDirection[0] != 0 && pinDirection[1] != 0){
+                // a rook pinned by bishop or diagonally by queen cannot move
+            }else{
+                int tf = file+pinDirection[0],tr = rank+pinDirection[1];
+                while(cb.board[tr][tf] == Constants.EMPTY_SQUARE ){
+                    tf += pinDirection[0];
+                    tr += pinDirection[1];
+                }
+                moves.add(new Move(file,rank,tf,tr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+            }
+            return moves;
+
+        }else if(cb.gs==GameState.CHECK){
+            if(cb.checkers.size()>1){
+                return moves;
+            }
+            int checkerIndex=0;
+            for(Integer i:cb.checkers.keySet()){
+                checkerIndex = i;
+            }
+            int checkerFile = checkerIndex % 8;
+            int checkerRank = checkerIndex / 8;
+
+            if(file == checkerFile || rank == checkerRank){
+                if(cb.canSlide(file,rank,checkerFile,checkerRank)){
+                    moves.add(new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+                }
+            }
+
+            return moves;
+        }
+
+
+        int df,dr;
+        for(int i=0;i<4;i++){
+            df = file + Constants.ALL_DIRECTIONS[i][0];
+            dr = rank + Constants.ALL_DIRECTIONS[i][1];
+            while(Util.isValid(df,dr)){
+                if(cb.board[dr][df] == Constants.EMPTY_SQUARE){
+
+                }else{
+                    if(Util.isAlly(cb.board[rank][file],cb.board[dr][df])){
+
+                    }else{
+                        moves.add(new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+                    }
+                    break;
+                }
+                df += Constants.ALL_DIRECTIONS[i][0];
+                dr += Constants.ALL_DIRECTIONS[i][1];
+            }
+        }
+
+
+
+        return moves;
+    }
+
+    public ArrayList<Move> rook(final int file,final int rank){//complete
         int pinnedIndex = file + rank * 8;
         if(cb.pinnedPieces.containsKey(pinnedIndex)){
             if(cb.gs == GameState.CHECK){
@@ -1375,10 +1739,10 @@ public class MoveManager {
                         df += pinDirection[0];
                         dr += pinDirection[1];
                         if(cb.board[dr][df] == Constants.EMPTY_SQUARE) {
-                            moves.add(Util.cvtMove(file, rank, df, dr,cb.board,cb.fenParts));
+                            moves.add(new Move(file, rank, df, dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                         }else{
                             foundEnemyPiece = true;
-                            moves.add(Util.cvtMove(file, rank, df, dr,cb.board,cb.fenParts));
+                            moves.add(new Move(file, rank, df, dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                             df = file;
                             dr = rank;
                         }
@@ -1386,7 +1750,7 @@ public class MoveManager {
                         df -= pinDirection[0];
                         dr -= pinDirection[1];
                         if(cb.board[dr][df] == Constants.EMPTY_SQUARE) {
-                            moves.add(Util.cvtMove(file, rank, df, dr,cb.board,cb.fenParts));
+                            moves.add(new Move(file, rank, df, dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                         }else{
                             foundKing = true;
                         }
@@ -1407,7 +1771,7 @@ public class MoveManager {
 
             if(file == checkerFile || rank == checkerRank){
                 if(cb.canSlide(file,rank,checkerFile,checkerRank)){
-                    moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank,cb.board,cb.fenParts));
+                    moves.add(new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                 }
             }
 
@@ -1422,14 +1786,14 @@ public class MoveManager {
                         if(Util.inBetween(kingPosition[1],checkerRank,rank)){
                             // means the rook is in between the checker and the king, therefore it might be able to block the check
                             if(cb.canSlide(file,rank,kingPosition[0],rank)){
-                                moves.add(Util.cvtMove(file,rank,kingPosition[0],rank,cb.board,cb.fenParts));
+                                moves.add(new Move(file,rank,kingPosition[0],rank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                             }
                         }
                     }else if(checkDirection[1] == 0){
                         if(Util.inBetween(kingPosition[0],checkerFile,file)){
                             // means the rook is in between the checker and the king, therefore it might be able to block the check
                             if(cb.canSlide(file,rank,file,kingPosition[1])){
-                                moves.add(Util.cvtMove(file,rank,file,kingPosition[1],cb.board,cb.fenParts));
+                                moves.add(new Move(file,rank,file,kingPosition[1],cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                             }
                         }
                     }else{
@@ -1441,7 +1805,7 @@ public class MoveManager {
                             if(f == file || r == rank){
                                 //System.out.println(file+" "+rank+" "+f+" "+r);
                                 if(cb.canSlide(file,rank,f,r)){
-                                    moves.add(Util.cvtMove(file,rank,f,r,cb.board,cb.fenParts));
+                                    moves.add(new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                                 }
                                 //break;
                             }
@@ -1458,12 +1822,12 @@ public class MoveManager {
             dr = rank + Constants.ALL_DIRECTIONS[i][1];
             while(Util.isValid(df,dr)){
                 if(cb.board[dr][df] == Constants.EMPTY_SQUARE){
-                    moves.add(Util.cvtMove(file,rank,df,dr,cb.board,cb.fenParts));
+                    moves.add(new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                 }else{
                     if(Util.isAlly(cb.board[rank][file],cb.board[dr][df])){
 
                     }else{
-                        moves.add(Util.cvtMove(file,rank,df,dr,cb.board,cb.fenParts));
+                        moves.add(new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                     }
                     break;
                 }
@@ -1474,7 +1838,46 @@ public class MoveManager {
         return moves;
     }
 
-    public ArrayList<String> knight(final int file,final int rank){//complete
+
+    public ArrayList<Move> knightCaptures(final int file,final int rank){
+        if(cb.pinnedPieces.containsKey(file + rank * 8)){
+            return moves;
+        }else if(cb.gs == GameState.CHECK){
+            if(cb.checkers.size()>1){
+                return moves;
+            }
+            int checkerIndex=0;
+            for(Integer i:cb.checkers.keySet()){
+                checkerIndex = i;
+            }
+            int checkerFile = checkerIndex % 8;
+            int checkerRank = checkerIndex / 8;
+
+            //capture code
+            if(file!=checkerFile&&rank!=checkerRank){
+                int[] direction = Util.getDirection(file,rank,checkerFile,checkerRank);
+                for(int i=0;i<2;i++){
+                    if(file+Constants.KNIGHT_DIRECTION[i][0]*direction[0] == checkerFile && rank+Constants.KNIGHT_DIRECTION[i][1]*direction[1] == checkerRank){
+                        moves.add(new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+                        break;
+                    }
+                }
+            }
+            return moves;
+        }
+        int df,dr;
+        for(int[] direction:Constants.KNIGHT_DIRECTION){
+            df = file + direction[0];
+            dr = rank + direction[1];
+            if(Util.isValid(df,dr) && cb.board[dr][df] !=Constants.EMPTY_SQUARE && Util.isEnemyPiece(cb.whiteToMove,cb.board[dr][df])){
+                moves.add(new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+            }
+        }
+
+        return moves;
+    }
+
+    public ArrayList<Move> knight(final int file,final int rank){//complete
         if(cb.pinnedPieces.containsKey(file + rank * 8)){
             //System.out.println("file "+file);
             //System.out.println("rank "+rank);
@@ -1495,7 +1898,7 @@ public class MoveManager {
                 int[] direction = Util.getDirection(file,rank,checkerFile,checkerRank);
                 for(int i=0;i<2;i++){
                     if(file+Constants.KNIGHT_DIRECTION[i][0]*direction[0] == checkerFile && rank+Constants.KNIGHT_DIRECTION[i][1]*direction[1] == checkerRank){
-                        moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank,cb.board,cb.fenParts));
+                        moves.add(new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                         break;
                     }
                 }
@@ -1521,7 +1924,7 @@ public class MoveManager {
                             int[] direction = Util.getDirection(file,rank,checkerFile,r);
                             for(int i=0;i<2;i++){
                                 if(file+Constants.KNIGHT_DIRECTION[i][0]*direction[0] == checkerFile && rank+Constants.KNIGHT_DIRECTION[i][1]*direction[1] == r){
-                                    moves.add(Util.cvtMove(file,rank,checkerFile,r,cb.board,cb.fenParts));
+                                    moves.add(new Move(file,rank,checkerFile,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                                     break;
                                 }
                             }
@@ -1539,7 +1942,7 @@ public class MoveManager {
                             int[] direction = Util.getDirection(file,rank,f,checkerRank);
                             for(int i=0;i<2;i++){
                                 if(file+Constants.KNIGHT_DIRECTION[i][0]*direction[0] == f && rank+Constants.KNIGHT_DIRECTION[i][1]*direction[1] == checkerRank){
-                                    moves.add(Util.cvtMove(file,rank,f,checkerRank,cb.board,cb.fenParts));
+                                    moves.add(new Move(file,rank,f,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                                     break;
                                 }
                             }
@@ -1554,7 +1957,7 @@ public class MoveManager {
                             int[] direction = Util.getDirection(file,rank,f,r);
                             for(int i=0;i<2;i++){
                                 if(file+Constants.KNIGHT_DIRECTION[i][0]*direction[0] == f && rank+Constants.KNIGHT_DIRECTION[i][1]*direction[1] == r){
-                                    moves.add(Util.cvtMove(file,rank,f,r,cb.board,cb.fenParts));
+                                    moves.add(new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                                     break;
                                 }
                             }
@@ -1569,14 +1972,77 @@ public class MoveManager {
             df = file + direction[0];
             dr = rank + direction[1];
             if(Util.isValid(df,dr) && !Util.isAlly(cb.board[dr][df],cb.board[rank][file])){
-                moves.add(Util.cvtMove(file,rank,df,dr,cb.board,cb.fenParts));
+                moves.add(new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
             }
         }
 
         return moves;
     }
 
-    public ArrayList<String> bishop(final int file,final int rank){//complete!
+
+    public ArrayList<Move> bishopCaptures(final int file,final int rank) {//complete!
+        int pinnedIndex = file + rank * 8;
+        if (cb.pinnedPieces.containsKey(pinnedIndex)) {
+            if (cb.gs == GameState.CHECK) {
+                return moves;
+            }
+            int[] pinDirection = Constants.ALL_DIRECTIONS[cb.pinnedPieces.get(pinnedIndex)];
+            if (pinDirection[0] == 0 || pinDirection[1] == 0) {
+                // a bishop pinned by rook or horizontally by queen cannot move
+            }else{
+                int f = file+pinDirection[0],r = rank + pinDirection[1];
+                while(cb.board[r][f] == Constants.EMPTY_SQUARE){
+                    f += pinDirection[0];
+                    r += pinDirection[1];
+                }
+                moves.add(new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+            }
+            return moves;
+        }else if(cb.gs == GameState.CHECK){
+            if(cb.checkers.size()>1){
+                return moves;
+            }
+            int checkerIndex=0;
+            for(Integer i:cb.checkers.keySet()){
+                checkerIndex = i;
+            }
+            int checkerFile = checkerIndex % 8;
+            int checkerRank = checkerIndex / 8;
+
+
+            boolean onSameColoredSquare = (file+rank)%2==(checkerFile+checkerRank)%2;
+
+            if((file!=checkerFile) && (rank!=checkerRank) && onSameColoredSquare&&cb.canSlide(file,rank,checkerFile,checkerRank)){
+                moves.add(new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+            }
+            return moves;
+        }
+        int df,dr;
+        for(int i = 4; i<Constants.ALL_DIRECTIONS.length; i++){
+            df = file + Constants.ALL_DIRECTIONS[i][0];
+            dr = rank + Constants.ALL_DIRECTIONS[i][1];
+            while(Util.isValid(df,dr)){
+                if(cb.board[dr][df] == Constants.EMPTY_SQUARE){
+
+                }else{
+                    if(Util.isAlly(cb.board[rank][file],cb.board[dr][df])){
+
+                    }else{
+                        moves.add(new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
+                    }
+                    break;
+                }
+                df += Constants.ALL_DIRECTIONS[i][0];
+                dr += Constants.ALL_DIRECTIONS[i][1];
+            }
+        }
+
+
+
+        return moves;
+    }
+
+    public ArrayList<Move> bishop(final int file,final int rank){//complete!
         int pinnedIndex = file + rank * 8;
         if(cb.pinnedPieces.containsKey(pinnedIndex)){
             if(cb.gs == GameState.CHECK){
@@ -1594,10 +2060,10 @@ public class MoveManager {
                         df += pinDirection[0];
                         dr += pinDirection[1];
                         if(cb.board[dr][df] == Constants.EMPTY_SQUARE) {
-                            moves.add(Util.cvtMove(file, rank, df, dr,cb.board,cb.fenParts));
+                            moves.add(new Move(file, rank, df, dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                         }else{
                             foundEnemyPiece = true;
-                            moves.add(Util.cvtMove(file, rank, df, dr,cb.board,cb.fenParts));
+                            moves.add(new Move(file, rank, df, dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                             df = file;
                             dr = rank;
                         }
@@ -1605,7 +2071,7 @@ public class MoveManager {
                         df -= pinDirection[0];
                         dr -= pinDirection[1];
                         if(cb.board[dr][df] == Constants.EMPTY_SQUARE) {
-                            moves.add(Util.cvtMove(file, rank, df, dr,cb.board,cb.fenParts));
+                            moves.add(new Move(file, rank, df, dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                         }else{
                             foundKing = true;
                         }
@@ -1628,7 +2094,7 @@ public class MoveManager {
             boolean onSameColoredSquare =  (file+rank)%2==(checkerFile+checkerRank)%2;
 
             if((file!=checkerFile) && (rank!=checkerRank) && onSameColoredSquare&&cb.canSlide(file,rank,checkerFile,checkerRank)){
-                moves.add(Util.cvtMove(file,rank,checkerFile,checkerRank,cb.board,cb.fenParts));
+                moves.add(new Move(file,rank,checkerFile,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
             }
 
 
@@ -1647,7 +2113,7 @@ public class MoveManager {
                         while((r+=checkDirection[1])!=checkerRank){
                             if(rank!=r&&(file+rank)%2==(checkerFile+r)%2){
                                 if(cb.canSlide(file,rank,checkerFile,r)){
-                                    moves.add(Util.cvtMove(file,rank,checkerFile,r,cb.board,cb.fenParts));
+                                    moves.add(new Move(file,rank,checkerFile,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                                 }
                             }
                         }
@@ -1661,7 +2127,7 @@ public class MoveManager {
                         while((f+=checkDirection[0])!=checkerFile){
                             if(file!=f&&(file+rank)%2==(f+checkerRank)%2){
                                 if(cb.canSlide(file,rank,f,checkerRank)){
-                                    moves.add(Util.cvtMove(file,rank,f,checkerRank,cb.board,cb.fenParts));
+                                    moves.add(new Move(file,rank,f,checkerRank,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                                 }
                             }
                         }
@@ -1669,29 +2135,14 @@ public class MoveManager {
                         int[] kingPosition = cb.kingPosition();
                         int f = kingPosition[0],r = kingPosition[1];
                         while((f+=checkDirection[0])!=checkerFile&&(r+=checkDirection[1])!=checkerRank){
-                           if((file!=f) && (rank!=r)&&(file+rank)%2==(f+r)%2){
+                            if((file!=f) && (rank!=r)&&(file+rank)%2==(f+r)%2){
                                 if(cb.canSlide(file,rank,f,r)){
-                                    moves.add(Util.cvtMove(file,rank,f,r,cb.board,cb.fenParts));
+                                    moves.add(new Move(file,rank,f,r,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                                 }
                             }
 
                         }
 
-//                        if(!onSameColoredSquare || file==checkerFile||rank==checkerRank){
-//                            break;
-//                        }
-//                        int[] kingPosition = cb.kingPosition();
-//                        int f = kingPosition[0],r = kingPosition[1];
-//                        while((f+=checkDirection[0])!=checkerFile&&(r+=checkDirection[1])!=checkerRank){
-//                            Util.writeToLog(f);
-//                            Util.writeToLog(r);
-//                            if((file!=f) && (rank!=r)&&(file+rank)%2==(f+r)%2){
-//
-//                                if(cb.canSlide(file,rank,f,r)){
-//                                    moves.add(Util.cvtMove(file,rank,f,r,cb.board,cb.fenParts));
-//                                }
-//                            }
-//                        }
                     }
 
 
@@ -1710,12 +2161,12 @@ public class MoveManager {
             dr = rank + Constants.ALL_DIRECTIONS[i][1];
             while(Util.isValid(df,dr)){
                 if(cb.board[dr][df] == Constants.EMPTY_SQUARE){
-                    moves.add(Util.cvtMove(file,rank,df,dr,cb.board,cb.fenParts));
+                    moves.add(new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                 }else{
                     if(Util.isAlly(cb.board[rank][file],cb.board[dr][df])){
 
                     }else{
-                        moves.add(Util.cvtMove(file,rank,df,dr,cb.board,cb.fenParts));
+                        moves.add(new Move(file,rank,df,dr,cb.board,cb.castlingFEN,cb.enPassantSquare,cb.halfMoveClock));
                     }
                     break;
                 }

@@ -8,8 +8,12 @@ import java.util.Arrays;
 public class FenUtils {
 
 
-    public static String generate(char[][] board){
-        return generate(board,"w - - 0 1");
+
+
+    public static String generate(ChessBoard board){
+        String rest = Character.toString(board.whiteToMove?Constants.WHITE:Constants.BLACK);
+        rest += " "+board.castlingFEN+" "+board.enPassantSquare+" "+board.halfMoveClock+" "+board.fullMoveClock;
+        return generate(board.board,rest);
     }
 
     public static String generate(char[][] board,String rest){
@@ -21,7 +25,8 @@ public class FenUtils {
         return fen;
     }
 
-    public static char[][] parse(String[] fenParts){
+    public static char[][] getBoardFromFEN(String fen){
+        String[] fenParts =split(fen);
         int file = 0;
         int rank = 0;
         char[][] board = Util.getEmptyBoard();

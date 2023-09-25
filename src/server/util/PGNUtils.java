@@ -2,9 +2,9 @@ package server.util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
 
 import server.board.ChessBoard;
+import server.move.Move;
 import server.move.MoveManager;
 
 import java.util.ArrayList;
@@ -16,12 +16,12 @@ public class PGNUtils {
 
     public static final int ALL_GAMES = -1;
 
-    public static String generateSANMoveText(ArrayList<String> movesMade){
+    public static String generateSANMoveText(ArrayList<Move> movesMade){
         ChessBoard cb = new ChessBoard();
         MoveManager mm = new MoveManager(cb);
         String pgn = "";
         int plyCount = 1;
-        for(String move:movesMade){
+        for(Move move:movesMade){
             if(cb.whiteToMove){
                 pgn += plyCount+". ";
                 plyCount+=1;
@@ -32,26 +32,22 @@ public class PGNUtils {
         return pgn.trim();
     }
 
-    public static String cvt(String move, MoveManager mm){//move to san
-        if(move.contains(Constants.QUEEN_SIDE_CASTLING)){
+    public static String cvt(Move move, MoveManager mm){//move to san
+        if(move.isQueenSideCastling){
             return Constants.QUEEN_SIDE_CASTLING;
-        }else if(move.contains(Constants.KING_SIDE_CASTLING)){
+        }else if(move.isKingSideCastling){
             return Constants.KING_SIDE_CASTLING;
         }
 
-        ArrayList<String> moves = mm.getAllMoves();
-
-        int fromFile = Integer.parseInt(Character.toString(move.charAt(0)));
-        int fromRank = Integer.parseInt(Character.toString(move.charAt(1)));
-        int toFile = Integer.parseInt(Character.toString(move.charAt(2)));
-        int toRank = Integer.parseInt(Character.toString(move.charAt(3)));
+        ArrayList<Move> moves = mm.getAllMoves();
 
 
-        ArrayList<String> similarMoves = new ArrayList<>();
-        char pieceToMove = mm.cb.board[fromRank][fromFile];
-        for(String m:moves){
-            if(!move.equals(m) && !m.substring(0,2).equals(move.substring(0,2)) && m.substring(2,4).equals(move.substring(2,4))){
-                if(pieceToMove == mm.cb.board[Integer.parseInt(Character.toString(m.charAt(1)))][Integer.parseInt(Character.toString(m.charAt(0)))]){
+
+        ArrayList<Move> similarMoves = new ArrayList<>();
+        char pieceToMove = mm.cb.board[move.locRank][move.locFile];
+        for(Move m:moves){
+            if(!move.equals(m) && (move.locFile !=m.locFile && move.locRank!=m.locRank) && (move.destFile == m.destFile && move.destRank == m.destRank)){
+                if(pieceToMove == mm.cb.board[m.locRank][m.locFile]){
                     similarMoves.add(m);
                 }
             }
@@ -60,37 +56,37 @@ public class PGNUtils {
         String san;
         if(Character.toUpperCase(pieceToMove) == Constants.WHITE_PAWN){
             san = "";
-            if(!similarMoves.isEmpty()|| move.contains(Constants.EN_PASSANT_NOTATION) || move.charAt(5) != Constants.EMPTY_SQUARE ){
-                san = Character.toString(Constants.FILES.charAt(fromFile));
+            if(!similarMoves.isEmpty()|| move.isEnPassant || move.capturedPiece != Constants.EMPTY_SQUARE ){
+                san = Character.toString(Constants.FILES.charAt(move.locFile));
             }
         }else{
             san = Character.toString(Character.toUpperCase(pieceToMove));
             boolean fileSame = false,rankSame = false;
-            for(String similar:similarMoves){
-                fileSame = fileSame || move.charAt(0) == similar.charAt(0);
-                rankSame = rankSame || move.charAt(1) == similar.charAt(1);
+            for(Move similar:similarMoves){
+                fileSame = fileSame || move.locFile == similar.locFile;
+                rankSame = rankSame || move.locRank == similar.locRank;
             }
 
             if(rankSame && fileSame){
-                san += Character.toString(Constants.FILES.charAt(fromFile)) + Character.toString(Constants.RANKS.charAt(fromRank));;
+                san += Character.toString(Constants.FILES.charAt(move.locFile)) + Character.toString(Constants.RANKS.charAt(move.locRank));;
             }else if(rankSame){
-                san += Character.toString(Constants.FILES.charAt(fromFile));
+                san += Character.toString(Constants.FILES.charAt(move.locFile));
             }else if(fileSame){
-                san += Character.toString(Constants.RANKS.charAt(fromRank));
+                san += Character.toString(Constants.RANKS.charAt(move.locRank));
             }else if(!similarMoves.isEmpty()){
-                san += Character.toString(Constants.FILES.charAt(fromFile));
+                san += Character.toString(Constants.FILES.charAt(move.locFile));
             }
 
         }
-        if(move.charAt(5) != Constants.EMPTY_SQUARE ||move.contains(Constants.EN_PASSANT_NOTATION)){
+        if(move.capturedPiece != Constants.EMPTY_SQUARE ||move.isEnPassant){
             san += "x";
         }
 
-        san += Character.toString(Constants.FILES.charAt(toFile)) + Character.toString(Constants.RANKS.charAt(toRank));
+        san += Character.toString(Constants.FILES.charAt(move.destFile)) + Character.toString(Constants.RANKS.charAt(move.destRank));
 
 
-        if(Character.toUpperCase(pieceToMove) == Constants.WHITE_PAWN &&( toRank == 0 || toRank == 7)){
-            san += "="+ move.split(Constants.MOVE_SEPARATOR)[Constants.PROMOTION_MOVE_LENGTH-1];
+        if(Character.toUpperCase(pieceToMove) == Constants.WHITE_PAWN &&( move.destRank == 0 || move.destRank == 7)){
+            san += "="+ move.promotionPiece;
         }
 
         mm.makeMove(move);
@@ -138,6 +134,9 @@ public class PGNUtils {
                 if(line.startsWith("[")){
                     String infoLine = line.replace("[", "").replace("]","");
                     String[] infoSegments = infoLine.split("\"");
+                    if(infoSegments.length<2){
+                        continue;
+                    }
                     String key = infoSegments[0].trim();
                     String value = infoSegments[1].trim();
                     gameInfo.put(key,value);
@@ -164,12 +163,18 @@ public class PGNUtils {
         //System.out.println(content);
         return content;
     }
-    public static String parse(String san, MoveManager mm){//san to move
+    public static Move parse(String san, MoveManager mm){//san to move
 
         if (san.toUpperCase().contains(Constants.QUEEN_SIDE_CASTLING)){
-            return Util.constructCastlingMove(Constants.QUEEN_SIDE_CASTLING,mm.cb.fenParts);
+            int rank = mm.cb.whiteToMove ? 7:0;
+            Move move = new Move(4,rank,2,rank,mm.cb.board,mm.cb.castlingFEN,mm.cb.enPassantSquare,mm.cb.halfMoveClock);
+            move.isQueenSideCastling = true;
+            return move;
         }else if (san.toUpperCase().contains(Constants.KING_SIDE_CASTLING)){
-            return Util.constructCastlingMove(Constants.KING_SIDE_CASTLING,mm.cb.fenParts);
+            int rank = mm.cb.whiteToMove ? 7:0;
+            Move move = new Move(4,rank,6,rank,mm.cb.board,mm.cb.castlingFEN,mm.cb.enPassantSquare,mm.cb.halfMoveClock);
+            move.isKingSideCastling = true;
+            return move;
         }else{
             Pattern coordPattern = Pattern.compile("[a-h][1-8]");
 
@@ -188,17 +193,18 @@ public class PGNUtils {
             if(invalid){
                 return null;
             }
-            ArrayList<String> allMoves = mm.getAllMoves();
-            for(String move:allMoves){
-                if(move.contains(Constants.KING_SIDE_CASTLING)){
+            ArrayList<Move> allMoves = mm.getAllMoves();
+            for(Move move:allMoves){
+                if(move.isKingSideCastling || move.isQueenSideCastling){
                     continue;
                 }
-                int index = Integer.parseInt(Character.toString(move.charAt(2))) + Integer.parseInt(Character.toString(move.charAt(3))) * 8;
+
+                int index = move.destFile + move.destRank * 8;
                 String dstCoord = Util.cvtCoord(index);
                 if(dstCoord.equals(to)){
 
-                    index = Integer.parseInt(Character.toString(move.charAt(0))) + Integer.parseInt(Character.toString(move.charAt(1))) * 8;
-                    char piece = mm.cb.board[index/8][index%8];
+                    index = move.locFile + move.locRank * 8;
+                    char piece = mm.cb.board[move.locRank][move.locFile];
                     if(Character.isUpperCase(san.charAt(0))){
                         if(Character.toUpperCase(piece) == san.charAt(0)) {
                             if (from.isEmpty()) {
@@ -219,13 +225,12 @@ public class PGNUtils {
                     }else{
                         if(Character.toUpperCase(piece) == Constants.WHITE_PAWN){
                             if(san.contains("=")){
-                                if(!move.contains(Constants.EN_PASSANT_NOTATION)&&!Character.isDigit(move.charAt(move.length()-1))){
-                                    String[] moveParts = move.split(Constants.MOVE_SEPARATOR);
-                                    if(Character.toUpperCase(moveParts[moveParts.length-1].charAt(0)) == san.charAt(san.indexOf("=")+1)){
+                                if(!move.isEnPassant){
+                                    if(Character.toUpperCase(move.promotionPiece) ==Character.toUpperCase(san.charAt(san.indexOf("=")+1))){
                                         return move;
                                     }
                                 }
-                            }else if(index % 8 == Constants.FILES.indexOf(san.charAt(0))){
+                            }else if(move.locFile == Constants.FILES.indexOf(san.charAt(0)) ){
                                 return move;
                             }
                         }
@@ -238,18 +243,22 @@ public class PGNUtils {
         return null;
     }
 
-    public static ArrayList<String> getMoves(String moveText){
+    public static ArrayList<Move> getMoves(String moveText){
         ChessBoard cb=new ChessBoard();
         MoveManager mm=new MoveManager(cb);
-        ArrayList<String> movesMade = new ArrayList<>();
+        ArrayList<Move> movesMade = new ArrayList<>();
         for(String seg:moveText.split(" ")){
-            if(!Character.isDigit(seg.charAt(0))){
-                String move = parse(seg,mm);
-                if(move!=null){
+            if(seg.isEmpty() || Character.isDigit(seg.charAt(0)) || seg.charAt(0) == '{' || seg.contains("clk") || seg.contains("eval") || seg.endsWith("}")){
+                continue;
+            }
+
+                Move move = parse(seg, mm);
+                if (move != null) {
                     movesMade.add(move);
                     mm.makeMove(move);
+
                 }
-            }
+
         }
         return movesMade;
     }

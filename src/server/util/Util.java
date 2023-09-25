@@ -1,6 +1,7 @@
 package server.util;
 
 import server.exception.InvalidCoordinateException;
+import server.move.Move;
 
 import java.security.SecureRandom;
 import java.util.*;
@@ -17,31 +18,6 @@ public class Util {
         return logger != null;
     }
 
-
-    //code requested from chatgpt
-    public static LinkedHashMap<String,Float> sortHashMap(HashMap<String,Float> hashMap){
-
-        // Convert the HashMap to a List of Map.Entry objects
-        List<Map.Entry<String, Float>> entryList = new ArrayList<>(hashMap.entrySet());
-
-        // Sort the list based on the values using a custom comparator
-        Collections.sort(entryList, new Comparator<Map.Entry<String, Float>>() {
-            @Override
-            public int compare(Map.Entry<String, Float> entry1, Map.Entry<String, Float> entry2) {
-                // Compare the values in ascending order
-                return Float.compare(entry1.getValue(), entry2.getValue());
-            }
-        });
-
-        // Create a new LinkedHashMap to store the sorted entries
-        LinkedHashMap<String, Float> sortedMap = new LinkedHashMap<>();
-        for (Map.Entry<String, Float> entry : entryList) {
-            sortedMap.put(entry.getKey(), entry.getValue());
-        }
-
-        // Print the sorted map
-        return sortedMap;
-    }
 
     public static void initLogger(){
         logger = Logger.getLogger("Engine Log");

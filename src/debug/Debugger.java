@@ -33,11 +33,15 @@ public class Debugger {
             }else if(input.equals("quit")){
                 running = false;
                 sf.stopEngine();
-            }else if(parts[0].equals("perft") && parts.length == 2 && Character.isDigit(input.charAt(6))){
+            }else if(parts[0].equals("perft") && parts.length >= 2 && Character.isDigit(input.charAt(6))){
                 int depth = Integer.parseInt(parts[1]);
                 sf.sendCommand("go perft "+depth);
-                String engine = mm.moveGenerationTest(depth,true);
-                String sfOutput = sf.getOutput();
+                String engine = mm.moveGenerationTest(depth);
+                int waitTime = 2000;
+                if(parts.length == 3){
+                    waitTime = Integer.parseInt(parts[2]);
+                }
+                String sfOutput = sf.getOutput(waitTime);
                 Pattern movePattern = Pattern.compile("[a-h][1-8]");
                 HashMap<String,Integer> enginePerftTest = new HashMap<>();
                 HashMap<String,Integer> sfPerftTest = new HashMap<>();
@@ -65,8 +69,6 @@ public class Debugger {
 
     private static void comparePerftOutput(HashMap<String,Integer> engine,HashMap<String,Integer> sf){
         System.out.println("comparing...");
-        System.out.println("SF Moves: "+sf.size());
-        System.out.println("Engine Moves: "+engine.size());
         for(String key:engine.keySet()){
             try{
                 if(!Objects.equals(sf.get(key), engine.get(key))){

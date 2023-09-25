@@ -15,7 +15,7 @@ public class Stockfish {
         File dir = new File(path);
         if(dir.isDirectory()){
             for(File file:dir.listFiles()){
-                if (file.getName().contains("stockfish")) {
+                if (!file.isDirectory() && file.getName().contains("stockfish")) {
                     path = file.getPath();
                     foundExecutable = true;
                     break;

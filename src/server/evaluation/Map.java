@@ -1,4 +1,4 @@
-package server.util;
+package server.evaluation;
 
 public class Map {
 
@@ -18,7 +18,7 @@ public class Map {
                     1, 1, 2, 3, 3, 2, 1, 1,
                     .5f,  .5f, 1, 2.5f, 2.5f, 1,  .5f,  .5f,
                     0,  0,  0, 2, 2,  0,  0,  0,
-                    .5f, -.5f,-1,  0,  0,-1, -.5f,  .5f,
+                    .5f, -.5f,-.5f,  0,  0,-.5f, -.5f,  .5f,
                     .5f, 1, 1,-2.5f,-2.5f, 1, 1,  .5f,
                     0,  0,  0,  0,  0,  0,  0,  0
             };

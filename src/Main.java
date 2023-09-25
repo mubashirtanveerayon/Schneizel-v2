@@ -1,12 +1,11 @@
 import server.board.ChessBoard;
-import server.evaluation.Evaluation;
 import server.move.MoveManager;
 import server.uci.UCI;
-import server.util.Constants;
 import server.util.PGNUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class Main {
 
@@ -172,17 +171,28 @@ public class Main {
 //            System.out.println(PGNUtils.cvt("0110/q/-/-/0/Q",mm));
 
 
-            ArrayList<HashMap<String,String>> games = PGNUtils.parsePGNFile("data/0.pgn",PGNUtils.ALL_GAMES);
-            HashMap<String,String> game = games.get(0);
-            System.out.println(PGNUtils.getMoves(game.get("Moves")));
+//            ArrayList<HashMap<String,String>> games = PGNUtils.parsePGNFile("data/0.pgn",PGNUtils.ALL_GAMES);
+//            HashMap<String,String> game = games.get(0);
+//            System.out.println(PGNUtils.getMoves(game.get("Moves")));
+//          position fen 5k2/P7/1Q6/8/8/8/8/3K4 w - - 0 1
 
-
-
+            ChessBoard cb = new ChessBoard("rnbqkb1r/ppp1pBpp/8/8/6n1/8/PPPPPP1P/RNBQK1NR b KQkq - 0 4");
+            System.out.println(cb.stats());
+            System.out.println(new MoveManager(cb).getAllCaptureMoves());
 
         } else {
-            UCI cli = new UCI();
-            cli.toggle();
-            cli.run();
+            UCI uci = new UCI();
+            uci.toggle();
+            Scanner sc = new Scanner(System.in);
+            String input;
+            while(true){
+                input = sc.nextLine();
+                if(input.equals("quit")){
+                    break;
+                }
+                uci.sendCommand(input);
+            }
+
         }
     }
 }

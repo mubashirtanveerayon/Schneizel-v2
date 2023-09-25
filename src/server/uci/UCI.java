@@ -1,6 +1,7 @@
 package server.uci;
 
 import engine.Engine;
+import server.move.Move;
 import server.util.FenUtils;
 import server.util.GameState;
 import server.util.Util;
@@ -13,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 public class UCI {
 
-    private boolean running = false,initialized = false, saveToLog = false;;
+    private boolean initialized = false, saveToLog = false;;
 
 
     Scanner sc;
@@ -26,29 +27,25 @@ public class UCI {
     ArrayList<String> movesMade;
 
     public void toggle(){
-        if (!running){
+        if (!initialized){
             sc = new Scanner(System.in);
             engine = new Engine();
-            running = true;
             movesMade = new ArrayList<>();
+            initialized = true;
+            print("Schneizel chess engine v2.1");
         }
     }
 
+    public void sendCommand(String in){
+        if(!initialized)return;
+        input = in;
+        processCommand();
+    }
 
-    public void run() {
-
-        if(initialized || !running){
-            return;
-        }else {
-            initialized = true;
-        }
-
-        print("Schneizel chess engine v2.0");
-
+    private void processCommand() {
         boolean flip=false;
         String output="";
-        while(running ){
-            input = sc.nextLine();
+
             String[] partsBySpace = input.split(" ");
             switch(partsBySpace[0].toLowerCase()){
                 case "stop":
@@ -70,22 +67,7 @@ public class UCI {
                             long currentTime = System.nanoTime();
                             output = engine. moveGenerationTest(depth);
 
-                            if(saveToLog){
-                                try{
-                                    FileWriter fw = new FileWriter("debug/output.txt");
-                                    BufferedWriter bw = new BufferedWriter(fw);
-                                    bw.write(output);
-                                    //fw.close();
-                                    bw.close();
-                                }catch(Exception e){
-                                    e.printStackTrace();
-                                }
-                            }
-
                             output+="\nTime taken: " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - currentTime) + " ms";
-
-
-
                             print(output);
                         }else if(partsBySpace[1].equals("depth")){
                             int depth = Integer.parseInt(partsBySpace[2]);
@@ -93,7 +75,17 @@ public class UCI {
                             engine.beginSearch();
                         }else if(partsBySpace[1].equals("movetime")){
                             engine.beginSearch(Integer.parseInt(partsBySpace[2]));
-                        }else{
+                        }else if(partsBySpace[1].equals("wtime")){
+                            int totalTime = engine.cb.whiteToMove?Integer.parseInt(partsBySpace[2]):Integer.parseInt(partsBySpace[4]);
+                            int numberOfMoves = engine.getLegalMoves().size();
+
+                            int movetime = totalTime/1300 * Math.min(12,engine.cb.fullMoveClock) * Math.min(numberOfMoves, 8);
+
+                            engine.beginSearch(movetime + 2);
+                        }else {
+                            if(partsBySpace[1].equals("infinite")){
+                                engine.analysisMode();
+                            }
                             engine.beginSearch();
                         }
                     }else{
@@ -119,8 +111,8 @@ public class UCI {
                             }
                         case "thispos":
                             if(partsBySpace[2].equalsIgnoreCase("moves")){
-                                if(partsBySpace[1].equalsIgnoreCase("thispos")){
-                                     for(int i=3;i<partsBySpace.length;i++){
+                                if(movesMade.isEmpty() || partsBySpace[1].equalsIgnoreCase("thispos")){
+                                    for(int i=3;i<partsBySpace.length;i++){
                                         engine.makeMove(engine.cvtToMove(partsBySpace[i]));
                                         movesMade.add(partsBySpace[i]);
                                     }
@@ -143,7 +135,7 @@ public class UCI {
                                 }
                             }
                             break;
-                            //bs uci, they could add another command for resuming the game with the final move
+                        //bs uci, they could add another command for resuming the game with the final move
                     }
 
                     break;
@@ -151,24 +143,22 @@ public class UCI {
                     engine.setUseBook(!engine.getUseBook());
                     System.out.println(engine.getUseBook());
                     break;
-//                case "usett":
-//                    engine.useTranspositionTable = !engine.useTranspositionTable;
-//                    System.out.println(engine.useTranspositionTable);
-//                    break;
+                case "usett":
+                    engine.setUseTT(!engine.getUseTT());
+                    System.out.println(engine.getUseTT());
+                    break;
                 case "d":
                     output = Util.getBoardVisualStd(engine.cb.board,flip);
                     //output+="\n"+Util.getBoardVisual(engine.cb.board);
-                    output+="\n"+("Fen: "+ FenUtils.cat(engine.cb.fenParts));
-                    print(output);                    break;
+                    output+="\n"+("Fen: "+ FenUtils.generate(engine.cb));
+                    print(output);
+                    break;
                 case "depth":
                     engine.setDepth(Integer.parseInt(partsBySpace[1]));
                     System.out.println("Search depth set to: "+engine.getDepth());
                     break;
-                case "quit":
-                    running = false;
-                    break;
                 case "fen":
-                    print("Fen: "+ FenUtils.cat(engine.cb.fenParts));
+                    print("Fen: "+ FenUtils.generate(engine.cb));
                     break;
                 case "flip":
                     flip = !flip;
@@ -183,23 +173,23 @@ public class UCI {
                         while(engine.isSearching()){
                             System.out.print("");
                         }
-                        String move = engine.getEngineMove();
+                        Move move = engine.getEngineMove();
                         engine.makeMove(move);
-                        movesMade.add(move);
+                        movesMade.add(move.toString());
                         output = "played "+engine.cvtToAlgebraic(move)+"\n";
-                        output += "Fen " + FenUtils.cat(engine.cb.fenParts);
+                        output += "Fen " + FenUtils.generate(engine.cb);
                         print(output);
                         break;
                     }
                     try{
-                        String move = engine.getLegalMoves().get(Integer.parseInt(partsBySpace[1])-1);
+                        Move move = engine.getLegalMoves().get(Integer.parseInt(partsBySpace[1])-1);
                         engine.makeMove(move);
-                        movesMade.add(move);
-                        print("Fen " + FenUtils.cat(engine.cb.fenParts));
+                        movesMade.add(move.toString());
+                        print("Fen " + FenUtils.generate(engine.cb));
                     }catch(Exception e) {
                         engine.makeMove(engine.cvtToMove(partsBySpace[1]));
                         movesMade.add(partsBySpace[1]);
-                        print("Fen " + FenUtils.cat(engine.cb.fenParts));
+                        print("Fen " + FenUtils.generate(engine.cb));
                     }
                     break;
                 case "state":
@@ -225,7 +215,7 @@ public class UCI {
                 case "list":
                     output = "";
                     int i=1;
-                    for(String move : engine.getLegalMoves()){
+                    for(Move move : engine.getLegalMoves()){
                         output += Integer.toString(i) + ". "+engine.cvtToAlgebraic(move) + "\n";
                         i+=1;
                     }
@@ -237,9 +227,11 @@ public class UCI {
                     output += String.valueOf(evaluation);
                     print(output);
             }
-        }
 
     }
+
+
+
 
     private void print(Object o){
         if(saveToLog){
